@@ -4,6 +4,13 @@ from .all_document_fields_page import AllDocumentFieldPage
 from .locators import MainPageLocators, SoglNewDocumentWindow
 
 
+class MainPage(MainFunc):
+    def __should_be_correct_fields():
+        links = [
+            
+        ]
+
+
 class EnterDocumentsBlock(MainFunc):
     def open_enter_document_block(self):
         if self.is_active(*MainPageLocators.ENTER_BLOCK_SLIDE_DOWN_BUTTON) == True:

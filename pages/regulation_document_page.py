@@ -1,212 +1,15 @@
+from .value_for_fields import RegulationFields
 from .all_document_fields_page import AllDocumentFieldPage
 from .enter_documets_page import EnterDocumentsPage
 from .main_page import SoglDocumentsBlock
 from .main_functions import MainFunc
 from .locators import AllDocumentFieldLocators, RegulationDocumentLocators, RegulationEATypeWindow, ChooseOrganisationFromNewWindow, ChooseUserFromNewWindow, AgreeSheetLocators, RegulationAnswerPageLocators, ChangeResponsibleInfoLocators
 from selenium import webdriver
-from datetime import timedelta, datetime
+from datetime import datetime
 from random import randint
 import json
 import re
 import os
-
-import time
-
-# Заголовки страниц
-SOGL_TITLE = "Согласование внутреннего документа-заявки Regulation"
-ENTER_TITLE = "Внутренний документ-заявка Regulation"
-SOGL_ANSWER_TITLE = "Согласование внутреннего документа-ответа на заявку Regulation"
-ENTER_ANSWER_TITLE = "Внутренний документ-ответ на заявку Regulation"
-
-# Ответ
-ANSWER_START_1 = "Дата начала обсуждения уведомления"
-ANSWER_END_1 = "Дата окончания обсуждения уведомления"
-ANSWER_START_2 = "Дата начала обсуждения проекта НПА"
-ANSWER_END_2 = "Дата окончания обсуждения проекта НПА"
-ANSWER_START_3 = "Дата окончания экспертизы"
-ANSWER_END_3 = "Дата начала экспертизы"
-ANSWER_START_4 = "Дата начала обсуждения отчета"
-ANSWER_END_4 = "Дата окончания обсуждения отчета"
-
-# Краткое содержание
-SHORT_CONTENT_TEXT = "Заявка на размещение информации на официальном сайте regulation.gov.ru"
-SHORT_CONTENT_ANSWER_TEXT = "Ответ на заявку на размещение информации на официальном сайте regulation.gov.ru"
-
-# Поля Regulation
-ORDER_FIELD = "* № постановления"
-REQUEST_TYPE = "* Тип заявки"
-NPA_TYPE = "* Вид НПА"
-NPA_NAME_1 = "* Наименование проекта НПА"
-NPA_NAME_2 = "* Наименование НПА"
-ORG_INFO = "* Сведения об органах и организациях"
-ORG_INFO_NAME = "* Сведения об органах и организациях, Наименование"
-ORG_INFO_EMAIL = "* Сведения об органах и организациях, E-mail"
-EA_TYPE = "* Виды экономической деятельности"
-KEYWORD = "* Ключевые слова"
-DISCUSS_PERIOD = "* Срок обсуждения"
-RESPONSIBLE_REVIEW_1 = "* Ответственный за рассмотрение предложений"
-RESPONSIBLE_REVIEW_2 = "* Ответственный за направление информации"
-RESPONSIBLE_REVIEW_3 = "* Ответственный за направление НПА"
-NOTIFY_NPA = "* Уведомление о подготовке проекта НПА"
-PROJECT_NPA_ID = "* ID проекта НПА"
-TOTAL_COMMENT = "* Общее кол-во замечаний"
-NUMBER_COMMENT = "* Кол-во учтенных замечаний"
-NUMBER_UNA_COMMENT = "* Кол-во неучтенных замечаний"
-NUMBER_PTA_COMMENT = "* Кол-во частично учтенных замечаний"
-DECISION_INFO = "* Информация о принятом решении"
-DECISION_INFO_2 = "* Принятое решение по проекту НПА"
-SUMMARY_INFO = "* Сводка предложений"
-SHORT_CONTENT = "* Краткое содержание"
-NPA_PROJECT = "* Проект НПА"
-EXPLAIN_NOTE = "* Пояснительная записка"
-MODIFIED_NPA = "* Доработанный проект НПА"
-AC_EXPERTISE = "* Прием заключений антикоррупционной экспертизы"
-EMAIL_AC_EXPERTISE = "* E-mail для заключений антикоррупционной экспертизы"
-MAIL_AC_EXPERTISE = "* Почта для заключений антикоррупционной экспертизы"
-CORRUPTION_FACTOR = "* Коррупциогенные факторы"
-NUMBER_CONCLUSION = "* Кол-во заключений"
-GC_AC = "* Общее заключение по итогам антикоррупционной экспертизы"
-NPA_DRAFT = "* Нормативный правовой акт (проект)"
-NPA_NUMBER = "* Номер принятого НПА"
-APPROVED_NPA = "* Утвержденный НПА"
-NPA_ADOPTION_DATE_1 = "* Дата принятия НПА"
-NPA_ADOPTION_DATE_2 = "* Дата НПА"
-PD_NPA = "* Обоснование отказа от общественного обсуждения проекта НПА"
-CONSOL_REPORT = "* Сводный отчет"
-DECISION_PERIOD = "* Срок принятия предложений"
-DEGREE_EXPOSURE = "* Степень воздействия"
-MSR = "* Доработанный сводный отчет"
-EEC = "* Проект решения ЕЭК"
-MDD = "* Доработанный проект решения ЕЭК"
-ASSESSMENT_REPORT = "* Отчет об оценке фактического воздействия НПА"
-RR_NPA = "* Доработанный отчет об оценке фактического воздействия НПА"
-OFFERS_EMAIL = "* Е-mail для предложений"
-REGULATORY_GILLIOTINE = "Регуляторная гильотина"
-NOTICE_NPA_NOT_PLACED = "Уведомление о подготовке НПА не размещается"
-CO_EXECTOR = "Органы гос. власти – соисполнители"
-ADD_OFFER_EMAIL = "Доп. e-mail для предложений"
-REASON_CREATE_NPA = "Основание для разработки НПА"
-LINK_ID = "ID связанных НПА"
-ADDITIONAL_MATERIAL = "Дополнительные материалы"
-STATE_NUMBER = "Номер государственной регистрации НПА"
-ISSUE_TYPE = "Тип затрагиваемых вопросов"
-
-
-# Заполнение/Заполненные поля Regulation
-FILL_FIELD = "Автотест - ЗАПОЛНЕНИЕ поля: "
-
-FILL_NPA_TYPE = "Иное"
-FILL_NPA_NAME_1 = FILL_FIELD + NPA_NAME_1
-FILL_NPA_NAME_2 = FILL_FIELD + NPA_NAME_2
-FILL_ORG_INFO_NAME = FILL_FIELD + ORG_INFO_NAME
-FILL_ORG_INFO_EMAIL = FILL_FIELD + ORG_INFO_EMAIL
-FILL_EA_TYPE = "Внешнеэкономическая деятельность"
-FILL_KEYWORD = FILL_FIELD + KEYWORD
-FILL_DISCUSS_PERIOD = "20"
-FILL_RESPONSIBLE_REVIEW_NAME = "администратор"
-FILL_RESPONSIBLE_REVIEW_PHONE = "88005553535"
-FILL_RESPONSIBLE_REVIEW_EMAIL = "in9334459@gmail.com"
-FILL_NOTIFY_NPA = FILL_FIELD + NOTIFY_NPA
-FILL_EMAIL = "autotest@autotest.autotest"
-FILL_NUMBER_COMMENT = 2
-FILL_NUMBER_UNA_COMMENT = 3
-FILL_NUMBER_PTA_COMMENT = 4
-FILL_TOTAL_COMMENT = FILL_NUMBER_COMMENT + FILL_NUMBER_UNA_COMMENT + FILL_NUMBER_PTA_COMMENT
-FILL_DECISION_INFO = "Отказ от разработки проекта нормативного правового акта"
-FILL_DECISION_INFO_2 = "Отказ от разработки (принятия) проекта нормативного правового акта"
-FILL_SUMMARY_INFO = FILL_FIELD + SUMMARY_INFO
-FILL_NPA_PROJECT = FILL_FIELD + NPA_PROJECT
-FILL_EXPLAIN_NOTE = FILL_FIELD + EXPLAIN_NOTE
-FILL_MODIFIED_NPA = FILL_FIELD + MODIFIED_NPA
-FILL_AC_EXPERTISE = "20"
-FILL_EMAIL_AC_EXPERTISE = "autotestemailacex@autotestemailacex.autotestemailacex"
-FILL_MAIL_AC_EXPERTISE = FILL_FIELD + MAIL_AC_EXPERTISE
-FILL_CORRUPTION_FACTOR = "Выявлены"
-FILL_NUMBER_CONCLUSION = "5"
-FILL_GC_AC = FILL_FIELD + GC_AC
-FILL_NPA_DRAFT = FILL_FIELD + NPA_DRAFT
-FILL_NPA_NUMBER = FILL_FIELD + NPA_NUMBER
-FILL_APPROVED_NPA = FILL_FIELD + APPROVED_NPA
-FILL_NOTICE_NPA_NAME = "администратор"
-FILL_PD_NPA = FILL_FIELD + PD_NPA
-FILL_CONSOL_REPORT = FILL_FIELD + CONSOL_REPORT
-FILL_DECISION_PERIOD = "6"
-FILL_DEGREE_EXPOSURE = "Высокая"
-FILL_MSR = FILL_FIELD + MSR
-FILL_EEC = FILL_FIELD + EEC
-FILL_MDD = FILL_FIELD + MDD
-FILL_ASSESSMENT_REPORT = FILL_FIELD + ASSESSMENT_REPORT
-FILL_RR_NPA = FILL_FIELD + RR_NPA
-
-NO_FIELD = "Нет"
-NON_REQUIRED_FIELD = "-"
-
-# Поля после редактирования
-EDIT_FIELD = "Автотест - РЕДАКТИРОВАНИЕ поля: "
-
-FILL_NPA_TYPE_EDIT = "Постановление Правительства Российской Федерации"
-FILL_NPA_NAME_1_EDIT = EDIT_FIELD + NPA_NAME_1
-FILL_NPA_NAME_2_EDIT = EDIT_FIELD + NPA_NAME_2
-FILL_ORG_INFO_NAME_EDIT = EDIT_FIELD + ORG_INFO_NAME
-FILL_ORG_INFO_EMAIL_EDIT = EDIT_FIELD + ORG_INFO_EMAIL
-FILL_EA_TYPE_EDIT = "Налоговое администрирование"
-FILL_KEYWORD_EDIT = EDIT_FIELD + KEYWORD
-FILL_DISCUSS_PERIOD_EDIT = "30"
-FILL_RESPONSIBLE_REVIEW_NAME_EDIT = "пользователь"
-FILL_RESPONSIBLE_REVIEW_PHONE_EDIT = "89600540342"
-FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT = "resprev@resprev.resprev"
-FILL_NOTIFY_NPA_EDIT = EDIT_FIELD + NOTIFY_NPA
-FILL_CO_EXECTOR_EDIT = "Testovaya organizaciya"
-FILL_EMAIL_EDIT = "autotestred@autotestred.autotestred"
-FILL_REASON_CREATE_NPA_EDIT = EDIT_FIELD + REASON_CREATE_NPA
-FILL_LINK_ID_EDIT = EDIT_FIELD + LINK_ID
-FILL_ADDITIONAL_MATERIAL_EDIT = EDIT_FIELD + ADDITIONAL_MATERIAL
-FILL_NUMBER_COMMENT_EDIT = 6
-FILL_NUMBER_UNA_COMMENT_EDIT = 7
-FILL_NUMBER_PTA_COMMENT_EDIT = 8
-FILL_TOTAL_COMMENT_EDIT = FILL_NUMBER_COMMENT_EDIT + FILL_NUMBER_UNA_COMMENT_EDIT + FILL_NUMBER_PTA_COMMENT_EDIT
-FILL_DECISION_INFO_EDIT = "Разработка проекта нормативного правового акта"
-FILL_DECISION_INFO_2_EDIT = "Проект нормативного правового акта направлен в Правительство Российской Федерации"
-FILL_DECISION_INFO_3_EDIT = "Направление проекта нормативного правового акта и сводного отчета на согласование, оценку"
-FILL_SUMMARY_INFO_EDIT = EDIT_FIELD + SUMMARY_INFO
-FILL_NPA_PROJECT_EDIT = EDIT_FIELD + NPA_PROJECT
-FILL_EXPLAIN_NOTE_EDIT = EDIT_FIELD + EXPLAIN_NOTE
-FILL_REGULATORY_GILLIOTINE_EDIT = "Да"
-FILL_MODIFIED_NPA_EDIT = EDIT_FIELD + MODIFIED_NPA
-FILL_AC_EXPERTISE_EDIT = "35"
-FILL_EMAIL_AC_EXPERTISE_EDIT = "autotestemailacexred@autotestemailacexred.autotestemailacexred"
-FILL_MAIL_AC_EXPERTISE_EDIT = EDIT_FIELD + MAIL_AC_EXPERTISE
-FILL_CORRUPTION_FACTOR_EDIT = "Не выявлены"
-FILL_NUMBER_CONCLUSION_EDIT = "9"
-FILL_GC_AC_EDIT = EDIT_FIELD + GC_AC
-FILL_NPA_DRAFT_EDIT = EDIT_FIELD + NPA_DRAFT
-FILL_NPA_NUMBER_EDIT = EDIT_FIELD + NPA_NUMBER
-FILL_STATE_NUMBER_EDIT = EDIT_FIELD + STATE_NUMBER
-FILL_APPROVED_NPA_EDIT = EDIT_FIELD + APPROVED_NPA
-FILL_NOTICE_NPA_NAME_EDIT = "суперадмин"
-FILL_PD_NPA_EDIT = EDIT_FIELD + PD_NPA
-FILL_CONSOL_REPORT_EDIT = EDIT_FIELD + CONSOL_REPORT
-FILL_DECISION_PERIOD_EDIT = "25"
-FILL_DEGREE_EXPOSURE_EDIT = "Средняя"
-FILL_ISSUE_TYPE_EDIT = "Контрольно-надзорная деятельность"
-FILL_MSR_EDIT = EDIT_FIELD + MSR
-FILL_EEC_EDIT = EDIT_FIELD + EEC
-FILL_MDD_EDIT = EDIT_FIELD + MDD
-FILL_ASSESSMENT_REPORT_EDIT = EDIT_FIELD + ASSESSMENT_REPORT
-FILL_RR_NPA_EDIT = EDIT_FIELD + RR_NPA
-
-# Дата
-DATE = datetime.today().strftime("%d.%m.%Y")
-DATE_EDIT = (datetime.today() - timedelta(days=1)).strftime("%d.%m.%Y")
-
-# 35 тип
-REQUEST_TYPE_35 = "Тип заявки"
-NPA_NAME_35 = "* Наименование проекта НПА (отчета ОФВ)"
-PROJECT_NPA_ID_35 = PROJECT_NPA_ID
-ACTUAL_RR_35 = "* Текущий ответственный сотрудник"
-NEW_RR_35 = "* Новый ответственный сотрудник"
-FILL_NPA_NAME_3 = FILL_FIELD + NPA_NAME_35
-EDIT_NPA_NAME_3 = EDIT_FIELD + NPA_NAME_35
 
 
 class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocumentsPage):
@@ -223,12 +26,12 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def should_be_order_field(self):
         assert self.is_element_present(
-            *RegulationDocumentLocators.SELECT_ORDER_NAME_LOCATOR), f"Не отображается или не является обязательным поле '{ORDER_FIELD}'"
+            *RegulationDocumentLocators.SELECT_ORDER_NAME_LOCATOR), f"Не отображается или не является обязательным поле '{RegulationFields.ORDER_FIELD}'"
 
     def should_be_order_fields(self):
         self.should_be_order_field()
         assert self.is_element_present(
-            *RegulationDocumentLocators.SELECT_ORDER_FIELD_CM_LOCATOR), f"Не отображается селектор поля '{ORDER_FIELD}'"
+            *RegulationDocumentLocators.SELECT_ORDER_FIELD_CM_LOCATOR), f"Не отображается селектор поля '{RegulationFields.ORDER_FIELD}'"
 
     def should_not_be_order_enter_fields(self, npa_order):
         self.should_be_order_field()
@@ -249,12 +52,12 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def should_be_request_type_field(self):
         assert self.is_element_present(
-            *RegulationDocumentLocators.SELECT_REQUEST_TYPE_NAME_LOCATOR), f"Не отображается или не является обязательным поле '{REQUEST_TYPE}'"
+            *RegulationDocumentLocators.SELECT_REQUEST_TYPE_NAME_LOCATOR), f"Не отображается или не является обязательным поле '{RegulationFields.REQUEST_TYPE}'"
 
     def should_be_request_type_fields(self):
         self.should_be_request_type_field()
         assert self.is_element_present(
-            *RegulationDocumentLocators.SELECT_REQUEST_TYPE_FIELD_LOCATOR), f"Не отображается селектор поля '{REQUEST_TYPE}'"
+            *RegulationDocumentLocators.SELECT_REQUEST_TYPE_FIELD_LOCATOR), f"Не отображается селектор поля '{RegulationFields.REQUEST_TYPE}'"
 
     def should_not_be_request_type_enter_fields(self, request_type):
         self.should_be_request_type_field()
@@ -295,9 +98,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_npa_name_field(self, name):
-        if name == NPA_NAME_1:
+        if name == RegulationFields.NPA_NAME_1:
             locator = [RegulationDocumentLocators.NPA_NAME_1_FIELD_LOCATOR, RegulationDocumentLocators.NPA_NAME_1_FIELD_VIEW_MODE_LOCATOR]
-        elif name == NPA_NAME_2:
+        elif name == RegulationFields.NPA_NAME_2:
             locator = [RegulationDocumentLocators.NPA_NAME_2_FIELD_LOCATOR, RegulationDocumentLocators.NPA_NAME_2_FIELD_VIEW_MODE_LOCATOR]
         assert self.should_be_correct_field_name(name, locator[0])
 
@@ -322,9 +125,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def should_be_org_info_field(self, name, edit):
         assert self.should_be_correct_field_name(name, RegulationDocumentLocators.ORG_INFO_NAME_LOCATOR)
         if edit == False:
-            return [FILL_ORG_INFO_NAME, FILL_ORG_INFO_EMAIL]
+            return [RegulationFields.FILL_ORG_INFO_NAME, RegulationFields.FILL_ORG_INFO_EMAIL]
         elif edit == True:
-            return [FILL_ORG_INFO_NAME_EDIT, FILL_ORG_INFO_EMAIL_EDIT]
+            return [RegulationFields.FILL_ORG_INFO_NAME_EDIT, RegulationFields.FILL_ORG_INFO_EMAIL_EDIT]
 
     def should_be_org_info_fields(self, field_name, edit):
         field = self.should_be_org_info_field(field_name, edit)
@@ -341,7 +144,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
                 *RegulationDocumentLocators.LAST_REMOVE_BUTTON_IN_ORG_INFO_LOCATOR)
         else:
             assert self.is_element_present(
-                *RegulationDocumentLocators.LAST_REMOVE_BUTTON_IN_ORG_INFO_LOCATOR), f"Нет кнопки удаления в '{ORG_INFO}'"
+                *RegulationDocumentLocators.LAST_REMOVE_BUTTON_IN_ORG_INFO_LOCATOR), f"Нет кнопки удаления в '{RegulationFields.ORG_INFO}'"
         return count
 
     def click_to_add_button_org_info(self):
@@ -351,7 +154,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         add_button.click()
         count_org_info = self.count_org_info_elments()
         assert count_org_info == count_org_info_opened + \
-            1, f"Не добавился новый элемент в поле '{ORG_INFO}'"
+            1, f"Не добавился новый элемент в поле '{RegulationFields.ORG_INFO}'"
 
     def click_to_delete_button_org_info(self):
         count_org_info_opened = self.count_org_info_elments()
@@ -360,7 +163,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         delete_button.click()
         count_org_info = self.count_org_info_elments()
         assert count_org_info == count_org_info_opened - \
-            1, f"Не удалился элемент в поле '{ORG_INFO}'"
+            1, f"Не удалился элемент в поле '{RegulationFields.ORG_INFO}'"
 
     def enter_org_info_name_field(self, text):
         self.fill_field(
@@ -373,13 +176,13 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def enter_org_info_field(self, field_name, edit, requered):
         field = self.should_be_org_info_field(field_name, edit)
         assert self.is_element_present(
-            *RegulationDocumentLocators.ORG_INFO_NAME_FIELD_LOCATOR), f"Нет поля 'Наименование' в '{ORG_INFO}'"
+            *RegulationDocumentLocators.ORG_INFO_NAME_FIELD_LOCATOR), f"Нет поля 'Наименование' в '{RegulationFields.ORG_INFO}'"
         assert self.is_element_present(
-            *RegulationDocumentLocators.ORG_INFO_EMAIL_FIELD_LOCATOR), f"Нет поля 'E-mail' в '{ORG_INFO}'"
+            *RegulationDocumentLocators.ORG_INFO_EMAIL_FIELD_LOCATOR), f"Нет поля 'E-mail' в '{RegulationFields.ORG_INFO}'"
         assert self.is_element_present(
-            *RegulationDocumentLocators.CHOOSE_ORG_FROM_NEW_WINDOW), f"Нет кнопки 'Выбрать' в '{ORG_INFO}'"
+            *RegulationDocumentLocators.CHOOSE_ORG_FROM_NEW_WINDOW), f"Нет кнопки 'Выбрать' в '{RegulationFields.ORG_INFO}'"
         assert self.is_element_present(
-            *RegulationDocumentLocators.ADD_NEW_ELEMENT_IN_ORG_INFO_LOCATOR), f"Нет кнопки 'Добавить' в '{ORG_INFO}'"
+            *RegulationDocumentLocators.ADD_NEW_ELEMENT_IN_ORG_INFO_LOCATOR), f"Нет кнопки 'Добавить' в '{RegulationFields.ORG_INFO}'"
         
         self.fill_field(
             *RegulationDocumentLocators.ORG_INFO_NAME_FIELD_LOCATOR, field[0])
@@ -411,9 +214,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_ea_type_field(name)
 
         assert self.is_element_present(
-            *RegulationDocumentLocators.ENTER_NEW_ELEMENT_IN_EA_TYPE_LOCATOR), f"Не отображается поле '{EA_TYPE}'"
+            *RegulationDocumentLocators.ENTER_NEW_ELEMENT_IN_EA_TYPE_LOCATOR), f"Не отображается поле '{RegulationFields.EA_TYPE}'"
         assert self.is_element_present(
-            *RegulationDocumentLocators.CHOOSE_EA_TYPE_FROM_NEW_WINDOW), f"Нет кнопки 'Выбрать' в '{EA_TYPE}'"
+            *RegulationDocumentLocators.CHOOSE_EA_TYPE_FROM_NEW_WINDOW), f"Нет кнопки 'Выбрать' в '{RegulationFields.EA_TYPE}'"
 
         self.click_to(*RegulationDocumentLocators.CHOOSE_EA_TYPE_FROM_NEW_WINDOW)
         self.work_with_windows(1)
@@ -442,7 +245,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def enter_keyword_field(self, field_name, text, edit):
         self.should_be_keyword_field(field_name)
         assert self.is_element_present(
-                *RegulationDocumentLocators.KEYWORD_INPUT_FILELD_LOCATOR), f"Не отображается поле '{KEYWORD}'"
+                *RegulationDocumentLocators.KEYWORD_INPUT_FILELD_LOCATOR), f"Не отображается поле '{RegulationFields.KEYWORD}'"
         self.fill_field(
             *RegulationDocumentLocators.KEYWORD_INPUT_FILELD_LOCATOR, text)
 
@@ -488,7 +291,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         if self.is_active(*RegulationDocumentLocators.RESPONSIBLE_REVIEW_DELETE_BUTTON_LOCATOR, timeout=0) == True:
             self.click_to(*RegulationDocumentLocators.RESPONSIBLE_REVIEW_DELETE_BUTTON_LOCATOR)
 
-    def enter_responsible_review_from_new_window(self, text, r_type=RESPONSIBLE_REVIEW_1):
+    def enter_responsible_review_from_new_window(self, text, r_type=RegulationFields.RESPONSIBLE_REVIEW_1):
         assert self.is_element_present(
             *RegulationDocumentLocators.RESPONSIBLE_REVIEW_FIO_FIELD_LOCATOR), f"Не отображается 'ФИО' '{r_type}'"
         assert self.is_element_present(
@@ -542,9 +345,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_notify_npa_field(field_name)
 
         assert self.is_element_present(
-            *RegulationDocumentLocators.NOTIFY_NPA_FIELD_LOCATOR), f"Не отображается поле '{NOTIFY_NPA}'"
+            *RegulationDocumentLocators.NOTIFY_NPA_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.NOTIFY_NPA}'"
         assert self.is_element_present(
-            *RegulationDocumentLocators.NOTIFY_NPA_CHOOSE_FILE_LOCATOR), f"Не отображается кнопка добавления файла в '{NOTIFY_NPA}'"
+            *RegulationDocumentLocators.NOTIFY_NPA_CHOOSE_FILE_LOCATOR), f"Не отображается кнопка добавления файла в '{RegulationFields.NOTIFY_NPA}'"
 
         self.fill_field(
             *RegulationDocumentLocators.NOTIFY_NPA_CHOOSE_FILE_LOCATOR)
@@ -627,7 +430,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             id_field = self.return_text(*RegulationDocumentLocators.ID_NPA_PROJECT_FIELD_VIEW_MODE_LOCATOR_2)
 
         if first == True:
-            assert NON_REQUIRED_FIELD == id_field
+            assert RegulationFields.NON_REQUIRED_FIELD == id_field
         else:
             assert self.regulation_npa_id(index) in id_field
 
@@ -642,7 +445,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
                 assert element.get_attribute("type") == "hidden"
                 self.should_be_closed_project_npa_id_field(type, first, index)
         else:
-            assert self.is_not_element_present(*RegulationDocumentLocators.ID_NPA_PROJECT_FIELD_LOCATOR), f"Поле '{PROJECT_NPA_ID}' доступно для редактирования"
+            assert self.is_not_element_present(*RegulationDocumentLocators.ID_NPA_PROJECT_FIELD_LOCATOR), f"Поле '{RegulationFields.PROJECT_NPA_ID}' доступно для редактирования"
             self.should_be_closed_project_npa_id_field(type, first, index)
 
     def enter_project_npa_id_field(self, type, first, index):
@@ -673,22 +476,22 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def count_comment_fields(self, name, fill):
-        if name == TOTAL_COMMENT:
+        if name == RegulationFields.TOTAL_COMMENT:
             tc = [(RegulationDocumentLocators.TOTAL_COMMENT_FIELD_VIEW_MODE_LOCATOR, RegulationDocumentLocators.TOTAL_COMMENT_FIELD_2_VIEW_MODE_LOCATOR),
                   (RegulationDocumentLocators.TOTAL_COMMENT_FIELD_LOCATOR, RegulationDocumentLocators.TOTAL_COMMENT_FIELD_2_LOCATOR)]
             elements = self.count_all_elements(*RegulationDocumentLocators.TOTAL_COMMENT_NAME_LOCATOR)
             arr_elements = tc
-        elif name == NUMBER_COMMENT:
+        elif name == RegulationFields.NUMBER_COMMENT:
             nc = [[RegulationDocumentLocators.NUMBER_COMMENT_FIELD_VIEW_MODE_LOCATOR, RegulationDocumentLocators.NUMBER_COMMENT_FIELD_2_VIEW_MODE_LOCATOR],
                   [RegulationDocumentLocators.NUMBER_COMMENT_FIELD_LOCATOR, RegulationDocumentLocators.NUMBER_COMMENT_FIELD_2_LOCATOR]]
             elements = self.count_all_elements(*RegulationDocumentLocators.NUMBER_COMMENT_NAME_LOCATOR)
             arr_elements = nc
-        elif name == NUMBER_UNA_COMMENT:
+        elif name == RegulationFields.NUMBER_UNA_COMMENT:
             nuc = [[RegulationDocumentLocators.NUMBER_UNA_COMMENT_FIELD_VIEW_MODE_LOCATOR, RegulationDocumentLocators.NUMBER_UNA_COMMENT_FIELD_2_VIEW_MODE_LOCATOR],
                    [RegulationDocumentLocators.NUMBER_UNA_COMMENT_FIELD_LOCATOR, RegulationDocumentLocators.NUMBER_UNA_COMMENT_FIELD_2_LOCATOR]]
             elements = self.count_all_elements(*RegulationDocumentLocators.NUMBER_UNA_COMMENT_NAME_LOCATOR)
             arr_elements = nuc
-        elif name == NUMBER_PTA_COMMENT:
+        elif name == RegulationFields.NUMBER_PTA_COMMENT:
             npc = [[RegulationDocumentLocators.NUMBER_PTA_COMMENT_FIELD_VIEW_MODE_LOCATOR, RegulationDocumentLocators.NUMBER_PTA_COMMENT_FIELD_2_VIEW_MODE_LOCATOR],
                   [RegulationDocumentLocators.NUMBER_PTA_COMMENT_FIELD_LOCATOR, RegulationDocumentLocators.NUMBER_PTA_COMMENT_FIELD_2_LOCATOR]]
             elements = self.count_all_elements(*RegulationDocumentLocators.NUMBER_PTA_COMMENT_NAME_LOCATOR)
@@ -781,17 +584,17 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     """
     def decision_info_type(self, name, text):
-        if name == DECISION_INFO:
-            if text != FILL_DECISION_INFO:
-                if self.count_all_elements(*AllDocumentFieldLocators.find_text_locator(FILL_DECISION_INFO_EDIT)) > 0:
-                    return [RegulationDocumentLocators.DECISION_INFO_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_FIELD_VIEW_MODE_LOCATOR, FILL_DECISION_INFO_EDIT]
-                elif self.count_all_elements(*AllDocumentFieldLocators.find_text_locator(FILL_DECISION_INFO_3_EDIT)) > 0:
-                    return [RegulationDocumentLocators.DECISION_INFO_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_FIELD_VIEW_MODE_LOCATOR, FILL_DECISION_INFO_3_EDIT]
-            return [RegulationDocumentLocators.DECISION_INFO_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_FIELD_VIEW_MODE_LOCATOR, FILL_DECISION_INFO]
-        elif name == DECISION_INFO_2:
-            if text != FILL_DECISION_INFO_2:
-                return [RegulationDocumentLocators.DECISION_INFO_2_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_FIELD_VIEW_MODE_LOCATOR, FILL_DECISION_INFO_2_EDIT]
-            return [RegulationDocumentLocators.DECISION_INFO_2_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_FIELD_VIEW_MODE_LOCATOR, FILL_DECISION_INFO_2]
+        if name == RegulationFields.DECISION_INFO:
+            if text != RegulationFields.FILL_DECISION_INFO:
+                if self.count_all_elements(*AllDocumentFieldLocators.find_text_locator(RegulationFields.FILL_DECISION_INFO_EDIT)) > 0:
+                    return [RegulationDocumentLocators.DECISION_INFO_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_FIELD_VIEW_MODE_LOCATOR, RegulationFields.FILL_DECISION_INFO_EDIT]
+                elif self.count_all_elements(*AllDocumentFieldLocators.find_text_locator(RegulationFields.FILL_DECISION_INFO_3_EDIT)) > 0:
+                    return [RegulationDocumentLocators.DECISION_INFO_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_FIELD_VIEW_MODE_LOCATOR, RegulationFields.FILL_DECISION_INFO_3_EDIT]
+            return [RegulationDocumentLocators.DECISION_INFO_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_FIELD_VIEW_MODE_LOCATOR, RegulationFields.FILL_DECISION_INFO]
+        elif name == RegulationFields.DECISION_INFO_2:
+            if text != RegulationFields.FILL_DECISION_INFO_2:
+                return [RegulationDocumentLocators.DECISION_INFO_2_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_FIELD_VIEW_MODE_LOCATOR, RegulationFields.FILL_DECISION_INFO_2_EDIT]
+            return [RegulationDocumentLocators.DECISION_INFO_2_NAME_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_SELECT_LOCATOR, RegulationDocumentLocators.DECISION_INFO_2_FIELD_VIEW_MODE_LOCATOR, RegulationFields.FILL_DECISION_INFO_2]
 
     def should_be_decision_info_field(self, name, text):
         dec_type = self.decision_info_type(name, text)
@@ -1088,9 +891,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def should_be_npa_adoption_field(self, name):
         self.should_be_correct_field_name(name, RegulationDocumentLocators.NPA_ADOPTION_NAME_LOCATOR)
-        if name == NPA_ADOPTION_DATE_1:
+        if name == RegulationFields.NPA_ADOPTION_DATE_1:
             return [RegulationDocumentLocators.NPA_ADOPTION_FIELD_LOCATOR]
-        elif name == NPA_ADOPTION_DATE_2:
+        elif name == RegulationFields.NPA_ADOPTION_DATE_2:
             return [RegulationDocumentLocators.NPA_DATE_FIELD_LOCATOR]
 
     def should_be_npa_adoption_fields(self, field_name, text):
@@ -1202,7 +1005,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_degree_exposure_field(field_name)
 
         assert self.is_element_present(
-            *RegulationDocumentLocators.DEGREE_EXPOSURE_FIELD_LOCATOR), f"Не отображается селектор поля '{NPA_TYPE}'"
+            *RegulationDocumentLocators.DEGREE_EXPOSURE_FIELD_LOCATOR), f"Не отображается селектор поля '{RegulationFields.NPA_TYPE}'"
         self.work_with_selector(
             *RegulationDocumentLocators.DEGREE_EXPOSURE_FIELD_LOCATOR, visible_text=str(text))
 
@@ -1214,15 +1017,15 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def should_be_closed_short_content_fields(self, field_type=1):
         field = {
-            1: SHORT_CONTENT_TEXT,
-            2: SHORT_CONTENT_ANSWER_TEXT,
-            3: "Отказ на заявку на размещение информации на официальном сайте regulation.gov.ru"
+            1: RegulationFields.SHORT_CONTENT_TEXT,
+            2: RegulationFields.SHORT_CONTENT_ANSWER_TEXT,
+            3: RegulationFields.SHORT_CONTENT_REFUSE_TEXT,
         }
 
         assert self.is_element_present(
-            *RegulationDocumentLocators.SHORT_CONTENT_NAME_LOCATOR), f"Не отображается или не является обязательным поле '{SHORT_CONTENT}'"
+            *RegulationDocumentLocators.SHORT_CONTENT_NAME_LOCATOR), f"Не отображается или не является обязательным поле '{RegulationFields.SHORT_CONTENT}'"
         assert self.is_element_present(
-            *RegulationDocumentLocators.SHORT_CONTENT_FIELD_LOCATOR), f"Не отображается или доступно для редактирования поле '{SHORT_CONTENT}'"
+            *RegulationDocumentLocators.SHORT_CONTENT_FIELD_LOCATOR), f"Не отображается или доступно для редактирования поле '{RegulationFields.SHORT_CONTENT}'"
         short_content_field = self.driver.find_element(
             *RegulationDocumentLocators.SHORT_CONTENT_FIELD_LOCATOR)
         assert short_content_field.text == field[field_type], f"Поле '{SHORT_CONTENT}' должно быть заполнено тектом {field[field_type]}"
@@ -1382,7 +1185,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def should_be_co_exector_field(self, name):
         assert self.is_element_present(
-            *RegulationDocumentLocators.CO_EXECTOR_NAME_LOCATOR),  f"Не отображается или является обязательным поле '{CO_EXECTOR}'"
+            *RegulationDocumentLocators.CO_EXECTOR_NAME_LOCATOR),  f"Не отображается или является обязательным поле '{RegulationFields.CO_EXECTOR}'"
 
     def should_be_co_exector_fields(self, field_name, text):
         self.should_be_co_exector_field(field_name)
@@ -1402,9 +1205,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def enter_new_window_co_exector(self, field_name, text, edit):
         self.should_be_co_exector_field(field_name)
         assert self.is_element_present(
-            *RegulationDocumentLocators.CO_EXECTOR_FIELD_LOCATOR), f"Не отображается поле '{CO_EXECTOR}'"
+            *RegulationDocumentLocators.CO_EXECTOR_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.CO_EXECTOR}'"
         assert self.is_element_present(
-            *RegulationDocumentLocators.CHOOSE_CO_EXECTOR_FROM_NEW_WINDOW), f"Не отображается кнопка '{CO_EXECTOR}'"
+            *RegulationDocumentLocators.CHOOSE_CO_EXECTOR_FROM_NEW_WINDOW), f"Не отображается кнопка '{RegulationFields.CO_EXECTOR}'"
         if edit == True:
             count_elements = self.count_co_exector_elements()
             self.driver.find_element(
@@ -1438,7 +1241,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def enter_add_offer_email_field(self, field_name, text, edit):
         self.should_be_add_offer_email_field(field_name)
         assert self.is_element_present(
-            *RegulationDocumentLocators.ADD_OFFER_EMAIL_FIELD_LOCATOR), f"Не отображается поле '{ADD_OFFER_EMAIL}'"
+            *RegulationDocumentLocators.ADD_OFFER_EMAIL_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.ADD_OFFER_EMAIL}'"
         if edit == True:
             self.fill_field(
                 *RegulationDocumentLocators.ADD_OFFER_EMAIL_FIELD_LOCATOR, text)
@@ -1461,7 +1264,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def enter_reason_create_npa_field(self, field_name, text, edit):
         self.should_be_reason_create_npa_field(field_name)
         assert self.is_element_present(
-                *RegulationDocumentLocators.REASON_CREATE_NPA_FIELD_LOCATOR), f"Не отображается поле '{REASON_CREATE_NPA}'"
+                *RegulationDocumentLocators.REASON_CREATE_NPA_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.REASON_CREATE_NPA}'"
         if edit == True:    
             self.fill_field(
                 *RegulationDocumentLocators.REASON_CREATE_NPA_FIELD_LOCATOR, text)
@@ -1484,7 +1287,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def enter_link_id_field(self, field_name, text, edit):
         self.should_be_link_id_field(field_name)
         assert self.is_element_present(
-                *RegulationDocumentLocators.NPA_LINK_ID_FIELD_LOCATOR), f"Не отображается поле '{LINK_ID}'"
+                *RegulationDocumentLocators.NPA_LINK_ID_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.LINK_ID}'"
         if edit == True:
             self.fill_field(
                 *RegulationDocumentLocators.NPA_LINK_ID_FIELD_LOCATOR, text)
@@ -1523,7 +1326,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def enter_additional_materials_field(self, field_name, text, edit):
         self.should_be_additional_materials_field(field_name)
         assert self.is_element_present(
-                *RegulationDocumentLocators.ADDITIONAL_MATERIALS_ADD_BUTTON_LOCATOR), f"Не отображается кнопка '{ADDITIONAL_MATERIAL}'"
+                *RegulationDocumentLocators.ADDITIONAL_MATERIALS_ADD_BUTTON_LOCATOR), f"Не отображается кнопка '{RegulationFields.ADDITIONAL_MATERIAL}'"
         if edit == True:
             self.click_to_additonal_material_add_button()
             self.fill_field(
@@ -1561,11 +1364,11 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def should_be_notice_npa_not_placed_field(self, name, edit):
         assert self.should_be_correct_field_name(name, RegulationDocumentLocators.NOTICE_NPA_NOT_PLACED_NAME_LOCATOR)
         if edit == None:
-            return [NO_FIELD]
+            return [RegulationFields.NO_FIELD]
         elif edit == False:
-            return [FILL_NOTICE_NPA_NAME, DATE]
+            return [RegulationFields.FILL_NOTICE_NPA_NAME, DATE]
         elif edit == True:
-            return [FILL_NOTICE_NPA_NAME_EDIT, DATE_EDIT]
+            return [RegulationFields.FILL_NOTICE_NPA_NAME_EDIT, DATE_EDIT]
 
     def should_be_notice_npa_not_placed_fields(self, field_name, edit):
         field = self.should_be_notice_npa_not_placed_field(field_name, edit)
@@ -1606,12 +1409,8 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         }
         
         if index in [7, 8, 10, 12, 13]:
-            if mods[mode][0] == True:
-                L = self.enter_notice_npa_not_placed_field
-                L(NOTICE_NPA_NOT_PLACED, mods[mode][1]) if first == True else L(NOTICE_NPA_NOT_PLACED, None)
-            else:
-                L = self.should_be_notice_npa_not_placed_fields
-                L(NOTICE_NPA_NOT_PLACED, mods[mode][1]) if first == True else L(NOTICE_NPA_NOT_PLACED, None)
+            L = self.enter_notice_npa_not_placed_field if mods[mode][0] == True else self.should_be_notice_npa_not_placed_fields
+            L(RegulationFields.NOTICE_NPA_NOT_PLACED, mods[mode][1]) if first == True else L(RegulationFields.NOTICE_NPA_NOT_PLACED, None)
 
     """
 
@@ -1653,7 +1452,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_issue_type_field(field_name)
         
         field_text = self.return_text(*RegulationDocumentLocators.ISSUE_TYPE_FIELD_VIEW_MODE_LOCATOR)
-        field_text = (text == field_text) or (field_text == NON_REQUIRED_FIELD)
+        field_text = (text == field_text) or (field_text == RegulationFields.NON_REQUIRED_FIELD)
         assert field_text
 
     def enter_issue_type_field(self, field_name, text, edit):
@@ -1710,13 +1509,13 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         text = self.driver.find_element(
             *RegulationAnswerPageLocators.DATE_START_FIELD_LOCATOR).text
         if a_type == 1:
-            text == ANSWER_START_1
+            text == RegulationFields.ANSWER_START_1
         elif a_type == 2:
-            text == ANSWER_START_2
+            text == RegulationFields.ANSWER_START_2
         elif a_type == 3:
-            text == ANSWER_START_3
+            text == RegulationFields.ANSWER_START_3
         elif a_type == 4:
-            text == ANSWER_START_4
+            text == RegulationFields.ANSWER_START_4
 
     def enter_start_date(self):
         self.driver.find_element(
@@ -1735,13 +1534,13 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         text = self.driver.find_element(
             *RegulationAnswerPageLocators.DATE_END_FIELD_LOCATOR).text
         if a_type == 1:
-            text == ANSWER_END_1
+            text == RegulationFields.ANSWER_END_1
         elif a_type == 2:
-            text == ANSWER_END_2
+            text == RegulationFields.ANSWER_END_2
         elif a_type == 3:
-            text == ANSWER_END_3
+            text == RegulationFields.ANSWER_END_3
         elif a_type == 4:
-            text == ANSWER_END_4
+            text == RegulationFields.ANSWER_END_4
 
     def enter_end_date(self):
         self.driver.find_element(
@@ -1766,39 +1565,19 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         url = self.driver.current_url
         count = 0
 
-        # try:
-        #     none_attribute = self.driver.find_element(*save_button).get_attribute("style")
-        # except:
-        #     none_attribute = "none"
-
         while self.url_change(url, timeout=20) == False and count < 3:
             if int(index) not in [4, 5, 6, 20, 21, 28, 33, 34]:
                 if self.is_not_element_present(*RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_PHONE_EMAIL_LOCATOR, timeout=5) == False:
-                    self.enter_responsible_review_phone_field(FILL_RESPONSIBLE_REVIEW_PHONE_EDIT if edit == True else FILL_RESPONSIBLE_REVIEW_PHONE)
-                    self.enter_responsible_review_email_field(FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT if edit == True else FILL_RESPONSIBLE_REVIEW_EMAIL)
+                    self.enter_responsible_review_phone_field(RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE)
+                    self.enter_responsible_review_email_field(RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL)
                 self.click_to(*save_button)
             count += 1
         
-        if count == 3:
+        if count >= 3:
             assert False, "Не удалось сохранить документ"
 
-        # if "none" not in none_attribute:
-        #     try:
-        #         self.click_to(*save_button)
-        #     except:
-        #         pass
-        # if self.url_change(url) == True:
-        #     pass
-        # else:
-        #     try:
-        #         self.click_to(*save_button)
-        #     except:
-        #         pass
-        #     assert self.url_change(url) == True
-
     def should_be_correct_error_message(self, error_message):
-        err_type = "Не найдена связанная цепочка заявок"
-        locator = RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_ID_LOCATOR if error_message == err_type else RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_LOCATOR
+        locator = RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_ID_LOCATOR if error_message == RegulationFields.CHAIN_NOT_FOUND_ERROR else RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_LOCATOR
 
         self.is_appeared(*locator)
         text = self.return_text(*locator)
@@ -1807,6 +1586,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         while text == "":
             self.click_to(*AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR)
             text = self.return_text(*locator)
+            count += 1
             if count >= 10:
                 assert False
 
@@ -1840,9 +1620,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.click_to_register_pictogram()
 
         if answer == False:
-            self.should_be_required_fields(ENTER_TITLE)
+            self.should_be_required_fields(RegulationFields.ENTER_TITLE)
         else:
-            self.should_be_required_fields(ENTER_ANSWER_TITLE)
+            self.should_be_required_fields(RegulationFields.ENTER_ANSWER_TITLE)
 
         if len(func) == 4:
             func[0](func[1], func[2], func[3])
@@ -1876,7 +1656,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def create_answer(self, answer_type, create_id, chain_index):
         self.click_to_answer_pictogram()
 
-        self.should_be_required_fields(SOGL_ANSWER_TITLE)
+        self.should_be_required_fields(RegulationFields.SOGL_ANSWER_TITLE)
         self.fill_in_all_document_required_fields(
             "администратор", "суперадмин")
 
@@ -1896,66 +1676,66 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def fields(self, args, fill=False, edit=False):
         arr_fields = [
-            (NPA_TYPE, self.should_be_npa_type_fields, self.select_npa_type_field, FILL_NPA_TYPE, FILL_NPA_TYPE_EDIT),
-            (NPA_NAME_1, self.should_be_npa_name_fields, self.enter_npa_name_field, FILL_NPA_NAME_1, FILL_NPA_NAME_1_EDIT),
-            (NPA_NAME_2, self.should_be_npa_name_fields, self.enter_npa_name_field, FILL_NPA_NAME_2, FILL_NPA_NAME_2_EDIT),
-            (NPA_PROJECT, self.should_be_npa_project_fields, self.enter_npa_project_field, FILL_NPA_PROJECT, FILL_NPA_PROJECT_EDIT),
-            (DISCUSS_PERIOD, self.should_be_discuss_period_fields, self.enter_discuss_period_field, FILL_DISCUSS_PERIOD, FILL_DISCUSS_PERIOD_EDIT),
-            (EA_TYPE, self.should_be_ea_type_fields, self.enter_new_window_ea_type, FILL_EA_TYPE, FILL_EA_TYPE_EDIT),
-            (KEYWORD, self.should_be_keyword_fields, self.enter_keyword_field, FILL_KEYWORD, FILL_KEYWORD_EDIT),
-            (NOTIFY_NPA, self.should_be_notify_npa_fields, self.enter_notify_npa_field, FILL_NOTIFY_NPA, FILL_NOTIFY_NPA_EDIT),
-            (SUMMARY_INFO, self.should_be_summary_info_fields, self.enter_summary_info_field, FILL_SUMMARY_INFO, FILL_SUMMARY_INFO_EDIT),
-            (TOTAL_COMMENT, self.should_be_total_comment_fields, self.enter_total_comment_field, FILL_TOTAL_COMMENT, FILL_TOTAL_COMMENT_EDIT),
-            (NUMBER_UNA_COMMENT, self.should_be_number_una_comment_fields, self.enter_number_una_comment_field, FILL_NUMBER_UNA_COMMENT, FILL_NUMBER_UNA_COMMENT_EDIT),
-            (NUMBER_COMMENT, self.should_be_number_comment_fields, self.enter_number_comment_field, FILL_NUMBER_COMMENT, FILL_NUMBER_COMMENT_EDIT),
-            (NUMBER_PTA_COMMENT, self.should_be_number_pta_comment_fields, self.enter_number_pta_comment_field, FILL_NUMBER_PTA_COMMENT, FILL_NUMBER_PTA_COMMENT_EDIT),
-            (DECISION_INFO, self.should_be_decision_info_fields, self.select_decision_info_field, FILL_DECISION_INFO, FILL_DECISION_INFO_EDIT),
-            (DECISION_INFO_2, self.should_be_decision_info_fields, self.select_decision_info_field, FILL_DECISION_INFO_2, FILL_DECISION_INFO_2_EDIT),
-            (ORG_INFO, self.should_be_org_info_fields, self.enter_org_info_field, False, True),
-            (EXPLAIN_NOTE, self.should_be_explain_note_fields, self.enter_explain_note_field, FILL_EXPLAIN_NOTE, FILL_EXPLAIN_NOTE_EDIT),
-            (MODIFIED_NPA, self.should_be_modified_npa_fields, self.enter_modified_npa_field, FILL_MODIFIED_NPA, FILL_MODIFIED_NPA_EDIT),
-            (AC_EXPERTISE, self.should_be_ac_expertise_fields, self.enter_ac_expertise_field, FILL_AC_EXPERTISE, FILL_AC_EXPERTISE_EDIT),
-            (EMAIL_AC_EXPERTISE, self.should_be_email_ac_expertise_fields, self.enter_email_ac_expertise_field, FILL_EMAIL_AC_EXPERTISE, FILL_EMAIL_AC_EXPERTISE_EDIT),
-            (MAIL_AC_EXPERTISE, self.should_be_mail_ac_expertise_fields, self.enter_mail_ac_expertise_field, FILL_MAIL_AC_EXPERTISE, FILL_MAIL_AC_EXPERTISE_EDIT),
-            (CORRUPTION_FACTOR, self.should_be_corruption_factor_fields, self.select_corruption_factor_field, FILL_CORRUPTION_FACTOR, FILL_CORRUPTION_FACTOR_EDIT),
-            (NUMBER_CONCLUSION, self.should_be_number_conclusion_fields, self.enter_number_conclusion_field, FILL_NUMBER_CONCLUSION, FILL_NUMBER_CONCLUSION_EDIT),
-            (GC_AC, self.should_be_gc_ac_fields, self.enter_gc_ac_field, FILL_GC_AC, FILL_GC_AC_EDIT),
-            (NPA_DRAFT, self.should_be_npa_draft_fields, self.enter_npa_draft_field, FILL_NPA_DRAFT, FILL_NPA_DRAFT_EDIT),
-            (APPROVED_NPA, self.should_be_approved_npa_fields, self.enter_approved_npa_field, FILL_APPROVED_NPA, FILL_APPROVED_NPA_EDIT),
-            (NPA_NUMBER, self.should_be_npa_number_fields, self.enter_npa_number_field, FILL_NPA_NUMBER, FILL_NPA_NUMBER_EDIT),
-            (NPA_ADOPTION_DATE_1, self.should_be_npa_adoption_fields, self.enter_npa_adoption_field, DATE, DATE_EDIT),
-            (NPA_ADOPTION_DATE_2, self.should_be_npa_adoption_fields, self.enter_npa_adoption_field, DATE, DATE_EDIT),
-            (PD_NPA, self.should_be_pd_npa_fields, self.enter_pd_npa_field, FILL_PD_NPA, FILL_PD_NPA_EDIT),
-            (CONSOL_REPORT, self.should_be_consol_report_fields, self.enter_consol_report_field, FILL_CONSOL_REPORT, FILL_CONSOL_REPORT_EDIT),
-            (DECISION_PERIOD, self.should_be_decision_period_fields, self.enter_decision_period_field, FILL_DECISION_PERIOD, FILL_DECISION_PERIOD_EDIT),
-            (DEGREE_EXPOSURE, self.should_be_degree_exposure_fields, self.select_degree_exposure_field, FILL_DEGREE_EXPOSURE, FILL_DEGREE_EXPOSURE_EDIT),
-            (MSR, self.should_be_msr_fields, self.enter_msr_field, FILL_MSR, FILL_MSR_EDIT),
-            (EEC, self.should_be_eec_fields, self.enter_eec_field, FILL_EEC, FILL_EEC_EDIT),
-            (MDD, self.should_be_mdd_fields, self.enter_mdd_field, FILL_MDD, FILL_MDD_EDIT),
-            (ASSESSMENT_REPORT, self.should_be_assessment_report_fields, self.enter_assessment_report_field, FILL_ASSESSMENT_REPORT, FILL_ASSESSMENT_REPORT_EDIT),
-            (RR_NPA, self.should_be_rr_npa_fields, self.enter_rr_npa_field, FILL_RR_NPA, FILL_RR_NPA_EDIT),
-            (OFFERS_EMAIL, self.should_be_offers_email_fields, self.enter_offers_email_field, DATE, DATE_EDIT),
+            (RegulationFields.NPA_TYPE, self.should_be_npa_type_fields, self.select_npa_type_field, RegulationFields.FILL_NPA_TYPE, RegulationFields.FILL_NPA_TYPE_EDIT),
+            (RegulationFields.NPA_NAME_1, self.should_be_npa_name_fields, self.enter_npa_name_field, RegulationFields.FILL_NPA_NAME_1, RegulationFields.FILL_NPA_NAME_1_EDIT),
+            (RegulationFields.NPA_NAME_2, self.should_be_npa_name_fields, self.enter_npa_name_field, RegulationFields.FILL_NPA_NAME_2, RegulationFields.FILL_NPA_NAME_2_EDIT),
+            (RegulationFields.NPA_PROJECT, self.should_be_npa_project_fields, self.enter_npa_project_field, RegulationFields.FILL_NPA_PROJECT, RegulationFields.FILL_NPA_PROJECT_EDIT),
+            (RegulationFields.DISCUSS_PERIOD, self.should_be_discuss_period_fields, self.enter_discuss_period_field, RegulationFields.FILL_DISCUSS_PERIOD, RegulationFields.FILL_DISCUSS_PERIOD_EDIT),
+            (RegulationFields.EA_TYPE, self.should_be_ea_type_fields, self.enter_new_window_ea_type, RegulationFields.FILL_EA_TYPE, RegulationFields.FILL_EA_TYPE_EDIT),
+            (RegulationFields.KEYWORD, self.should_be_keyword_fields, self.enter_keyword_field, RegulationFields.FILL_KEYWORD, RegulationFields.FILL_KEYWORD_EDIT),
+            (RegulationFields.NOTIFY_NPA, self.should_be_notify_npa_fields, self.enter_notify_npa_field, RegulationFields.FILL_NOTIFY_NPA, RegulationFields.FILL_NOTIFY_NPA_EDIT),
+            (RegulationFields.SUMMARY_INFO, self.should_be_summary_info_fields, self.enter_summary_info_field, RegulationFields.FILL_SUMMARY_INFO, RegulationFields.FILL_SUMMARY_INFO_EDIT),
+            (RegulationFields.TOTAL_COMMENT, self.should_be_total_comment_fields, self.enter_total_comment_field, RegulationFields.FILL_TOTAL_COMMENT, RegulationFields.FILL_TOTAL_COMMENT_EDIT),
+            (RegulationFields.NUMBER_UNA_COMMENT, self.should_be_number_una_comment_fields, self.enter_number_una_comment_field, RegulationFields.FILL_NUMBER_UNA_COMMENT, RegulationFields.FILL_NUMBER_UNA_COMMENT_EDIT),
+            (RegulationFields.NUMBER_COMMENT, self.should_be_number_comment_fields, self.enter_number_comment_field, RegulationFields.FILL_NUMBER_COMMENT, RegulationFields.FILL_NUMBER_COMMENT_EDIT),
+            (RegulationFields.NUMBER_PTA_COMMENT, self.should_be_number_pta_comment_fields, self.enter_number_pta_comment_field, RegulationFields.FILL_NUMBER_PTA_COMMENT, RegulationFields.FILL_NUMBER_PTA_COMMENT_EDIT),
+            (RegulationFields.DECISION_INFO, self.should_be_decision_info_fields, self.select_decision_info_field, RegulationFields.FILL_DECISION_INFO, RegulationFields.FILL_DECISION_INFO_EDIT),
+            (RegulationFields.DECISION_INFO_2, self.should_be_decision_info_fields, self.select_decision_info_field, RegulationFields.FILL_DECISION_INFO_2, RegulationFields.FILL_DECISION_INFO_2_EDIT),
+            (RegulationFields.ORG_INFO, self.should_be_org_info_fields, self.enter_org_info_field, False, True),
+            (RegulationFields.EXPLAIN_NOTE, self.should_be_explain_note_fields, self.enter_explain_note_field, RegulationFields.FILL_EXPLAIN_NOTE, RegulationFields.FILL_EXPLAIN_NOTE_EDIT),
+            (RegulationFields.MODIFIED_NPA, self.should_be_modified_npa_fields, self.enter_modified_npa_field, RegulationFields.FILL_MODIFIED_NPA, RegulationFields.FILL_MODIFIED_NPA_EDIT),
+            (RegulationFields.AC_EXPERTISE, self.should_be_ac_expertise_fields, self.enter_ac_expertise_field, RegulationFields.FILL_AC_EXPERTISE, RegulationFields.FILL_AC_EXPERTISE_EDIT),
+            (RegulationFields.EMAIL_AC_EXPERTISE, self.should_be_email_ac_expertise_fields, self.enter_email_ac_expertise_field, RegulationFields.FILL_EMAIL_AC_EXPERTISE, RegulationFields.FILL_EMAIL_AC_EXPERTISE_EDIT),
+            (RegulationFields.MAIL_AC_EXPERTISE, self.should_be_mail_ac_expertise_fields, self.enter_mail_ac_expertise_field, RegulationFields.FILL_MAIL_AC_EXPERTISE, RegulationFields.FILL_MAIL_AC_EXPERTISE_EDIT),
+            (RegulationFields.CORRUPTION_FACTOR, self.should_be_corruption_factor_fields, self.select_corruption_factor_field, RegulationFields.FILL_CORRUPTION_FACTOR, RegulationFields.FILL_CORRUPTION_FACTOR_EDIT),
+            (RegulationFields.NUMBER_CONCLUSION, self.should_be_number_conclusion_fields, self.enter_number_conclusion_field, RegulationFields.FILL_NUMBER_CONCLUSION, RegulationFields.FILL_NUMBER_CONCLUSION_EDIT),
+            (RegulationFields.GC_AC, self.should_be_gc_ac_fields, self.enter_gc_ac_field, RegulationFields.FILL_GC_AC, RegulationFields.FILL_GC_AC_EDIT),
+            (RegulationFields.NPA_DRAFT, self.should_be_npa_draft_fields, self.enter_npa_draft_field, RegulationFields.FILL_NPA_DRAFT, RegulationFields.FILL_NPA_DRAFT_EDIT),
+            (RegulationFields.APPROVED_NPA, self.should_be_approved_npa_fields, self.enter_approved_npa_field, RegulationFields.FILL_APPROVED_NPA, RegulationFields.FILL_APPROVED_NPA_EDIT),
+            (RegulationFields.NPA_NUMBER, self.should_be_npa_number_fields, self.enter_npa_number_field, RegulationFields.FILL_NPA_NUMBER, RegulationFields.FILL_NPA_NUMBER_EDIT),
+            (RegulationFields.NPA_ADOPTION_DATE_1, self.should_be_npa_adoption_fields, self.enter_npa_adoption_field, RegulationFields.DATE, RegulationFields.DATE_EDIT),
+            (RegulationFields.NPA_ADOPTION_DATE_2, self.should_be_npa_adoption_fields, self.enter_npa_adoption_field, RegulationFields.DATE, RegulationFields.DATE_EDIT),
+            (RegulationFields.PD_NPA, self.should_be_pd_npa_fields, self.enter_pd_npa_field, RegulationFields.FILL_PD_NPA, RegulationFields.FILL_PD_NPA_EDIT),
+            (RegulationFields.CONSOL_REPORT, self.should_be_consol_report_fields, self.enter_consol_report_field, RegulationFields.FILL_CONSOL_REPORT, RegulationFields.FILL_CONSOL_REPORT_EDIT),
+            (RegulationFields.DECISION_PERIOD, self.should_be_decision_period_fields, self.enter_decision_period_field, RegulationFields.FILL_DECISION_PERIOD, RegulationFields.FILL_DECISION_PERIOD_EDIT),
+            (RegulationFields.DEGREE_EXPOSURE, self.should_be_degree_exposure_fields, self.select_degree_exposure_field, RegulationFields.FILL_DEGREE_EXPOSURE, RegulationFields.FILL_DEGREE_EXPOSURE_EDIT),
+            (RegulationFields.MSR, self.should_be_msr_fields, self.enter_msr_field, RegulationFields.FILL_MSR, RegulationFields.FILL_MSR_EDIT),
+            (RegulationFields.EEC, self.should_be_eec_fields, self.enter_eec_field, RegulationFields.FILL_EEC, RegulationFields.FILL_EEC_EDIT),
+            (RegulationFields.MDD, self.should_be_mdd_fields, self.enter_mdd_field, RegulationFields.FILL_MDD, RegulationFields.FILL_MDD_EDIT),
+            (RegulationFields.ASSESSMENT_REPORT, self.should_be_assessment_report_fields, self.enter_assessment_report_field, RegulationFields.FILL_ASSESSMENT_REPORT, RegulationFields.FILL_ASSESSMENT_REPORT_EDIT),
+            (RegulationFields.RR_NPA, self.should_be_rr_npa_fields, self.enter_rr_npa_field, RegulationFields.FILL_RR_NPA, RegulationFields.FILL_RR_NPA_EDIT),
+            (RegulationFields.OFFERS_EMAIL, self.should_be_offers_email_fields, self.enter_offers_email_field, RegulationFields.FILL_EMAIL, RegulationFields.FILL_EMAIL_EDIT),
 
-            (STATE_NUMBER, self.should_be_state_number_fields, self.enter_state_number_field, NON_REQUIRED_FIELD, FILL_STATE_NUMBER_EDIT),
-            (REASON_CREATE_NPA, self.should_be_reason_create_npa_fields, self.enter_reason_create_npa_field, NON_REQUIRED_FIELD, FILL_REASON_CREATE_NPA_EDIT),
-            (ADD_OFFER_EMAIL, self.should_be_add_offer_email_fields, self.enter_add_offer_email_field, NON_REQUIRED_FIELD, FILL_EMAIL),
-            (LINK_ID, self.should_be_link_id_fields, self.enter_link_id_field, NON_REQUIRED_FIELD, FILL_LINK_ID_EDIT),
-            (CO_EXECTOR, self.should_be_co_exector_fields, self.enter_new_window_co_exector, NON_REQUIRED_FIELD, FILL_CO_EXECTOR_EDIT),
-            (ADDITIONAL_MATERIAL, self.should_be_additional_materials_fields, self.enter_additional_materials_field, NON_REQUIRED_FIELD, FILL_ADDITIONAL_MATERIAL_EDIT),
-            (REGULATORY_GILLIOTINE, self.should_be_regulatory_gilliotine_fields, self.activate_regulatory_gilliotine_checkbox, NO_FIELD, FILL_REGULATORY_GILLIOTINE_EDIT),
-            (ISSUE_TYPE, self.should_be_issue_type_fields, self.enter_issue_type_field, "", FILL_ISSUE_TYPE_EDIT)
+            (RegulationFields.STATE_NUMBER, self.should_be_state_number_fields, self.enter_state_number_field, RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_STATE_NUMBER_EDIT),
+            (RegulationFields.REASON_CREATE_NPA, self.should_be_reason_create_npa_fields, self.enter_reason_create_npa_field, RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_REASON_CREATE_NPA_EDIT),
+            (RegulationFields.ADD_OFFER_EMAIL, self.should_be_add_offer_email_fields, self.enter_add_offer_email_field, RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_EMAIL),
+            (RegulationFields.LINK_ID, self.should_be_link_id_fields, self.enter_link_id_field, RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_LINK_ID_EDIT),
+            (RegulationFields.CO_EXECTOR, self.should_be_co_exector_fields, self.enter_new_window_co_exector, RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_CO_EXECTOR_EDIT),
+            (RegulationFields.ADDITIONAL_MATERIAL, self.should_be_additional_materials_fields, self.enter_additional_materials_field, RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_ADDITIONAL_MATERIAL_EDIT),
+            (RegulationFields.REGULATORY_GILLIOTINE, self.should_be_regulatory_gilliotine_fields, self.activate_regulatory_gilliotine_checkbox, RegulationFields.NO_FIELD, RegulationFields.FILL_REGULATORY_GILLIOTINE_EDIT),
+            (RegulationFields.ISSUE_TYPE, self.should_be_issue_type_fields, self.enter_issue_type_field, "", RegulationFields.FILL_ISSUE_TYPE_EDIT)
                       ]
 
         for i in range(len(args)):
-            if (RESPONSIBLE_REVIEW_1 == args[i]) or (RESPONSIBLE_REVIEW_2 == args[i]) or (RESPONSIBLE_REVIEW_3 == args[i]):
+            if (RegulationFields.RESPONSIBLE_REVIEW_1 == args[i]) or (RegulationFields.RESPONSIBLE_REVIEW_2 == args[i]) or (RegulationFields.RESPONSIBLE_REVIEW_3 == args[i]):
                 if fill == False and edit == False:
-                    self.should_be_resp_review_fields(FILL_RESPONSIBLE_REVIEW_NAME, FILL_RESPONSIBLE_REVIEW_PHONE, FILL_RESPONSIBLE_REVIEW_EMAIL, args[i])
+                    self.should_be_resp_review_fields(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL, args[i])
                 elif fill == False and edit == True:
-                    self.should_be_resp_review_fields(FILL_RESPONSIBLE_REVIEW_NAME_EDIT, FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT, args[i])
+                    self.should_be_resp_review_fields(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT, args[i])
                 elif fill == True and edit == False:
-                    self.enter_resp_review_field(FILL_RESPONSIBLE_REVIEW_NAME, FILL_RESPONSIBLE_REVIEW_PHONE, FILL_RESPONSIBLE_REVIEW_EMAIL, args[i])
+                    self.enter_resp_review_field(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL, args[i])
                 elif fill == True and edit == True:
-                    self.enter_resp_review_field(FILL_RESPONSIBLE_REVIEW_NAME_EDIT, FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT, args[i])
+                    self.enter_resp_review_field(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT, args[i])
                 continue
             else:
                 for q in range(len(arr_fields)):
@@ -1974,7 +1754,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     
     def main_regulation_fields(self, order, request_type, edit=False, from_rcsi=False):
         if edit == False:
-            self.should_be_required_fields(SOGL_TITLE)
+            self.should_be_required_fields(RegulationFields.SOGL_TITLE)
             self.fill_in_all_document_required_fields(
                 "суперадмин", "администратор")
             if from_rcsi == True:
@@ -1992,35 +1772,35 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     def regulation_delete_all_added_files(self, fields):
         self.delete_all_added_files()
 
-        rr_fields = [RESPONSIBLE_REVIEW_1, RESPONSIBLE_REVIEW_2, RESPONSIBLE_REVIEW_3]
+        rr_fields = [RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.RESPONSIBLE_REVIEW_2, RegulationFields.RESPONSIBLE_REVIEW_3]
         for i in rr_fields:
             if (i in fields) == True:
                 self.click_to_responsible_review_delete_button(); break
 
     def regulation_index_fields(self, index):
         fields = {
-            1: [NOTIFY_NPA, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, DISCUSS_PERIOD, EA_TYPE, KEYWORD, ORG_INFO, REASON_CREATE_NPA, ADD_OFFER_EMAIL, LINK_ID, CO_EXECTOR],
-            4: [SUMMARY_INFO, NPA_TYPE, NPA_NAME_1, TOTAL_COMMENT, NUMBER_UNA_COMMENT, NUMBER_COMMENT, NUMBER_PTA_COMMENT, DECISION_INFO],
-            7: [NPA_PROJECT, EXPLAIN_NOTE, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, DISCUSS_PERIOD, EA_TYPE, KEYWORD, ORG_INFO, ADDITIONAL_MATERIAL, REGULATORY_GILLIOTINE, REASON_CREATE_NPA, ADD_OFFER_EMAIL, LINK_ID, CO_EXECTOR],
-            8: [NPA_PROJECT, EXPLAIN_NOTE, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, DISCUSS_PERIOD, EA_TYPE, KEYWORD, ORG_INFO, AC_EXPERTISE, EMAIL_AC_EXPERTISE, MAIL_AC_EXPERTISE, REGULATORY_GILLIOTINE, REASON_CREATE_NPA, ADD_OFFER_EMAIL, LINK_ID, CO_EXECTOR],
-            9: [NPA_PROJECT, PD_NPA, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, AC_EXPERTISE, EMAIL_AC_EXPERTISE, MAIL_AC_EXPERTISE, EA_TYPE, KEYWORD, ORG_INFO, LINK_ID, REASON_CREATE_NPA, CO_EXECTOR],
-            10: [NPA_PROJECT, CONSOL_REPORT, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, EA_TYPE, KEYWORD, ORG_INFO, DEGREE_EXPOSURE, ISSUE_TYPE, REASON_CREATE_NPA, ADD_OFFER_EMAIL, LINK_ID, CO_EXECTOR, AC_EXPERTISE, EMAIL_AC_EXPERTISE, MAIL_AC_EXPERTISE, DECISION_PERIOD],
-            11: [EEC, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, DECISION_PERIOD, EA_TYPE, KEYWORD, ORG_INFO, ISSUE_TYPE, REASON_CREATE_NPA, ADD_OFFER_EMAIL, LINK_ID, CO_EXECTOR],
-            12: [EXPLAIN_NOTE, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, NPA_PROJECT, RESPONSIBLE_REVIEW_1, DISCUSS_PERIOD, EA_TYPE, KEYWORD, ORG_INFO, FILL_REASON_CREATE_NPA_EDIT, ADD_OFFER_EMAIL, LINK_ID, CO_EXECTOR],
-            13: [NPA_PROJECT, EXPLAIN_NOTE, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, DISCUSS_PERIOD, EA_TYPE, KEYWORD, ORG_INFO, AC_EXPERTISE, EMAIL_AC_EXPERTISE, MAIL_AC_EXPERTISE, REGULATORY_GILLIOTINE, REASON_CREATE_NPA, ADD_OFFER_EMAIL, LINK_ID, CO_EXECTOR],
-            14: [SUMMARY_INFO, MODIFIED_NPA, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, TOTAL_COMMENT, NUMBER_UNA_COMMENT, NUMBER_COMMENT, NUMBER_PTA_COMMENT, DECISION_INFO],
-            15: [SUMMARY_INFO, MODIFIED_NPA, GC_AC, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, TOTAL_COMMENT, NUMBER_UNA_COMMENT, NUMBER_COMMENT, NUMBER_PTA_COMMENT, DECISION_INFO, CORRUPTION_FACTOR, NUMBER_CONCLUSION],
-            16: [SUMMARY_INFO, GC_AC, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, TOTAL_COMMENT, NUMBER_UNA_COMMENT, NUMBER_COMMENT, NUMBER_PTA_COMMENT, CORRUPTION_FACTOR, NUMBER_CONCLUSION],
-            17: [SUMMARY_INFO, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, TOTAL_COMMENT, NUMBER_UNA_COMMENT, NUMBER_COMMENT, NUMBER_PTA_COMMENT],
-            20: [MODIFIED_NPA, MSR, NPA_TYPE, NPA_NAME_1, DECISION_INFO],
-            21: [NPA_TYPE, NPA_NAME_1, DECISION_INFO, MDD],
-            22: [NPA_PROJECT, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, AC_EXPERTISE, EMAIL_AC_EXPERTISE, MAIL_AC_EXPERTISE, EA_TYPE, KEYWORD, REGULATORY_GILLIOTINE, LINK_ID, REASON_CREATE_NPA, CO_EXECTOR],
-            23: [GC_AC, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_1, CORRUPTION_FACTOR, NUMBER_CONCLUSION, TOTAL_COMMENT, NUMBER_COMMENT, NUMBER_UNA_COMMENT, NUMBER_PTA_COMMENT, DECISION_INFO],
-            24: [NPA_DRAFT, NPA_TYPE, NPA_NAME_1, RESPONSIBLE_REVIEW_2, DECISION_INFO_2],
-            28: [APPROVED_NPA, NPA_TYPE, NPA_NAME_2, NPA_NUMBER, NPA_ADOPTION_DATE_1, RESPONSIBLE_REVIEW_3, STATE_NUMBER],
-            32: [APPROVED_NPA, ASSESSMENT_REPORT, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NAME_2, NPA_NUMBER, NPA_ADOPTION_DATE_2, RESPONSIBLE_REVIEW_1, DISCUSS_PERIOD, OFFERS_EMAIL, EA_TYPE, KEYWORD, LINK_ID, CO_EXECTOR],
-            33: [SUMMARY_INFO, ADDITIONAL_MATERIAL, NPA_TYPE, NPA_NUMBER, NPA_NAME_2, NPA_ADOPTION_DATE_2, TOTAL_COMMENT, NUMBER_COMMENT, NUMBER_UNA_COMMENT, NUMBER_PTA_COMMENT],
-            34: [NPA_TYPE, NPA_NUMBER, NPA_NAME_2, NPA_ADOPTION_DATE_2, RR_NPA],
+            1: [RegulationFields.NOTIFY_NPA, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DISCUSS_PERIOD, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.REASON_CREATE_NPA, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
+            4: [RegulationFields.SUMMARY_INFO, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_PTA_COMMENT, RegulationFields.DECISION_INFO],
+            7: [RegulationFields.NPA_PROJECT, RegulationFields.EXPLAIN_NOTE, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DISCUSS_PERIOD, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.REGULATORY_GILLIOTINE, RegulationFields.REASON_CREATE_NPA, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
+            8: [RegulationFields.NPA_PROJECT, RegulationFields.EXPLAIN_NOTE, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DISCUSS_PERIOD, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.AC_EXPERTISE, RegulationFields.EMAIL_AC_EXPERTISE, RegulationFields.MAIL_AC_EXPERTISE, RegulationFields.REGULATORY_GILLIOTINE, RegulationFields.REASON_CREATE_NPA, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
+            9: [RegulationFields.NPA_PROJECT, RegulationFields.PD_NPA, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.AC_EXPERTISE, RegulationFields.EMAIL_AC_EXPERTISE, RegulationFields.MAIL_AC_EXPERTISE, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.LINK_ID, RegulationFields.REASON_CREATE_NPA, RegulationFields.CO_EXECTOR],
+            10: [RegulationFields.NPA_PROJECT, RegulationFields.CONSOL_REPORT, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.DEGREE_EXPOSURE, RegulationFields.ISSUE_TYPE, RegulationFields.REASON_CREATE_NPA, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR, RegulationFields.AC_EXPERTISE, RegulationFields.EMAIL_AC_EXPERTISE, RegulationFields.MAIL_AC_EXPERTISE, RegulationFields.DECISION_PERIOD],
+            11: [RegulationFields.EEC, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DECISION_PERIOD, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.ISSUE_TYPE, RegulationFields.REASON_CREATE_NPA, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
+            12: [RegulationFields.EXPLAIN_NOTE, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.NPA_PROJECT, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DISCUSS_PERIOD, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.FILL_REASON_CREATE_NPA_EDIT, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
+            13: [RegulationFields.NPA_PROJECT, RegulationFields.EXPLAIN_NOTE, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DISCUSS_PERIOD, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.AC_EXPERTISE, RegulationFields.EMAIL_AC_EXPERTISE, RegulationFields.MAIL_AC_EXPERTISE, RegulationFields.REGULATORY_GILLIOTINE, RegulationFields.REASON_CREATE_NPA, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
+            14: [RegulationFields.SUMMARY_INFO, RegulationFields.MODIFIED_NPA, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_PTA_COMMENT, RegulationFields.DECISION_INFO],
+            15: [RegulationFields.SUMMARY_INFO, RegulationFields.MODIFIED_NPA, RegulationFields.GC_AC, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_PTA_COMMENT, RegulationFields.DECISION_INFO, RegulationFields.CORRUPTION_FACTOR, RegulationFields.NUMBER_CONCLUSION],
+            16: [RegulationFields.SUMMARY_INFO, RegulationFields.GC_AC, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_PTA_COMMENT, RegulationFields.CORRUPTION_FACTOR, RegulationFields.NUMBER_CONCLUSION],
+            17: [RegulationFields.SUMMARY_INFO, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_PTA_COMMENT],
+            20: [RegulationFields.MODIFIED_NPA, RegulationFields.MSR, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.DECISION_INFO],
+            21: [RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.DECISION_INFO, RegulationFields.MDD],
+            22: [RegulationFields.NPA_PROJECT, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.AC_EXPERTISE, RegulationFields.EMAIL_AC_EXPERTISE, RegulationFields.MAIL_AC_EXPERTISE, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.REGULATORY_GILLIOTINE, RegulationFields.LINK_ID, RegulationFields.REASON_CREATE_NPA, RegulationFields.CO_EXECTOR],
+            23: [RegulationFields.GC_AC, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.CORRUPTION_FACTOR, RegulationFields.NUMBER_CONCLUSION, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_PTA_COMMENT, RegulationFields.DECISION_INFO],
+            24: [RegulationFields.NPA_DRAFT, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_2, RegulationFields.DECISION_INFO_2],
+            28: [RegulationFields.APPROVED_NPA, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_2, RegulationFields.NPA_NUMBER, RegulationFields.NPA_ADOPTION_DATE_1, RegulationFields.RESPONSIBLE_REVIEW_3, RegulationFields.STATE_NUMBER],
+            32: [RegulationFields.APPROVED_NPA, RegulationFields.ASSESSMENT_REPORT, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_2, RegulationFields.NPA_NUMBER, RegulationFields.NPA_ADOPTION_DATE_2, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DISCUSS_PERIOD, RegulationFields.OFFERS_EMAIL, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
+            33: [RegulationFields.SUMMARY_INFO, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NUMBER, RegulationFields.NPA_NAME_2, RegulationFields.NPA_ADOPTION_DATE_2, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_PTA_COMMENT],
+            34: [RegulationFields.NPA_TYPE, RegulationFields.NPA_NUMBER, RegulationFields.NPA_NAME_2, RegulationFields.NPA_ADOPTION_DATE_2, RegulationFields.RR_NPA],
         }
 
         indexes = {
@@ -2066,7 +1846,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.fields(fields, fill=True, edit=edit_bool)
         
         if error == False:
-            self.save_regulation_rcd(edit, index)
+            self.save_regulation_rcd(edit_bool, index)
             self.check_regulation_doc(index, chain_index, first, edit_bool)
         else:
             self.click_to(*AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR)
@@ -2087,7 +1867,7 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
         self.fill_field(*ChangeResponsibleInfoLocators.NPA_NAME_FIELD_35_LOCATOR, text)
     
     def should_be_npa_name_35_fields(self, text, field_name):
-        self.should_be_correct_field_name(ACTUAL_RR_35, ChangeResponsibleInfoLocators.NPA_NAME_NAME_FIELD_35_LOCATOR)
+        self.should_be_correct_field_name(RegulationFields.ACTUAL_RR_35, ChangeResponsibleInfoLocators.NPA_NAME_NAME_FIELD_35_LOCATOR)
 
         assert text == self.return_text(
             *ChangeResponsibleInfoLocators.NPA_NAME_VIEW_MODE_35_LOCATOR)
@@ -2115,7 +1895,7 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
     # Новый ответственный сотрудник
     def should_be_new_rr_field(self, name, edit_mode):
         assert self.should_be_correct_field_name(name, ChangeResponsibleInfoLocators.NEW_RESPONSIBLE_USER_NAME_LOCATOR)
-        return [FILL_RESPONSIBLE_REVIEW_NAME_EDIT, FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT] if edit_mode == False else [FILL_RESPONSIBLE_REVIEW_NAME, FILL_RESPONSIBLE_REVIEW_PHONE, FILL_RESPONSIBLE_REVIEW_EMAIL]
+        return [RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT] if edit_mode == False else [RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL]
         
     def should_be_new_rr_fields(self, edit_mode, field_name):
         rr_fill_field = self.should_be_new_rr_field(field_name, edit_mode)
@@ -2159,19 +1939,19 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
     
     def main_regulation_35_fields(self, edit=False):
         if edit == False:
-            self.should_be_required_fields(SOGL_TITLE)
+            self.should_be_required_fields(RegulationFields.SOGL_TITLE)
             self.fill_in_all_document_required_fields(
                 "суперадмин", "администратор")
         else:
-            self.should_be_correct_title(SOGL_TITLE)
+            self.should_be_correct_title(RegulationFields.SOGL_TITLE)
     
     def fields_35(self, fill, edit):
         text = "Заявка на изменение информации о работнике, ответственном за размещение информации на regulation.gov.ru"
         work_with_fields = [
-            (REQUEST_TYPE, self.should_be_request_type_35_fields, self.should_be_request_type_35_fields, text, text),
-            (NPA_NAME_35, self.should_be_npa_name_35_fields, self.enter_npa_name_35_fields, FILL_NPA_NAME_3, EDIT_NPA_NAME_3),
-            (ACTUAL_RR_35, self.should_be_actual_rr_fields, self.enter_actual_rr_fields, FILL_RESPONSIBLE_REVIEW_NAME, FILL_RESPONSIBLE_REVIEW_NAME_EDIT),
-            (NEW_RR_35, self.should_be_new_rr_fields, self.enter_new_rr_fields, False, True)
+            (RegulationFields.REQUEST_TYPE, self.should_be_request_type_35_fields, self.should_be_request_type_35_fields, text, text),
+            (RegulationFields.NPA_NAME_35, self.should_be_npa_name_35_fields, self.enter_npa_name_35_fields, RegulationFields.FILL_NPA_NAME_3, RegulationFields.EDIT_NPA_NAME_3),
+            (RegulationFields.ACTUAL_RR_35, self.should_be_actual_rr_fields, self.enter_actual_rr_fields, RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME, RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME_EDIT),
+            (RegulationFields.NEW_RR_35, self.should_be_new_rr_fields, self.enter_new_rr_fields, False, True)
         ]
 
         for i in work_with_fields:
@@ -2192,7 +1972,7 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
             self.enter_npa_id_fields("uncorrect-9999999999999999-id", True)
         self.fields_35(fill=True, edit=edit)
         if edit == False:
-            self.click_to_save_with_error("Не найдена связанная цепочка заявок")
+            self.click_to_save_with_error(RegulationFields.CHAIN_NOT_FOUND_ERROR)
 
         if edit == False:
             self.enter_project_npa_id_field(1, False, chain_index)
@@ -2206,7 +1986,7 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
     def register_and_send_enter_change_info_document(self, chain_index):
         self.click_to_register_pictogram()
 
-        self.should_be_correct_title(ENTER_TITLE)
+        self.should_be_correct_title(RegulationFields.ENTER_TITLE)
         self.should_be_project_npa_id_fields(1, False, False, chain_index)
         self.fields_35(fill=False, edit=True)
 
@@ -2227,33 +2007,29 @@ class RegulationRefuseDocument(RegulationDocumentPage):
         self.click_to_refuse_pictogram()
         self.url_change(url)
 
-        self.should_be_required_fields("Согласование внутреннего документа-отказа на заявку Regulation")
+        self.should_be_required_fields(RegulationFields.SOGL_REFUSE_TITLE)
         self.fill_in_all_document_required_fields(
             "администратор", "суперадмин")
         
         self.fill_field(*AllDocumentFieldLocators.ADD_FILE_BUTTON_LOCATOR)
         self.should_be_closed_short_content_fields(3)
 
-        # self.is_element_present(*AllDocumentFieldLocators.link_document(MainFunc.create_doc_link("")[1:]))
         self.is_element_present(*AllDocumentFieldLocators.link_document("id=" + doc_link))
 
         self.save_rcd()
 
     def register_and_send_refuse_document(self, doc_link, from_rcsi=False):
         self.click_to_register_pictogram()
-        self.should_be_required_fields("Внутренний документ-отказ на заявку Regulation")
+        self.should_be_required_fields(RegulationFields.ENTER_REFUSE_TITLE)
         self.save_rcd()
         self.send_medo()
 
         if from_rcsi == False:
-            # self.is_element_present(*AllDocumentFieldLocators.link_document(MainFunc.create_doc_link("")[1:]))
-            # self.click_to(*AllDocumentFieldLocators.link_document(MainFunc.create_doc_link("")[1:]))
-
             self.is_element_present(*AllDocumentFieldLocators.link_document("id=" + doc_link))
             self.click_to(*AllDocumentFieldLocators.link_document("id=" + doc_link))
 
             self.work_with_windows(1)
-            self.should_be_correct_title("Внутренний документ-заявка Regulation")
+            self.should_be_correct_title(RegulationFields.ENTER_TITLE)
             self.should_not_be_answer_pictogram()
             self.should_not_be_refuse_pictogram()
         
@@ -2319,7 +2095,6 @@ class RegulationChainShowInstrument(RegulationRefuseDocument):
             self.driver.execute_script("arguments[0].click();", self.driver.find_element(*RegulationDocumentLocators.RCSI_OPEN_CHAIN_AFTER_REFUSE))
 
         self.is_element_present(*RegulationDocumentLocators.find_rcsi_elements(number))
-        # text = ""
 
         rcsi_elements = {
             1: [RegulationDocumentLocators.find_rcsi_number, RegulationDocumentLocators.find_rcsi_name, RegulationDocumentLocators.find_rcsi_project, RegulationDocumentLocators.find_rcsi_request, RegulationDocumentLocators.find_rcsi_answer],
@@ -2330,27 +2105,11 @@ class RegulationChainShowInstrument(RegulationRefuseDocument):
         }
 
         for i in rcsi_elements[status]:
-            # self.is_appeared(*i(number))
             self.is_element_present(*i(number))
             if status == 5 and (i == RegulationDocumentLocators.find_rcsi_project or i == RegulationDocumentLocators.find_rcsi_request):
                 assert self.count_all_elements(*i(number)) == 2
             elif i == RegulationDocumentLocators.find_rcsi_name:
                 assert self.return_text(*i(number)) == self.modify_npa_type(name)
-
-            # text += self.return_text(*i(number))*self.count_all_elements(*i(number))
-
-        # name = self.modify_npa_type(name)
-        # number = str(number)
-
-        # elements = {
-        #     1: ["Проект", "Заявка", "Ответ", number, name],
-        #     2: ["Проект", "Заявка", number, name],
-        #     3: ["Проект", "Заявка", "Отказ", number, name],
-        #     4: ["...", "Проект", "Заявка", number, name],
-        #     5: ["Проект", "Заявка", "Отказ", "Проект", "Заявка", number, name],
-        # }
-
-        # self.correct_text_check(elements[status], text)
     
     def check_rcsi(self, have_id, doc_status, number, name, wait, repeat, num_satus, *next_type):
         if wait == True:

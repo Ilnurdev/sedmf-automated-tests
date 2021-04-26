@@ -38,7 +38,7 @@ def pytest_addoption(parser):
 
 def chrome(browser_name):
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.add_argument('ignore-certificate-errors')
     # options.add_extension(
     #     extension=r"D:\WorkPlase\sed-tests\extensions\CryptoPro-chrome.crx")
