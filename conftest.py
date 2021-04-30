@@ -13,7 +13,7 @@ from os import path
 folder_path = path.join(path.dirname(path.abspath(__file__)), 'extensions')
 PATH_TO_CP_XPI = path.join(folder_path, 'CryptoPro_ff.xpi')
 PATH_TO_CP_CRX = path.join(folder_path, 'CryptoPro-chrome.crx')
-PATH_TO_CP_YD = path.join(folder_path, 'chromedriver.exe')
+PATH_TO_CP_YD = path.join(folder_path, 'yandex-chromedriver.exe')
 
 
 # Path to Chrome driver
@@ -81,9 +81,7 @@ def yandex(browser_name):
     return webdriver.Chrome(executable_path=PATH_TO_CP_YD, options=options)
 
 def opera(browser_name):
-    options = webdriver.ChromeOptions()
-
-    return webdriver.Opera(executable_path=WBO_PATH, options=options)
+    return webdriver.Opera(executable_path=WBO_PATH)
 
 @pytest.fixture(scope="function")
 def driver(request):

@@ -10,17 +10,132 @@ class AuthPageLocators:
 
 class MainPageLocators:
 
-    ENTER_BLOCK_SLIDE_DOWN_BUTTON = (
-        By.XPATH, "//div[@id='menu_top_4']//a[@class='slide down']")
-    ENTER_BLOCK_ON_REGISTRATION_LINK = (
-        By.XPATH, "//div[@id='menu_bottom_4']//a[text()='На регистрации']")
+    """
 
-    SOGL_BLOCK_SLIDE_DOWN_BUTTON = (
-        By.XPATH, "//div[@id='menu_top_6']//a[@class='slide down']")
-    SOGL_BLOCK_ALL_DOCUMENT_LINK = (
-        By.XPATH, "//div[@id='menu_bottom_6']//a[text()='Все документы']")
-    SOGL_BLOCK_NEW_DOCUMENT_LINK = (
-        By.XPATH, "//div[@id='menu_bottom_6']//a[text()='Новый документ...']")
+    Incoming = 0
+    Outgoing = 1
+    Incoming OG = 2
+    Outgoing OG = 3
+    Eneter = 4
+    ORD = 5
+    SOGL = 6
+
+    """
+
+    def __init__(self, link_name, block_num=1):
+        self.top_panel = self.TopPanelBlock(link_name)
+        self.closed_block = self.ClosedDocumentBlock(str(block_num))
+        self.open_block = self.OpenDocumentBlock(link_name, str(block_num))
+        self.status = self.DocumentStatuses(link_name)
+        self.menu = self.UserMenu(link_name)
+        self.statistic = self.Statistics(link_name)
+
+
+    # Настройки системы 
+    SETTINGS_LINK_LOCATOR = (By.XPATH, "//div[@class='left_panel_box settings']//a[text()[contains(.,'Настройки системы')] and contains(@href,'/settings.php?')]")
+
+    class TopPanelBlock:
+        def __init__(self, link_name):
+            links = {
+                "Расширенный поиск": "/document_search.php?",
+                "Бланки документов": "/blanks/blanks_948014.php?",
+                "Не зарегистрировано в организации-адресате": "/document.php?runnumbered=1&",
+                "События из МЭДО": "/medo_history_all.php?",
+                "Отказано в регистрации": "/document.php?refusedreg=1&",
+                "Отказано в регистрации (входящие)": "/refused_docs.php?",
+                "Документы из МЭДО (Ведомственная)": "/document.php?medo=1&medo_on_reg=0&status=0&category=0&folder_id=2&",
+                "Документы из МЭДО (Правительственная)": "/document.php?medo=1&medo_on_reg=0&status=0&category=0&folder_id=1&",
+                "Документы из МЭДО (Секретариат)": "/document.php?medo=1&medo_on_reg=0&status=0&category=0&folder_id=21&",
+                "Документы из МЭДО (прочие)": "/document.php?medo=1&medo_on_reg=0&status=0&category=0&folder_id=-1&",
+                }
+
+            try:
+                self.link = links[link_name]
+            except:
+                self.link = ""
+        
+        def locator(self):
+            return (By.XPATH, f"//div[@id='left_top_panel']//a[contains(@href,'{self.link}')]")
+
+    class ClosedDocumentBlock:
+        def __init__(self, block_num):
+            text = {
+                0: "Все входящие",
+                1: "Все исходящие",
+                2: "Все вх.обр.граждан",
+                3: "Все исх.обр.граждан",
+                4: "Все внутренние",
+                5: "Все ОРД",
+                6: "Все документы",
+            }
+
+            self.block = block_num
+            self.name = text[int(block_num)]
+
+        def locator(self):
+            return (By.XPATH, f"//div[@id='menu_top_{self.block}']//a[text()='{self.name}' and contains(@href,'/document.php?all=1')]")
+        
+        def open_block(self):
+            return (By.XPATH, f"//div[@id='menu_top_{self.block}']//a[@class='slide down']")
+
+    class OpenDocumentBlock:
+        def __init__(self, link_name, block_num):
+            self.name = link_name
+            self.block = block_num
+
+        def return_locator(self, name):
+            elements = ["На регистрации из МЭДО (Ведомственная)", "На регистрации из МЭДО (Правительственная)", "На регистрации из МЭДО (Секретариат)"]
+            if name in elements:
+                index = name.index("(")
+                return f"//div[@id='menu_bottom_{self.block}']//li[text()='{name[index-1:]}']/a[text()='{name[:index-1]}']"
+            return f"//div[@id='menu_bottom_{self.block}']//a[text()='{self.name}']"
+
+
+        def locator(self):
+            return (By.XPATH, self.return_locator(self.name))
+        
+        def close_block(self):
+            return (By.XPATH, f"//div[@id='menu_bottom_{self.block}']//a[@class='slide up']")
+    
+    # Статусы документов у пользователей
+    class DocumentStatuses:
+        def __init__(self, link_name):
+            self.name = link_name
+
+        def locator(self):
+            return (By.XPATH, f"//div[@class='left_panel_box res_list']//a[text()[contains(.,'{self.name}')]]")
+
+    # Меню пользователя
+    class UserMenu:
+        def __init__(self, link_name):
+            self.name = link_name
+        
+        def locator(self):
+            bold = ["Исполнение документов", "Написать сообщение"]
+            locator = f"//div[@class='left_panel_box']/h3[text()='Меню пользователя']/following::a[text()[contains(.,'Полный перечень')]]" if self.name == "Полный перечень документов" else f"//div[@class='left_panel_box']/h3[text()='Меню пользователя']/following::a{'/b' if self.name in bold else ''}[text()='{self.name}']"
+
+            return (By.XPATH, locator)
+    
+    # Статистика и исполнение документов
+    class Statistics:
+        def __init__(self, link_name):
+            links = {
+                "Отчеты по исполнению документов": "/public/reports/list-execution-document/index?",
+                "Отчеты по обращениям граждан": "/public/reports/list-og/index?",
+                "Контрольные отчеты по МЭДО документам": "/medo_reports.php?",
+                "Количество направленных писем": "/public/outcorrespondence/report/total-sent/index?",
+                "Уведомления": "/document.php?DNSID",
+                "Контрольные документы": "/control_stats.php?",
+                "Отчеты администратора": "/public/reports/admin/?",
+            }
+
+            try:
+                self.link = links[link_name]
+            except:
+                self.link = ""
+        
+        def locator(self):
+            return (By.XPATH, f"//div[@class='left_panel_box']/h3[text()='Статистика и исполнение документов']/following::a[contains(@href,'{self.link}')]")
 
 
 class SoglNewDocumentWindow:
