@@ -4,8 +4,6 @@ from pages.urls import URLs
 from pages.settings_pages import DirectoryVEDPage
 from pages.authorization_page import AuthPage
 
-import time
-
 
 @pytest.fixture(scope="function", autouse=True)
 def setup(driver, root=None):
@@ -25,7 +23,7 @@ class TestDirectoryVED:
     @pytest.mark.parametrize("field_type,new_window", [
         pytest.param(1, False),
         pytest.param(2, True, marks=pytest.mark.xfail),
-        ])
+    ])
     def test_created_element_show_in_regulation_ea_field(self, driver, field_type, new_window):
         link = MainFunc.take_DNSID(URLs.DIRECTORY_VED_LINK, driver.current_url)
         page = DirectoryVEDPage(driver, link)
@@ -43,7 +41,7 @@ class TestDirectoryVED:
     @pytest.mark.parametrize("field_type_1,field_type_2,new_window", [
         pytest.param(3, 1, True),
         pytest.param(1, 3, False, marks=pytest.mark.xfail),
-        ])
+    ])
     def test_edit_created_element_show_in_regulation_ea_field(self, driver, field_type_1, field_type_2, new_window):
         link = MainFunc.take_DNSID(URLs.DIRECTORY_VED_LINK, driver.current_url)
         page = DirectoryVEDPage(driver, link)
@@ -61,8 +59,3 @@ class TestDirectoryVED:
         page = DirectoryVEDPage(driver, link)
         page.open()
         page.ea_type_should_be_in_regulation_document(field_type_2, new_window)
-
-
-
-
-

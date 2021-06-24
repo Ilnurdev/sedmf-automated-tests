@@ -1,6 +1,9 @@
 from selenium.webdriver.common.by import By
 
 
+VIEW_MODE = "/following::td[1]"
+
+
 class AuthPageLocators:
     SELECT_ORG_LOCATOR = (By.CSS_SELECTOR, "#group_id")
     SELECT_USR_LOCATOR = (By.CSS_SELECTOR, "#user_id")
@@ -30,9 +33,18 @@ class MainPageLocators:
         self.menu = self.UserMenu(link_name)
         self.statistic = self.Statistics(link_name)
 
+    # Настройки системы
+    SETTINGS_LINK_LOCATOR = (
+        By.XPATH, "//div[@class='left_panel_box settings']//a[text()[contains(.,'Настройки системы')] and contains(@href,'/settings.php?')]")
 
-    # Настройки системы 
-    SETTINGS_LINK_LOCATOR = (By.XPATH, "//div[@class='left_panel_box settings']//a[text()[contains(.,'Настройки системы')] and contains(@href,'/settings.php?')]")
+    # Ссылки шапки
+    MAIN_PAGE_LINK_LOCATOR = (By.XPATH, "//div[@class='minfinrf']/a")
+    STP_PAGE_LINK_LOCATOR = (
+        By.XPATH, "//div[@class='support']/a[not(@class='email')]")
+    STP_EMAIL_LINK_LOCATOR = (
+        By.XPATH, "//div[@class='support']/a[@class='email']")
+    NOTIFICATION_LINK_LOCATOR = (By.XPATH, "//a[@id='notices-link']")
+    EXIT_LINK_LOCATOR = (By.XPATH, "//div[@class='logoff']")
 
     class TopPanelBlock:
         def __init__(self, link_name):
@@ -47,13 +59,13 @@ class MainPageLocators:
                 "Документы из МЭДО (Правительственная)": "/document.php?medo=1&medo_on_reg=0&status=0&category=0&folder_id=1&",
                 "Документы из МЭДО (Секретариат)": "/document.php?medo=1&medo_on_reg=0&status=0&category=0&folder_id=21&",
                 "Документы из МЭДО (прочие)": "/document.php?medo=1&medo_on_reg=0&status=0&category=0&folder_id=-1&",
-                }
+            }
 
             try:
                 self.link = links[link_name]
             except:
                 self.link = ""
-        
+
         def locator(self):
             return (By.XPATH, f"//div[@id='left_top_panel']//a[contains(@href,'{self.link}')]")
 
@@ -74,7 +86,7 @@ class MainPageLocators:
 
         def locator(self):
             return (By.XPATH, f"//div[@id='menu_top_{self.block}']//a[text()='{self.name}' and contains(@href,'/document.php?all=1')]")
-        
+
         def open_block(self):
             return (By.XPATH, f"//div[@id='menu_top_{self.block}']//a[@class='slide down']")
 
@@ -84,19 +96,19 @@ class MainPageLocators:
             self.block = block_num
 
         def return_locator(self, name):
-            elements = ["На регистрации из МЭДО (Ведомственная)", "На регистрации из МЭДО (Правительственная)", "На регистрации из МЭДО (Секретариат)"]
+            elements = ["На регистрации из МЭДО (Ведомственная)",
+                        "На регистрации из МЭДО (Правительственная)", "На регистрации из МЭДО (Секретариат)"]
             if name in elements:
                 index = name.index("(")
                 return f"//div[@id='menu_bottom_{self.block}']//li[text()='{name[index-1:]}']/a[text()='{name[:index-1]}']"
             return f"//div[@id='menu_bottom_{self.block}']//a[text()='{self.name}']"
 
-
         def locator(self):
             return (By.XPATH, self.return_locator(self.name))
-        
+
         def close_block(self):
             return (By.XPATH, f"//div[@id='menu_bottom_{self.block}']//a[@class='slide up']")
-    
+
     # Статусы документов у пользователей
     class DocumentStatuses:
         def __init__(self, link_name):
@@ -109,13 +121,13 @@ class MainPageLocators:
     class UserMenu:
         def __init__(self, link_name):
             self.name = link_name
-        
+
         def locator(self):
             bold = ["Исполнение документов", "Написать сообщение"]
             locator = f"//div[@class='left_panel_box']/h3[text()='Меню пользователя']/following::a[text()[contains(.,'Полный перечень')]]" if self.name == "Полный перечень документов" else f"//div[@class='left_panel_box']/h3[text()='Меню пользователя']/following::a{'/b' if self.name in bold else ''}[text()='{self.name}']"
 
             return (By.XPATH, locator)
-    
+
     # Статистика и исполнение документов
     class Statistics:
         def __init__(self, link_name):
@@ -133,7 +145,7 @@ class MainPageLocators:
                 self.link = links[link_name]
             except:
                 self.link = ""
-        
+
         def locator(self):
             return (By.XPATH, f"//div[@class='left_panel_box']/h3[text()='Статистика и исполнение документов']/following::a[contains(@href,'{self.link}')]")
 
@@ -209,8 +221,7 @@ class AllDocumentFieldLocators:
     # Универсальный селектор поиска по тексту
     @staticmethod
     def find_text_locator(element):
-        locator = (By.XPATH, f"//*[text()[contains(.,'{element}')]]")
-        return locator
+        return (By.XPATH, f"//*[text()[contains(.,'{element}')]]")
 
     # Заголовок страницы
     TITLE_LOCATOR = (By.CSS_SELECTOR, "h1")
@@ -245,12 +256,13 @@ class AllDocumentFieldLocators:
     # Удалить документ
     DELETE_FILE_LOCATOR = (By.XPATH, "//tr[@class='file']//a[@class='delete']")
 
+    def choose_user_from_drop_list_locator(self, text=None):
+        return (By.XPATH, "//div[@class='sg-div']/div[@id='fio_0']" if text == None else f"//div[@class='sg-div']//strong[text()[contains(.,'{text}')]]")
+
     # Связка
     @staticmethod
     def link_document(id):
-        locator = (
-            By.XPATH, f"//a[@target='_blank' and contains(@href,'{id}')]")
-        return locator
+        return (By.XPATH, f"//a[@target='_blank' and contains(@href,'{id}')]")
 
 
 class FindDocumentInFolder:
@@ -1114,3 +1126,432 @@ class SystemNotificationLocators:
     def notification_email_locator(email):
         locator = (By.XPATH, f"//span[text()='{email}']")
         return locator
+
+
+class SettingsPageLocators:
+    def __init__(self, name):
+        self.name = name
+
+    def choose_setting(self):
+        locator = (By.XPATH, f"//a[text()='{self.name}']")
+        return locator
+
+
+class EnterRequestDocumentPageLocators:
+    def __init__(self, num, parent=0):
+        self.change_root = self.ChangeRoot(num, parent)
+        self.offical_and_enter_mf = self.OfficialEnterMF(num)
+        self.provision_sh = self.ProvisionSoftwareHardware(num)
+
+    # Тип заявки
+    REQUEST_TYPE_NAME_LOCATOR = (
+        By.XPATH, "//tr[@id='request']/td[text()[contains(.,'Тип заявки:')]]")
+    REQUEST_TYPE_FIELD_LOCATOR = (By.XPATH, "//select[@id='request_type']")
+    REQUEST_TYPE_VIEW_MODE_LOCATOR = (
+        REQUEST_TYPE_NAME_LOCATOR[0], REQUEST_TYPE_NAME_LOCATOR[1] + VIEW_MODE)
+
+    # Кнопка удаления добавленных блоков
+    def delete_block_button(self, last=False):
+        locator = (
+            By.XPATH, "(//tr[not(@style='display: none;') and contains(@class,'request-field')]//a[@data-role='remove-btn'])")
+        return locator if last == False else (locator[0], locator[1] + "[last()]")
+
+    # Кнопки удаления
+    DELETE_BUTTON_LOCATOR = (
+        By.XPATH, "//tr[contains(@class,'request-field')]//a[text()='Удалить' or text()='удалить']")
+
+    class ChangeRoot:
+        # Обрабатываются сведения
+        INFORMATION_NAME_LOCATOR = (
+            By.XPATH, "//tr[@class='request-field']//td[contains(text(),'Обрабатываются сведения:')]")  # //td[text()[contains(.,'Обрабатываются сведения:')] and span]
+        INFORMATION_NOT_SECRET_RADIOBUTTON_LOCATOR = (
+            By.XPATH, "//input[@id='is_secret_0']")
+        INFORMATION_SECRET_RADIOBUTTON_LOCATOR = (
+            By.XPATH, "//input[@id='is_secret_1']")
+        INFORMATION_VIEW_MODE_LOCATOR = (
+            INFORMATION_NAME_LOCATOR[0], INFORMATION_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # Добавить сотрудника
+        ADD_STAFF_BUTTON_LOCATOR = (
+            By.XPATH, "//button[@data-role='add-staff']")
+
+        def __init__(self, num, parent):
+            self.num = str(num)
+            self.parent = str(parent)
+
+        # ФИО
+        def fio(self):
+            # //tr[@data-num='{self.parent}']/td[text()[contains(.,'ФИО:')] and span]
+            return (By.XPATH, f"//td[text()[contains(.,'ФИО:')]]")
+
+        def fio_field(self):
+            return (By.XPATH, f"//input[@id='inp_userField[{self.parent}]']")
+
+        def fio_delete(self):
+            return (By.XPATH, f"//a[@id='remover_userField[{self.parent}]']")
+
+        def fio_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'ФИО:')]]" + VIEW_MODE)
+
+        # Наименование информационного ресурса
+        def information_resource(self):
+            # //tr[@data-num='{self.num}' and @data-parent-num='{self.parent}']/td[text()[contains(.,'Наименование информационного ресурса:')] and span]
+            return (By.XPATH, f"//td[text()[contains(.,'Наименование информационного ресурса:')]]")
+
+        def information_resource_field(self):
+            return (By.XPATH, f"//tr[@data-num='{self.num}' and @data-parent-num='{self.parent}']//input[@class='ui-autocomplete-input']")
+
+        def information_resource_delete(self):
+            return (By.XPATH, f"//tr[@data-num='{self.num}' and @data-parent-num='{self.parent}']//a[@class='remove']")
+
+        def information_resource_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'Наименование информационного ресурса:')]]" + VIEW_MODE)
+
+        # Вид действий
+        def action_type(self):
+            # //tr[@data-num='{self.num}' and @data-parent-num='{self.parent}']/td[text()[contains(.,'Вид действий:')] and span]
+            return (By.XPATH, f"//td[text()[contains(.,'Вид действий:')]]")
+
+        def action_type_field(self):
+            return (By.XPATH, f"//select[@name='request[staff][{self.parent}][resources][{self.num}][action]']")
+
+        def action_type_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'Вид действий:')]]" + VIEW_MODE)
+
+        # Описание функциональной роли
+        def functional_role(self):
+            # //tr[@data-num='{self.num}' and @data-parent-num='{self.parent}']/td[span and text()[contains(.,'Описание функциональной роли:')]]
+            return (By.XPATH, f"//td[text()[contains(.,'Описание функциональной роли:')]]")
+
+        def functional_role_field(self):
+            return (By.XPATH, f"//textarea[@name='request[staff][{self.parent}][resources][{self.num}][description]']")
+
+        def functional_role_view_mode(self):
+            return (By.XPATH, f"//td[text()[contains(.,'Описание функциональной роли:')]]" + VIEW_MODE)
+
+        # Добавить ресурс
+        def add_resource_button(self):
+            return (By.XPATH, f"//button[@data-role='add-resource' and @data-num='{self.num}']")
+
+    class OfficialEnterMF:
+        # Тип изменения
+        CHANGE_TYPE_NAME_LOCATOR = (
+            By.XPATH, "//tr[@data-table='requests']/td[text()[contains(.,'Тип изменения:')]]")
+        CHANGE_TYPE_FIELD_LOCATOR = (
+            By.XPATH, "//select[@name='request[updates][type_change]']")
+        CHANGE_TYPE_VIEW_MODE_LOCATOR = (
+            CHANGE_TYPE_NAME_LOCATOR[0], CHANGE_TYPE_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # * Путь
+        PATH_NAME_LOCATOR = (
+            By.XPATH, "//tr[@data-table='requests']/td[span and text()[contains(.,'Путь:')]]")
+        PATH_FIELD_LOCATOR = (By.XPATH, "//textarea[@id='ws-path-id']")
+        PATH_BUTTON_LOCATOR = (
+            By.XPATH, "//tr[@data-role='update-path']//button[@data-role='ws-category-button']")
+        PATH_VIEW_MODE_LOCATOR = (
+            PATH_NAME_LOCATOR[0], PATH_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # * Переместить в
+        MOVE_TO_NAME_LOCATOR = (
+            By.XPATH, "//tr[@data-table='requests']/td[span and text()[contains(.,'Переместить в:')]]")
+        MOVE_TO_FIELD_LOCATOR = (By.XPATH, "//textarea[@id='ws-move-path-id']")
+        MOVE_TO_VIEW_MODE = (
+            MOVE_TO_NAME_LOCATOR[0], MOVE_TO_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # Дата публикации
+        PUBLISH_DATE_NAME_LOCATOR = (
+            By.XPATH, "//tr[@data-role='update-publish-date']//td[contains(text(),'Дата публикации:')]")
+        PUBLISH_DATE_FIELD_LOCATOR = (
+            By.XPATH, "//input[@name='request[updates][published_at]']")
+        PUBLISH_DATE_VIEW_MODE_LOCATOR = (
+            PUBLISH_DATE_NAME_LOCATOR[0], PUBLISH_DATE_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # Ответственный
+        RESPONSIBLE_NAME_LOCATOR = (
+            By.XPATH, "//tr[@data-block='update']/td[span and text()[contains(.,'Ответственный')]]")
+        RESPONSIBLE_FIELD_LOCATOR = (
+            By.XPATH, "//input[contains(@id,'inp_userField[')]")
+        RESPONSIBLE_VIEW_MODE_LOCATOR = (
+            RESPONSIBLE_NAME_LOCATOR[0], RESPONSIBLE_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # Телефон
+        PHONE_NUMBER_NAME_LOCATOR = (
+            By.XPATH, "//tr[@data-block='update']//td[span and text()[contains(.,'Телефон:')]]")
+        PHONE_NUMBER_FIELD_LOCATOR = (
+            By.XPATH, "//input[@name='request[updates][phone_number]']")
+        PHONE_NUMBER_VIEW_MODE_LOCATOR = (
+            PHONE_NUMBER_NAME_LOCATOR[0], PHONE_NUMBER_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # Комментарий
+        COMMENT_NAME_LOCATOR = (
+            By.XPATH, "//tr[@data-table='requests']/td[not(span) and text()[contains(.,'Комментарий:')]]")
+        COMMENT_FIELD_LOCATOR = (
+            By.XPATH, "//input[@name='request[updates][review]']")
+        COMMENT_VIEW_MODE_LOCATOR = (
+            COMMENT_NAME_LOCATOR[0], COMMENT_NAME_LOCATOR[1] + VIEW_MODE)
+
+        # Добавить тип операции
+        ADD_UPDATE_BUTTON_LOCATOR = (
+            By.XPATH, "//button[@data-role='add-update']")
+
+        def __init__(self, num):
+            self.num = num
+            self.block = f"//tr[@data-block='update' and @data-num='{num}' and not(contains(@style,'none'))]"
+
+        # Операция
+        def operation(self):
+            return (By.XPATH, f"//tr[@data-block='update' and @data-num='{self.num}']/td[text()[contains(.,'Операция:')]]")
+
+        def operation_field(self):
+            return (By.XPATH, f"//select[@name='request[updates][block][{self.num}][type]']")
+
+        def operation_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'Операция:')]]" + VIEW_MODE)
+
+        # Документ
+        def document(self):
+            return (By.XPATH, self.block + "/td[span and text()[contains(.,'Документ:')]]")
+
+        def document_field(self):
+            return (By.XPATH, self.block + f"//textarea[contains(@name,'request[updates][block][{self.num}]')]")
+
+        def document_add_file(self):
+            return (By.XPATH, self.block + "//input[@type='file']")
+
+        def document_view_mode(self):
+            return (By.XPATH, self.block + "//td[span and text()[contains(.,'Документ:')]]" + VIEW_MODE)
+
+        # Приложения / Приложение (структура рубрики/раздела)
+        def application(self):
+            return (By.XPATH, self.block + "/td[text()[contains(.,'Приложения:')]]")
+
+        def application_2(self):
+            return (By.XPATH, self.block + "/td[text()[contains(.,'Приложение (структура рубрики/раздела):')]]")
+
+        def application_button(self, disable=False):
+            locator = (By.XPATH, self.block + "//button")
+            if disable == True:
+                return (locator[0], locator[1] + "[@disabled]")
+            return locator
+
+        def application_field(self, num):
+            return (By.XPATH, self.block + f"//div[@data-role='app-item' and @data-num='{num}']//textarea")
+
+        def application_add_file(self, num):
+            return (By.XPATH, self.block + f"//div[@data-role='app-item' and @data-num='{num}']//input[@type='file']")
+
+        def application_delete_button(self, num):
+            return (By.XPATH, self.block + f"//div[@data-role='app-item' and @data-num='{num}']//a")
+
+        def application_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'Приложения:')]]" + VIEW_MODE)
+
+        def application_2_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'Приложение (структура рубрики/раздела):')]]" + VIEW_MODE)
+
+        # Вид информации
+        def information_type(self):
+            return (By.XPATH, self.block + "/td[text()[contains(.,'Вид информации:')]]")
+
+        def information_type_field(self):
+            return (By.XPATH, self.block + "//div[@class='info-container custom-autocomplete']//input")
+
+        def information_type_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'Вид информации:')]]" + VIEW_MODE)
+
+        # Состав инф-ии
+        def info_composition(self):
+            return (By.XPATH, self.block + "/td[text()[contains(.,'Состав инф-ии:')]]")
+
+        def info_composition_field(self):
+            return (By.XPATH, self.block + "//div[@class='info-content-container custom-autocomplete']//input")
+
+        def info_composition_view_mode(self):
+            return (By.XPATH, "//td[text()[contains(.,'Состав инф-ии:')]]" + VIEW_MODE)
+
+        # Название
+        def name(self):
+            return (By.XPATH, self.block + "/td[span and text()[contains(.,'Название:')]]")
+
+        def name_field(self):
+            return (By.XPATH, self.block + f"//input[@name='request[updates][block][{self.num}][name]']")
+
+        def name_view_mode(self):
+            locator = self.name()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        # Новое название
+        def new_name(self):
+            return (By.XPATH, self.block + "/td[span and text()[contains(.,'Новое название:')]]")
+
+        def new_name_field(self):
+            return (By.XPATH, self.block + f"//input[@name='request[updates][block][{self.num}][new_name]']")
+
+        def new_name_view_mode(self):
+            locator = self.new_name()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        # Заменить (текущий)
+        def replace_doc(self):
+            return (By.XPATH, self.block + "//td[span and text()[contains(.,'Заменить (текущий):')]]")
+
+        def replace_doc_field(self):
+            return (By.XPATH, self.block + f"//textarea[@name='request[updates][block][{self.num}][new_name]']")
+
+        def replace_doc_view_mode(self):
+            return (By.XPATH, "//td[span and text()[contains(.,'Заменить (текущий):')]]" + VIEW_MODE)
+
+        # Документ (новый)
+        def new_doc(self):
+            return (By.XPATH, self.block + "/td[span and text()[contains(.,'Документ (новый):')]]")
+
+        def new_doc_field(self):
+            return (By.XPATH, self.block + "//div[@data-role='files-placeholder']//textarea")
+
+        def new_doc_add_file_button(self):
+            return (By.XPATH, self.block + "//input[@data-role='upload-doc-file']")
+
+        def new_doc_view_mode(self):
+            return (By.XPATH, "//td[span and text()[contains(.,'Документ (новый):')]]" + VIEW_MODE)
+
+    class ProvisionSoftwareHardware:
+        ADD_DEVICE_BUTTON_LOCATOR = (
+            By.XPATH, "//button[@data-role='add-device']")
+
+        def __init__(self, num):
+            self.num = num
+            self.block = f"//tr[@data-num='{self.num}' and not(contains(@style, 'none'))]"
+
+        # Вид работ
+        def work_type(self):
+            # //td[span and text()[contains(.,'Вид работ:')]]
+            return (By.XPATH, "//td[text()[contains(.,'Вид работ:')]]")
+
+        def work_type_selector(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][job]']")
+
+        def work_type_view_mode(self):
+            locator = self.work_type()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        # Снять с (ФИО, адрес)
+        def remove_from(self):
+            # /td[span[text()='Снять с'] and text()[contains(.,'(ФИО, адрес)')]]
+            return (By.XPATH, self.block + "/td[text()[contains(.,'(ФИО, адрес)')]]")
+
+        def remove_from_field(self):
+            return (By.XPATH, self.block + "//input[@class='text']")
+
+        def remove_from_address(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][fromAddr]']")
+
+        def remove_from_room(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][fromRoom]']")
+
+        def remove_from_view_mode(self):
+            locator = self.remove_from()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        def remove_from_address_view_mode(self):
+            locator = self.remove_from()
+            return (locator[0], locator[1] + "/following::td[2]")
+
+        # Установить (ФИО, адрес)
+        def install_to(self):
+            return (By.XPATH, self.block + "/td[text()[contains(.,'Установить (ФИО, адрес)')]]")
+
+        def install_to_field(self):
+            return (By.XPATH, self.block + "//span[@data-role='to-user']//input[@class='text']")
+
+        def install_to_address(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][toAddr]']")
+
+        def install_to_room(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][toRoom]']")
+
+        def install_to_view_mode(self):
+            locator = self.install_to()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        def install_to_address_view_mode(self):
+            locator = self.install_to()
+            return (locator[0], locator[1] + "/following::td[2]")
+
+        # В соответствии с карточкой учета СВТ
+        def svt_card(self):
+            # //td[span and text()[contains(.,'В соответствии с карточкой учета СВТ:')]]
+            return (By.XPATH, self.block + "//td[text()[contains(.,'В соответствии с карточкой учета СВТ:')]]")
+
+        def svt_card_button(self):
+            return (By.XPATH, self.block + f"//button[@data-num='{self.num}']")
+
+        def svt_card_view_mode(self):
+            locator = self.svt_card()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        def svt_window_first_element(self):
+            return (By.XPATH, "//input")
+
+        def svt_window_continue_button(self):
+            return (By.XPATH, "//button[@data-role='select']")
+
+        # Наименование устройства
+        def device_name(self):
+            return (By.XPATH, self.block + "//td[text()[contains(.,'Наименование устройства:')]]")
+
+        def device_name_category(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][deviceCategoryId]']")
+
+        def device_name_device(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][deviceId]']")
+
+        def device_name_view_mode(self):
+            locator = self.device_name()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        # Перевод в департамент
+        def transfer_to_department(self):
+            return (By.XPATH, self.block + f"//td[text()[contains(.,'Перевод в департамент:')]]")
+
+        def transfer_to_department_field(self):
+            return (By.XPATH, self.block + f"//select[@name='request[devices][{self.num}][toDepId]']")
+
+        def transfer_to_department_view_mode(self):
+            locator = self.transfer_to_department()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+        # Обоснование/комментарий
+        def justification(self):
+            return (By.XPATH, "//td[text()[contains(.,'Обоснование/комментарий')]]")
+
+        def justification_field(self):
+            return (By.XPATH, self.block + f"//textarea[@name='request[devices][{self.num}][comment]']")
+
+        def justification_view_mode(self):
+            locator = self.justification()
+            return (locator[0], locator[1] + VIEW_MODE)
+
+
+class OSMFInformationSettingsLocators:
+    ADD_BUTTON_LOCATOR = (By.XPATH, "//a[text()='Добавить']")
+    BACK_BUTTON_LOCATOR = (By.XPATH, "//a[text()='Назад']")
+    ENTER_NEW_OSMF_LOCATOR = (
+        By.XPATH, "//tr[@class='r0 new']//input[@type='text']")
+    SAVE_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Сохранить']")
+
+    def __init__(self, name):
+        self.name = name
+
+    def osmf_type(self):
+        return (By.XPATH, f"//div[text()='{self.name}']")
+
+    def edit_osmf(self):
+        locator = self.osmf_type()
+        return (locator[0], locator[1] + "/following::td/a[@class='dotted edit']")
+
+    def delete_osmf(self):
+        locator = self.osmf_type()
+        return (locator[0], locator[1] + "/following::td/a[@class='dotted delete']")
+
+    def input_edit_osmf(self):
+        return (By.XPATH, f"//input[@value='{self.name}']")

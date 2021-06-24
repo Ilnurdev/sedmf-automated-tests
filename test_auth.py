@@ -15,4 +15,3 @@ class TestAuthorizationForm:
         page.choose_user(SA_VALUE)
         page.enter_password()
         page.click_to_enter_button()
-

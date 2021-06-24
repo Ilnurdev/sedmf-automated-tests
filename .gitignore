@@ -142,3 +142,8 @@ cython_debug/
 
 # Other
 *.doc
+*.docx
+regulation-npa-id.json
+config.json
+yandexdriver.exe
+files

@@ -49,7 +49,7 @@ def chrome(browser_name):
 def firefox(browser_name):
     ff_profile = webdriver.FirefoxProfile()
     options = Options()
-    options.headless = True
+    # options.headless = True
     ff_profile.add_extension(
         extension=PATH_TO_CP_XPI)
 
@@ -76,12 +76,18 @@ def edge(browser_name):
 
 def yandex(browser_name):
     options = webdriver.ChromeOptions()
-    options.binary_location = r"C:\\Users\\User\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe" # path to YandexDriver
+    options.add_argument("--headless")
+    options.add_argument('ignore-certificate-errors')
+    # path to YandexDriver
+    options.binary_location = r"C:\\Users\\User\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe"
+    path = r"D:\\WorkSpace\\sedmf-automated-tests\\pages\\files\\yandexdriver.exe"
 
-    return webdriver.Chrome(executable_path=PATH_TO_CP_YD, options=options)
+    return webdriver.Chrome(executable_path=path, chrome_options=options)
+
 
 def opera(browser_name):
     return webdriver.Opera(executable_path=WBO_PATH)
+
 
 @pytest.fixture(scope="function")
 def driver(request):
