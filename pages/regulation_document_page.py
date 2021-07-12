@@ -452,7 +452,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         if first == True:
             assert RegulationFields.NON_REQUIRED_FIELD == id_field
         else:
-            assert self.regulation_npa_id(index) in id_field
+            assert index in id_field
 
     def should_be_project_npa_id_fields(self, type, first, edit_mode, index):
         self.should_be_project_npa_id_field(type)
@@ -471,16 +471,16 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
                 *RegulationDocumentLocators.ID_NPA_PROJECT_FIELD_LOCATOR), f"Поле '{RegulationFields.PROJECT_NPA_ID}' доступно для редактирования"
             self.should_be_closed_project_npa_id_field(type, first, index)
 
-    def enter_project_npa_id_field(self, type, first, index):
+    def enter_project_npa_id_field(self, type, first, npa_id):
         self.should_be_project_npa_id_field(type)
         assert self.is_element_present(
             *RegulationDocumentLocators.ID_NPA_PROJECT_FIELD_LOCATOR)
 
         if first == False:
             self.fill_field(
-                *RegulationDocumentLocators.ID_NPA_PROJECT_FIELD_LOCATOR, self.regulation_npa_id(index))
+                *RegulationDocumentLocators.ID_NPA_PROJECT_FIELD_LOCATOR, npa_id)
 
-    def regulation_correct_npa_id_fields(self, index, npa_index, first, mode):
+    def regulation_correct_npa_id_fields(self, index, npa_id, first, mode):
         mods = {
             1: [True],
             2: [False, True],
@@ -490,10 +490,10 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         if index not in [1, 2, 3, 32]:
             id_type = 2 if index in [33, 34] else 1
             if (mods[mode][0] == True):
-                self.enter_project_npa_id_field(id_type, first, npa_index)
+                self.enter_project_npa_id_field(id_type, first, npa_id)
             else:
                 self.should_be_project_npa_id_fields(
-                    id_type, first, mods[mode][1], npa_index)
+                    id_type, first, mods[mode][1], npa_id)
 
     """
 
@@ -1679,25 +1679,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         return text == error_message
 
-    def create_npa_regulation_id(self, index):
+    def create_npa_regulation_id(self, index=1):
         npa_body = datetime.today().strftime("%Y%m%d%H%M%S")
-        return f"autotest-{npa_body}-{index}"
-
-    def regulation_npa_id(self, chain_index, save=False):
-        PATH = os.path.join(os.path.dirname(os.path.abspath(
-            __file__)), "files", "regulation-npa-id.json")
-        with open(PATH, "r") as read:
-            data = json.load(read)
-            chain_index = str(chain_index)
-
-            if save == True:
-                data[chain_index] = self.create_npa_regulation_id(chain_index)
-
-                with open(PATH, "w") as write:
-                    json.dump(data, write, indent=4)
-                return data[chain_index]
-            else:
-                return data[chain_index]
+        return f"autotest-{npa_body}-autotest"
 
     def modify_npa_type(self, npa_type, group=2):
         npa = (re.search(r"(\d+)\. (.+)", npa_type)[group])
@@ -1729,16 +1713,17 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         return answer_type
 
-    def create_and_send_answer(self, index, chain_index, create_id=False):
+    def create_and_send_answer(self, index, npa_id, create_id=False):
         answer_type = self.have_answer(index)
         if answer_type != 0:
-            self.create_answer(answer_type, create_id, chain_index)
+            npa_id = self.create_answer(answer_type, create_id, npa_id)
             self.create_and_send_agree_sheet()
             self.register_and_send_enter_regulation_document(answer=True)
 
             self.send_medo()
+        return npa_id
 
-    def create_answer(self, answer_type, create_id, chain_index):
+    def create_answer(self, answer_type, create_id, npa_id):
         self.click_to_answer_pictogram()
 
         self.should_be_required_fields(RegulationFields.SOGL_ANSWER_TITLE)
@@ -1750,14 +1735,16 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_end_date_fields(answer_type)
         self.should_be_add_file_button()
 
-        self.enter_npa_id_fields(
-            self.regulation_npa_id(chain_index, create_id), create_id)
+        npa_id = self.create_npa_regulation_id() if create_id == True else npa_id
+        self.enter_npa_id_fields(npa_id, create_id)
+
         self.fill_field(
             *RegulationAnswerPageLocators.ADD_DOCUMENT_LOCATOR, None)
         self.enter_start_date()
         self.enter_end_date()
 
         self.save_rcd()
+        return npa_id
 
     def fields(self, args, fill=False, edit=False):
         arr_fields = [
@@ -1971,7 +1958,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         fields = self.regulation_index_fields(index)
         self.fields(fields, edit=edit)
 
-    def regulation_doc(self, order, request_type, chain_index, edit=False, first=False, from_rcsi=False, error=False):
+    def regulation_doc(self, order, request_type, npa_id, edit=False, first=False, from_rcsi=False, error=False):
         if edit == True:
             self.click_to_edit_pictogram()
 
@@ -1987,7 +1974,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             self.regulation_delete_all_added_files(fields)
 
         self.regulation_correct_npa_id_fields(
-            index, chain_index, first, edit_status)
+            index, npa_id, first, edit_status)
         self.regulation_correct_notice_npa_not_placed_fields(
             index, first, edit_status)
 
@@ -1995,7 +1982,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         if error == False:
             self.save_regulation_rcd(edit_bool, index)
-            self.check_regulation_doc(index, chain_index, first, edit_bool)
+            self.check_regulation_doc(index, npa_id, first, edit_bool)
         else:
             self.click_to(*AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR)
             assert self.should_be_correct_error_message(error)
@@ -2098,15 +2085,15 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
             *ChangeResponsibleInfoLocators.ERROR_ID_NOT_FOUND)
         assert error_text == text
 
-    def choose_chain(self):
-        chain_index = randint(1, 14)
-        chain_open = self.regulation_npa_id(chain_index)
+    # def choose_chain(self):
+    #     chain_index = randint(1, 14)
+    #     chain_open = self.regulation_npa_id(chain_index)
 
-        while chain_open == "":
-            chain_index = randint(1, 14)
-            chain_open = self.regulation_npa_id(chain_index)
+    #     while chain_open == "":
+    #         chain_index = randint(1, 14)
+    #         chain_open = self.regulation_npa_id(chain_index)
 
-        return chain_index
+    #     return chain_index
 
     def main_regulation_35_fields(self, edit=False):
         if edit == False:
@@ -2174,11 +2161,8 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
 
 
 class RegulationRefuseDocument(RegulationDocumentPage):
-    def create_refuse_document(self, have_answer, doc_link):
-        if have_answer == False:
-            self.should_not_be_answer_pictogram()
-        else:
-            self.should_be_answer_pictogram()
+    def create_refuse_document(self, request_name, doc_link):
+        self.should_not_be_answer_pictogram() if self.have_answer(self.modify_npa_type(request_name, 1)) == 0 else self.should_be_answer_pictogram()
         self.should_be_refuse_pictogram()
 
         url = self.driver.current_url
@@ -2234,7 +2218,7 @@ class RegulationChainShowInstrument(RegulationRefuseDocument):
             *RegulationDocumentLocators.rsci_next_request_link_locator(request_type))
         self.url_change(url)
 
-    def check_rcsi_name(self, have_id):
+    def check_rcsi_name(self, npa_id):
         text = ""
         count = 0
 
@@ -2246,8 +2230,8 @@ class RegulationChainShowInstrument(RegulationRefuseDocument):
 
         arr = ["Заявки по проекту НПА (отчету ОФВ)"]
 
-        if have_id == True:
-            arr += ["ID", self.regulation_npa_id(13)]
+        if npa_id != None:
+            arr += ["ID", npa_id]
 
         for i in arr:
             assert i in text
@@ -2301,7 +2285,7 @@ class RegulationChainShowInstrument(RegulationRefuseDocument):
                 assert self.return_text(
                     *i(number)) == self.modify_npa_type(name)
 
-    def check_rcsi(self, have_id, doc_status, number, name, wait, repeat, num_satus, *next_type):
+    def check_rcsi(self, npa_id, doc_status, number, name, wait, repeat, num_satus, *next_type):
         if wait == True:
             self.should_be_status_on_agree()
 
@@ -2310,7 +2294,7 @@ class RegulationChainShowInstrument(RegulationRefuseDocument):
         if repeat == True:
             self.is_element_present(
                 *RegulationDocumentLocators.RCSI_ACTUAL_VERSION_LOCATOR)
-        self.check_rcsi_name(have_id)
+        self.check_rcsi_name(npa_id)
         self.check_rcsi_status(doc_status, [self.modify_npa_type(
             next_type[i]) for i in range(len(next_type))])
         self.check_rcsi_number(number, name, num_satus)

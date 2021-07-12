@@ -24,40 +24,30 @@ def setup(driver):
 @pytest.mark.regulation
 @pytest.mark.regulation_notification
 class TestRegulationNotification:
+    NPA_ID = None
+
     def enter_in_acc(self, driver, root=None):
         link = URLs.AUTH_LINK
         page = AuthPage(driver, link)
         page.open()
         page.enter_in_account(root)
 
-    @pytest.mark.parametrize("npa_number,regulation_type,chain_index,first,field_name,date,not_type", [
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, 1, True,
-                     SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, 2, True,
-                     SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, 7, True,
-                     SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, 8, True,
-                     SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
-        pytest.param(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22, 13, True,
-                     SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
-        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, 14, True,
-                     SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
+    @pytest.mark.parametrize("npa_number,regulation_type,field_name,date,message_type", [
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 2),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 3),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 4),
+        pytest.param(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 5),
+        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 6),
 
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, 1, True,
-                     SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 2),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_2, 6, True,
-                     SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 2),
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, 2, True,
-                     SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 2),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, 7,
-                     True, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 2),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, 8,
-                     True, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 2),
-        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, 14, True,
-                     SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 2),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 7),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_2, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 8),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 9),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 10),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 11),
+        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 12),
     ])
-    def test_regulation_notification_documet(self, driver, npa_number, regulation_type, chain_index, first, field_name, date, not_type):
+    def test_regulation_notification_document(self, driver, npa_number, regulation_type, field_name, date, message_type):
         link = MainFunc.take_DNSID(URLs.SYSTEM_NOTIFY_LINK, driver.current_url)
         page = SystemNotificationPage(driver, link)
         page.open()
@@ -67,8 +57,7 @@ class TestRegulationNotification:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(npa_number, regulation_type,
-                            chain_index, False, first)
+        page.regulation_doc(npa_number, regulation_type, TestRegulationNotification.NPA_ID, False, True)
         page.create_and_send_agree_sheet()
         doc_id = page.save_document_id()
 
@@ -77,21 +66,20 @@ class TestRegulationNotification:
             URLs.OPENED_DOCUMENT_LINK, driver.current_url), doc_id)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        index = page.modify_npa_type(regulation_type, 1)
         page.register_and_send_enter_regulation_document()
         page.send_medo()
 
-        page.create_and_send_answer(index, chain_index, first)
+        TestRegulationNotification.NPA_ID = page.create_and_send_answer(page.modify_npa_type(regulation_type, 1), TestRegulationNotification.NPA_ID, True)
 
         self.enter_in_acc(driver)
         link = MainFunc.take_DNSID(
             URLs.REGULATION_CONTROL_LINK, driver.current_url)
         page = RegulationControlPage(driver, link)
         page.open()
-        page.enter_npa_identificator_field(chain_index)
-        page.send_message_key_date(date, not_type)
+        page.enter_npa_identificator_field(TestRegulationNotification.NPA_ID)
+        page.send_message_key_date(date, message_type)
 
         link = MainFunc.take_DNSID(URLs.SYSTEM_NOTIFY_LINK, driver.current_url)
         page = SystemNotificationPage(driver, link)
         page.open()
-        page.write_in_doc(chain_index, field_name, not_type, date)
+        page.write_in_doc(TestRegulationNotification.NPA_ID, field_name, message_type, date)

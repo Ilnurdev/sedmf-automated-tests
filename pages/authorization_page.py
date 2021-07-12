@@ -1,6 +1,5 @@
 from .main_functions import MainFunc
 from .locators import AuthPageLocators
-from selenium import webdriver
 
 
 ORG_VALUE = MainFunc.config("organisation")

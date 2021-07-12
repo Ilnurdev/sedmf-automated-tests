@@ -1,6 +1,6 @@
 from .main_functions import MainFunc
 from .all_document_fields_page import AllDocumentFieldPage
-from .locators import MainPageLocators, SoglNewDocumentWindow
+from .locators import MainPageLocators, SoglNewDocumentWindow, AllDocumentFieldLocators
 
 
 class MainPage(MainFunc):
@@ -320,7 +320,7 @@ class MainPage(MainFunc):
                     self.work_with_windows(1)
 
                 AllDocumentFieldPage(
-                    self.driver, "").should_be_correct_title(i[1])
+                    self.driver).should_be_correct_title(i[1])
                 if new_sogl:
                     self.driver.close()
                     self.work_with_windows()

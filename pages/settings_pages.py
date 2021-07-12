@@ -196,9 +196,9 @@ class RegulationControlPage(RegulationDocumentPage, AdministrationRegulationPage
         for i in elements:
             assert self.is_element_present(*i)
 
-    def enter_npa_identificator_field(self, chain_index):
-        self.fill_field(*RegulationControlLocators.NPA_IDENTIFICATOR_FIELD_LOCATOR,
-                        self.regulation_npa_id(chain_index))
+    def enter_npa_identificator_field(self, npa_id):
+        self.fill_field(
+            *RegulationControlLocators.NPA_IDENTIFICATOR_FIELD_LOCATOR, npa_id)
         self.click_to(*RegulationControlLocators.FIND_BUTTON_LOCATOR)
 
     def alert_accept(self, element):
@@ -211,16 +211,13 @@ class RegulationControlPage(RegulationDocumentPage, AdministrationRegulationPage
             assert False
 
     def send_message_key_date(self, date, field_type):
-        if field_type == 1:
-            elements = [RegulationControlLocators.KEY_DATE_1_LOCATOR,
-                        RegulationControlLocators.SAVE_CHANGES_1_LOCATOR, RegulationControlLocators.SEND_NOTIFICATION_1_LOCATOR]
-        elif field_type == 2:
-            elements = [RegulationControlLocators.KEY_DATE_2_LOCATOR,
-                        RegulationControlLocators.SAVE_CHANGES_2_LOCATOR, RegulationControlLocators.SEND_NOTIFICATION_2_LOCATOR]
+        elements = [[RegulationControlLocators.KEY_DATE_1_LOCATOR, RegulationControlLocators.SAVE_CHANGES_1_LOCATOR, RegulationControlLocators.SEND_NOTIFICATION_1_LOCATOR], [
+            RegulationControlLocators.KEY_DATE_2_LOCATOR, RegulationControlLocators.SAVE_CHANGES_2_LOCATOR, RegulationControlLocators.SEND_NOTIFICATION_2_LOCATOR]]
 
-        self.fill_field(*elements[0], date)
-        self.alert_accept(elements[1])
-        self.alert_accept(elements[2])
+        field_type = 0 if field_type <= 6 else 1
+        self.fill_field(*elements[field_type][0], date)
+        self.alert_accept(elements[field_type][1])
+        self.alert_accept(elements[field_type][2])
 
 
 # Настройка системных уведомлений
@@ -258,34 +255,28 @@ class SystemNotificationPage(MainFunc):
         assert self.is_element_present(
             *locator.notification_email_locator(EMAIL))
 
-    def write_in_doc(self, chain_index, notification_type, message_type, date):
-        locator = self.should_be_notification_field(notification_type)
+    def write_in_doc(self, npa_id, field_name, message_type, date):
+        locator = self.should_be_notification_field(field_name)
         emails = [i.text for i in self.driver.find_elements(
             *locator.notification_all_emails_locator())]
 
-        regulation = RegulationDocumentPage(self.driver, "")
-        regulation_index = regulation.regulation_npa_id(chain_index)
+        message_text = {
+            1: f"Тема сообщения: «Закончился срок обсуждения уведомления о подготовке проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения уведомления о подготовке проекта НПА.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+            2: f"Тема сообщения: «Закончился срок общественного обсуждения проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения проекта НПА.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+            3: f"Тема сообщения: «Закончился срок публичного обсуждения проекта НПА и сводного отчета».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта НПА и сводного отчета.\nID проекта правового акта: {npa_id}",
+            4: f"Тема сообщения: «Закончился срок публичного обсуждения проекта решения ЕЭК».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта решения ЕЭК.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+            5: f"Тема сообщения: «Закончился срок проведения антикоррупционной экспертизы по проекту НПА».\nТекст сообщения: {date} закончился срок проведения антикоррупционной экспертизы по проекту НПА.\nID проекта на сайте regulation.gov.ru:  {npa_id}",
+            6: f"Тема сообщения: «Закончился срок обсуждения НПА и отчета ОФВ».\nТекст сообщения: {date} закончился срок обсуждения НПА и отчета ОФВ.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+            
+            7: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+            8: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+            9: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+            10: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА и сводному отчета. Необходимо направить письмо для разработчика проекта. ID проекта правового акта: {npa_id}",
+            11: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту решения ЕЭК. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+            12: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по отчету ОФВ. Необходимо направить письмо для разработчика отчета. ID проекта на сайте regulation.gov.ru: {npa_id}",
+        }
 
-        if message_type == 1:
-            message_text = {
-                1: f"Тема сообщения: «Закончился срок обсуждения уведомления о подготовке проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения уведомления о подготовке проекта НПА.\nID проекта на сайте regulation.gov.ru: {regulation_index}",
-                2: f"Тема сообщения: «Закончился срок общественного обсуждения проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения проекта НПА.\nID проекта на сайте regulation.gov.ru: {regulation_index}",
-                7: f"Тема сообщения: «Закончился срок публичного обсуждения проекта НПА и сводного отчета».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта НПА и сводного отчета.\nID проекта правового акта: {regulation_index}",
-                8: f"Тема сообщения: «Закончился срок публичного обсуждения проекта решения ЕЭК».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта решения ЕЭК.\nID проекта на сайте regulation.gov.ru: {regulation_index}",
-                13: f"Тема сообщения: «Закончился срок проведения антикоррупционной экспертизы по проекту НПА».\nТекст сообщения: {date} закончился срок проведения антикоррупционной экспертизы по проекту НПА.\nID проекта на сайте regulation.gov.ru:  {regulation_index}",
-                14: f"Тема сообщения: «Закончился срок обсуждения НПА и отчета ОФВ».\nТекст сообщения: {date} закончился срок обсуждения НПА и отчета ОФВ.\nID проекта на сайте regulation.gov.ru: {regulation_index}",
-            }
-        elif message_type == 2:
-            message_text = {
-                1: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {regulation_index}",
-                6: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {regulation_index}",
-                2: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {regulation_index}",
-                7: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА и сводному отчета. Необходимо направить письмо для разработчика проекта. ID проекта правового акта: {regulation_index}",
-                8: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту решения ЕЭК. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {regulation_index}",
-                14: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по отчету ОФВ. Необходимо направить письмо для разработчика отчета. ID проекта на сайте regulation.gov.ru: {regulation_index}",
-            }
-
-        text = f"Письмо отправлено на почту: {(', '.join(emails))}\n{message_text[chain_index]}\n\n"
+        text = f"Письмо отправлено на почту: {(', '.join(emails))}\n{message_text[message_type]}\n\n"
         file_name = f"{DateValues.DATE_TODAY}-Notification.doc"
 
         PATH = os.path.join(os.path.dirname(os.path.abspath(

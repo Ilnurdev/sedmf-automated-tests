@@ -847,7 +847,7 @@ class Fields(MainFunc):
 
 class EnterRequestDocumentPage(Fields, AllDocumentFieldPage):
 
-    def fill_enter_reqests_fields(self, num, fill, edit):
+    def enter_reqests_fields(self, num, fill, edit):
         field = self.fields(num, edit)
 
         if fill == True and edit == False:
