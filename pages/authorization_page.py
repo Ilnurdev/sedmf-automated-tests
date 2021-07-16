@@ -25,6 +25,12 @@ class AuthPage(MainFunc):
         enter_button.click()
 
     def enter_in_account(self, root=None):
+        def if_passwerd_not_entred():
+            self.enter_password()
+            url = self.driver.current_url
+            self.click_to_enter_button()
+            return url
+
         if root == "a":
             value = MainFunc.config("admin")
         elif root == "awn":
@@ -38,7 +44,9 @@ class AuthPage(MainFunc):
 
         self.choose_org()
         self.choose_user(value)
-        self.enter_password()
-        url = self.driver.current_url
-        self.click_to_enter_button()
-        self.url_change(url)
+        url = if_passwerd_not_entred()
+
+        count = 3
+        while self.url_change(url, 15) == False and count != 0:
+            url = if_passwerd_not_entred()
+            count != 3
