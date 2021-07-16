@@ -40,36 +40,20 @@ class TestAddBlockButtons:
         page = EnterRequestDocumentPage(driver, link)
         page.open()
 
-        page.should_be_request_type_field(0, 0)
-        page.should_be_information_field(0, 0)
-        page.should_be_fio_field(0, 0)
-        page.should_be_information_resource_field(0, 0)
-        page.should_be_action_type_field(0, 0)
-        page.should_be_functional_role_field(0, 0)
+        types = [((None), (0, 0)), ((1, 0), (1, 0)), ((2, 0), (0, 1)), ((1, 1), (1, 1))]
 
-        page.enter_request_add_buttons(1)
-        page.should_be_request_type_field(1, 0)
-        page.should_be_information_field(1, 0)
-        page.should_be_fio_field(1, 0)
-        page.should_be_information_resource_field(1, 0)
-        page.should_be_action_type_field(1, 0)
-        page.should_be_functional_role_field(1, 0)
+        for i in range(len(types)):
+            num, parent = types[i][1][0], types[i][1][1]
 
-        page.enter_request_add_buttons(2)
-        page.should_be_request_type_field(0, 1)
-        page.should_be_information_field(0, 1)
-        page.should_be_fio_field(0, 1)
-        page.should_be_information_resource_field(0, 1)
-        page.should_be_action_type_field(0, 1)
-        page.should_be_functional_role_field(0, 1)
+            if i != 0:
+                page.enter_request_add_buttons(types[i][0][0], types[i][0][1])
 
-        page.enter_request_add_buttons(1, 1)
-        page.should_be_request_type_field(1, 1)
-        page.should_be_information_field(1, 1)
-        page.should_be_fio_field(1, 1)
-        page.should_be_information_resource_field(1, 1)
-        page.should_be_action_type_field(1, 1)
-        page.should_be_functional_role_field(1, 1)
+            page.should_be_request_type_field(num, parent)
+            page.should_be_information_field(num, parent)
+            page.should_be_fio_field(num, parent)
+            page.should_be_information_resource_field(num, parent)
+            page.should_be_action_type_field(num, parent)
+            page.should_be_functional_role_field(num, parent)
 
         page.delete_block_locator(2)
         page.delete_block_locator(2)
@@ -83,46 +67,26 @@ class TestAddBlockButtons:
         page.should_be_request_type_fields(
             0, 0, True, EnterRequestValues.OFFICIAL_MF)
 
-        page.should_be_request_type_field(0, 0)
-        page.should_be_change_type_field(0, 0)
-        page.should_be_path_field(0, 0)
-        page.should_be_publish_date_field(0, 0)
-        page.should_be_responsible_field(0, 0)
-        page.should_be_phone_field(0, 0)
-        page.should_be_comment_field(0, 0)
-        page.should_be_operation_field(0, 0)
-        page.should_be_document_field(0, 0)
-        page.should_be_application_field(0, 0)
-        page.should_be_information_type_field(0, 0)
-        page.should_be_info_composition_field(0, 0)
+        types = [(0, 0), (1, 0), (2, 0)]
 
-        page.enter_request_add_buttons(3)
-        page.should_be_request_type_field(1, 0)
-        page.should_be_change_type_field(1, 0)
-        page.should_be_path_field(1, 0)
-        page.should_be_publish_date_field(1, 0)
-        page.should_be_responsible_field(1, 0)
-        page.should_be_phone_field(1, 0)
-        page.should_be_comment_field(1, 0)
-        page.should_be_operation_field(1, 0)
-        page.should_be_document_field(1, 0)
-        page.should_be_application_field(1, 0)
-        page.should_be_information_type_field(1, 0)
-        page.should_be_info_composition_field(1, 0)
+        for i in range(len(types)):
+            num, parent = types[i][0], types[i][1]
 
-        page.enter_request_add_buttons(3)
-        page.should_be_request_type_field(2, 0)
-        page.should_be_change_type_field(2, 0)
-        page.should_be_path_field(2, 0)
-        page.should_be_publish_date_field(2, 0)
-        page.should_be_responsible_field(2, 0)
-        page.should_be_phone_field(2, 0)
-        page.should_be_comment_field(2, 0)
-        page.should_be_operation_field(2, 0)
-        page.should_be_document_field(2, 0)
-        page.should_be_application_field(2, 0)
-        page.should_be_information_type_field(2, 0)
-        page.should_be_info_composition_field(2, 0)
+            if i != 0:
+                page.enter_request_add_buttons(3)
+
+            page.should_be_request_type_field(num, parent)
+            page.should_be_change_type_field(num, parent)
+            page.should_be_path_field(num, parent)
+            page.should_be_publish_date_field(num, parent)
+            page.should_be_responsible_field(num, parent)
+            page.should_be_phone_field(num, parent)
+            page.should_be_comment_field(num, parent)
+            page.should_be_operation_field(num, parent)
+            page.should_be_document_field(num, parent)
+            page.should_be_application_field(num, parent)
+            page.should_be_information_type_field(num, parent)
+            page.should_be_info_composition_field(num, parent)
 
         page.delete_block_locator(1)
 
@@ -156,40 +120,24 @@ class TestAddBlockButtons:
         page.should_be_request_type_fields(
             0, 0, True, EnterRequestValues.ENTER_MF)
 
-        page.should_be_request_type_field(0, 0)
-        page.should_be_change_type_field(0, 0)
-        page.should_be_path_field(0, 0)
-        page.should_be_publish_date_field(0, 0)
-        page.should_be_responsible_field(0, 0)
-        page.should_be_phone_field(0, 0)
-        page.should_be_comment_field(0, 0)
-        page.should_be_operation_field(0, 0)
-        page.should_be_document_field(0, 0)
-        page.should_be_application_field(0, 0)
+        types = [(0, 0), (1, 0), (2, 0)]
 
-        page.enter_request_add_buttons(3)
-        page.should_be_request_type_field(1, 0)
-        page.should_be_change_type_field(1, 0)
-        page.should_be_path_field(1, 0)
-        page.should_be_publish_date_field(1, 0)
-        page.should_be_responsible_field(1, 0)
-        page.should_be_phone_field(1, 0)
-        page.should_be_comment_field(1, 0)
-        page.should_be_operation_field(1, 0)
-        page.should_be_document_field(1, 0)
-        page.should_be_application_field(1, 0)
+        for i in range(len(types)):
+            num, parent = types[i][0], types[i][1]
 
-        page.enter_request_add_buttons(3)
-        page.should_be_request_type_field(2, 0)
-        page.should_be_change_type_field(2, 0)
-        page.should_be_path_field(2, 0)
-        page.should_be_publish_date_field(2, 0)
-        page.should_be_responsible_field(2, 0)
-        page.should_be_phone_field(2, 0)
-        page.should_be_comment_field(2, 0)
-        page.should_be_operation_field(2, 0)
-        page.should_be_document_field(2, 0)
-        page.should_be_application_field(2, 0)
+            if i != 0:
+                page.enter_request_add_buttons(3)
+
+            page.should_be_request_type_field(num, parent)
+            page.should_be_change_type_field(num, parent)
+            page.should_be_path_field(num, parent)
+            page.should_be_publish_date_field(num, parent)
+            page.should_be_responsible_field(num, parent)
+            page.should_be_phone_field(num, parent)
+            page.should_be_comment_field(num, parent)
+            page.should_be_operation_field(num, parent)
+            page.should_be_document_field(num, parent)
+            page.should_be_application_field(num, parent)
 
         page.delete_block_locator(1)
 
@@ -223,25 +171,19 @@ class TestAddBlockButtons:
         page.should_be_request_type_fields(
             0, 0, True, EnterRequestValues.PROVISION_SH)
 
-        page.should_be_request_type_field(0, 0)
-        page.should_be_work_type_field(0, 0)
-        page.should_be_remove_from_field(0, 0)
-        page.should_be_svt_card_field(0, 0)
-        page.should_be_justification_field(0, 0)
+        types = [(0, 0), (1, 0), (2, 0)]
 
-        page.enter_request_add_buttons(4)
-        page.should_be_request_type_field(1, 0)
-        page.should_be_work_type_field(1, 0)
-        page.should_be_remove_from_field(1, 0)
-        page.should_be_svt_card_field(1, 0)
-        page.should_be_justification_field(1, 0)
+        for i in range(len(types)):
+            num, parent = types[i][0], types[i][1]
 
-        page.enter_request_add_buttons(4)
-        page.should_be_request_type_field(2, 0)
-        page.should_be_work_type_field(2, 0)
-        page.should_be_remove_from_field(2, 0)
-        page.should_be_svt_card_field(2, 0)
-        page.should_be_justification_field(2, 0)
+            if i != 0:
+                page.enter_request_add_buttons(4)
+
+            page.should_be_request_type_field(num, parent)
+            page.should_be_work_type_field(num, parent)
+            page.should_be_remove_from_field(num, parent)
+            page.should_be_svt_card_field(num, parent)
+            page.should_be_justification_field(num, parent)
 
         page.delete_block_locator(1)
 
