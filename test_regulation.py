@@ -225,6 +225,7 @@ class TestRegulation:
                             TestRegulation.NPA_ID, False, first)
         page.regulation_doc(npa_number, regulation_type,
                             TestRegulation.NPA_ID, True, first)
+        page.should_be_correct_saved_file()
         page.create_and_send_agree_sheet()
         doc_id = page.save_document_id()
 
@@ -248,8 +249,10 @@ class TestChangeInfoResponsibleDocument:
     NPA_ID = None
 
     @pytest.mark.parametrize("npa_number,regulation_type,first", [
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, True, marks=pytest.mark.dependency(name="1-1")),
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4, False, marks=pytest.mark.dependency(name="1-4", depends=["1-1"])),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1,
+                     True, marks=pytest.mark.dependency(name="1-1")),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4,
+                     False, marks=pytest.mark.dependency(name="1-4", depends=["1-1"])),
     ])
     def test_regulation_document(self, driver, npa_number, regulation_type, first):
         setup(driver)
@@ -321,7 +324,8 @@ class TestRegulationRefuse:
         page.send_medo()
         doc_id = page.save_document_id()
 
-        page.create_refuse_document(RegulationFields.REGULATION_TYPE_851_1, doc_id)
+        page.create_refuse_document(
+            RegulationFields.REGULATION_TYPE_851_1, doc_id)
         page.create_and_send_agree_sheet()
         page.register_and_send_refuse_document(doc_id)
 
@@ -346,7 +350,8 @@ class TestRegulationRefuse:
         page.register_and_send_enter_regulation_document()
         page.send_medo()
 
-        TestRegulationRefuse.NPA_ID = page.create_and_send_answer(page.modify_npa_type(RegulationFields.REGULATION_TYPE_851_1, 1), TestRegulationRefuse.NPA_ID, True)
+        TestRegulationRefuse.NPA_ID = page.create_and_send_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_851_1, 1), TestRegulationRefuse.NPA_ID, True)
 
     @pytest.mark.dependency(depends=["TestRegulationRefuse::test_regulation_refuse_2_1_doc"])
     def test_regulation_refuse_2_2_doc(self, driver):
@@ -369,7 +374,8 @@ class TestRegulationRefuse:
         page.send_medo()
         doc_id = page.save_document_id()
 
-        page.create_refuse_document(RegulationFields.REGULATION_TYPE_851_4, doc_id)
+        page.create_refuse_document(
+            RegulationFields.REGULATION_TYPE_851_4, doc_id)
         page.create_and_send_agree_sheet()
         page.register_and_send_refuse_document(doc_id)
 
@@ -399,7 +405,8 @@ class TestRegulationRefuse:
         page.register_and_send_enter_regulation_document()
         page.send_medo()
 
-        TestRegulationRefuse.NPA_ID = page.create_and_send_answer(page.modify_npa_type(regulation_type, 1), TestRegulationRefuse.NPA_ID, first)
+        TestRegulationRefuse.NPA_ID = page.create_and_send_answer(
+            page.modify_npa_type(regulation_type, 1), TestRegulationRefuse.NPA_ID, first)
 
     @pytest.mark.dependency(depends=["refuse-1-4"])
     def test_regulation_refuse_3_2_doc(self, driver):
@@ -421,7 +428,8 @@ class TestRegulationRefuse:
         page.send_medo()
         doc_id = page.save_document_id()
 
-        page.create_refuse_document(RegulationFields.REGULATION_TYPE_851_7, doc_id)
+        page.create_refuse_document(
+            RegulationFields.REGULATION_TYPE_851_7, doc_id)
         page.create_and_send_agree_sheet()
         page.register_and_send_refuse_document(doc_id)
 
@@ -438,21 +446,25 @@ class TestRegulationChainShowInstrument:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationChainShowInstrument(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22, TestRegulationChainShowInstrument.NPA_ID, False, True, False)
+        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22,
+                            TestRegulationChainShowInstrument.NPA_ID, False, True, False)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2, 1, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2,
+                        1, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3, 1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3,
+                        1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
@@ -465,23 +477,28 @@ class TestRegulationChainShowInstrument:
         page.register_and_send_enter_regulation_document()
         page.agree_with_popup_window_enter_doc()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 4, 1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 4,
+                        1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
-        npa_id = page.create_answer(page.modify_npa_type(RegulationFields.REGULATION_TYPE_96_22, 1), True, TestRegulationChainShowInstrument.NPA_ID)
+        npa_id = page.create_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_96_22, 1), True, TestRegulationChainShowInstrument.NPA_ID)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 5, 1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 5,
+                        1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 6, 1, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 6,
+                        1, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 7, 1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 7,
+                        1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
         page.register_and_send_enter_regulation_document(answer=True)
         page.agree_with_popup_window_enter_doc()
@@ -489,7 +506,8 @@ class TestRegulationChainShowInstrument:
         TestRegulationChainShowInstrument.NPA_ID = npa_id
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 1, RegulationFields.REGULATION_TYPE_96_22,False, False, 1, RegulationFields.REGULATION_TYPE_96_23)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 1,
+                        RegulationFields.REGULATION_TYPE_96_22, False, False, 1, RegulationFields.REGULATION_TYPE_96_23)
 
     @pytest.mark.dependency(depends=["TestRegulationChainShowInstrument::test_chain_show_index_22"])
     def test_chain_show_index_23(self, driver):
@@ -500,21 +518,25 @@ class TestRegulationChainShowInstrument:
         page.open()
 
         page.click_to_rcsi_next_doc(RegulationFields.REGULATION_TYPE_96_23)
-        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_23, TestRegulationChainShowInstrument.NPA_ID, False, False, True)
+        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_23,
+                            TestRegulationChainShowInstrument.NPA_ID, False, False, True)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 2, RegulationFields.REGULATION_TYPE_96_23, False, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        2, RegulationFields.REGULATION_TYPE_96_23, False, False, 2)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2, 2, RegulationFields.REGULATION_TYPE_96_23, True, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2,
+                        2, RegulationFields.REGULATION_TYPE_96_23, True, False, 2)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3, 2, RegulationFields.REGULATION_TYPE_96_23, False, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3,
+                        2, RegulationFields.REGULATION_TYPE_96_23, False, False, 2)
 
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
@@ -529,7 +551,8 @@ class TestRegulationChainShowInstrument:
 
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 2, RegulationFields.REGULATION_TYPE_96_23, False, False, 2, RegulationFields.REGULATION_TYPE_96_27)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 2,
+                        RegulationFields.REGULATION_TYPE_96_23, False, False, 2, RegulationFields.REGULATION_TYPE_96_27)
 
     @pytest.mark.dependency(depends=["TestRegulationChainShowInstrument::test_chain_show_index_23"])
     def test_chain_show_repeat_22(self, driver):
@@ -540,10 +563,12 @@ class TestRegulationChainShowInstrument:
         page.open()
 
         page.click_to_rcsi_repeat()
-        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22, TestRegulationChainShowInstrument.NPA_ID, False, False, True)
+        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22,
+                            TestRegulationChainShowInstrument.NPA_ID, False, False, True)
         page.should_be_repeat_message()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 3, RegulationFields.REGULATION_TYPE_96_22, False, True, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        3, RegulationFields.REGULATION_TYPE_96_22, False, True, 1)
         page.check_rcsi_previous_version(1)
 
         page.click_to_create_agree_sheet_button()
@@ -551,12 +576,14 @@ class TestRegulationChainShowInstrument:
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2, 3, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2,
+                        3, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3, 3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3,
+                        3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
@@ -570,29 +597,35 @@ class TestRegulationChainShowInstrument:
         page.agree_with_popup_window_enter_doc()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 4, 3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 4,
+                        3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
-        page.create_answer(page.modify_npa_type(RegulationFields.REGULATION_TYPE_96_22, 1), False, TestRegulationChainShowInstrument.NPA_ID)
+        page.create_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_96_22, 1), False, TestRegulationChainShowInstrument.NPA_ID)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 5, 3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 5,
+                        3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 6, 3, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 6,
+                        3, RegulationFields.REGULATION_TYPE_96_22, True, False, 1)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 7, 3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 7,
+                        3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
         page.register_and_send_enter_regulation_document(answer=True)
         page.agree_with_popup_window_enter_doc()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1, RegulationFields.REGULATION_TYPE_96_23)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 3,
+                        RegulationFields.REGULATION_TYPE_96_22, False, False, 1, RegulationFields.REGULATION_TYPE_96_23)
 
     @pytest.mark.dependency(depends=["TestRegulationChainShowInstrument::test_chain_show_repeat_22"])
     def test_chain_show_refuse_23(self, driver):
@@ -603,21 +636,25 @@ class TestRegulationChainShowInstrument:
         page.open()
 
         page.click_to_rcsi_next_doc(RegulationFields.REGULATION_TYPE_96_23)
-        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_23, TestRegulationChainShowInstrument.NPA_ID, False, False, True)
+        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_23,
+                            TestRegulationChainShowInstrument.NPA_ID, False, False, True)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2, 4, RegulationFields.REGULATION_TYPE_96_23, True, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2,
+                        4, RegulationFields.REGULATION_TYPE_96_23, True, True, 2)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3,
+                        4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
 
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
@@ -631,29 +668,35 @@ class TestRegulationChainShowInstrument:
         page.agree_with_popup_window_enter_doc()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2, RegulationFields.REGULATION_TYPE_96_27)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 4,
+                        RegulationFields.REGULATION_TYPE_96_23, False, True, 2, RegulationFields.REGULATION_TYPE_96_27)
 
-        page.create_refuse_document(RegulationFields.REGULATION_TYPE_96_23, TestRegulationChainShowInstrument.doc_id)
+        page.create_refuse_document(
+            RegulationFields.REGULATION_TYPE_96_23, TestRegulationChainShowInstrument.doc_id)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 9, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 9,
+                        4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 10, 4, RegulationFields.REGULATION_TYPE_96_23, True, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 10,
+                        4, RegulationFields.REGULATION_TYPE_96_23, True, True, 2)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 11, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 11,
+                        4, RegulationFields.REGULATION_TYPE_96_23, False, True, 2)
 
         page.register_and_send_refuse_document(
             TestRegulationChainShowInstrument.doc_id, True)
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 3, RegulationFields.REGULATION_TYPE_96_23)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 4,
+                        RegulationFields.REGULATION_TYPE_96_23, False, True, 3, RegulationFields.REGULATION_TYPE_96_23)
 
     @pytest.mark.dependency(depends=["TestRegulationChainShowInstrument::test_chain_show_refuse_23"])
     def test_chain_show_after_refuse_23(self, driver):
@@ -664,23 +707,28 @@ class TestRegulationChainShowInstrument:
         page.open()
 
         page.click_to_rcsi_next_doc(RegulationFields.REGULATION_TYPE_96_23)
-        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_23, TestRegulationChainShowInstrument.NPA_ID, False, False, True)
+        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_23,
+                            TestRegulationChainShowInstrument.NPA_ID, False, False, True)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 4)
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 4, RegulationFields.REGULATION_TYPE_96_23, False, True, 5)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        4, RegulationFields.REGULATION_TYPE_96_23, False, True, 4)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        4, RegulationFields.REGULATION_TYPE_96_23, False, True, 5)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2, 4, RegulationFields.REGULATION_TYPE_96_23, True, False, 4)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2,
+                        4, RegulationFields.REGULATION_TYPE_96_23, True, False, 4)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3, 4, RegulationFields.REGULATION_TYPE_96_23, False, False, 4)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3,
+                        4, RegulationFields.REGULATION_TYPE_96_23, False, False, 4)
 
         setup(driver, "a")
         link = MainFunc.create_doc_link(MainFunc.take_DNSID(
@@ -692,7 +740,8 @@ class TestRegulationChainShowInstrument:
         page.agree_with_popup_window_enter_doc()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 4, RegulationFields.REGULATION_TYPE_96_23, False, False, 4, RegulationFields.REGULATION_TYPE_96_27, RegulationFields.REGULATION_TYPE_96_22)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 4, RegulationFields.REGULATION_TYPE_96_23,
+                        False, False, 4, RegulationFields.REGULATION_TYPE_96_27, RegulationFields.REGULATION_TYPE_96_22)
 
     @pytest.mark.dependency(depends=["TestRegulationChainShowInstrument::test_chain_show_after_refuse_23"])
     def test_chain_show_index_27(self, driver):
@@ -703,22 +752,26 @@ class TestRegulationChainShowInstrument:
         page.open()
 
         page.click_to_rcsi_next_doc(RegulationFields.REGULATION_TYPE_96_27)
-        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_27, TestRegulationChainShowInstrument.NPA_ID, False, False, True)
+        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_27,
+                            TestRegulationChainShowInstrument.NPA_ID, False, False, True)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 5, RegulationFields.REGULATION_TYPE_96_27, False, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        5, RegulationFields.REGULATION_TYPE_96_27, False, True, 2)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2, 5, RegulationFields.REGULATION_TYPE_96_27, True, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2,
+                        5, RegulationFields.REGULATION_TYPE_96_27, True, False, 2)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3, 5, RegulationFields.REGULATION_TYPE_96_27, False, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3,
+                        5, RegulationFields.REGULATION_TYPE_96_27, False, False, 2)
 
         setup(driver, "a")
         link = MainFunc.create_doc_link(MainFunc.take_DNSID(
@@ -730,7 +783,8 @@ class TestRegulationChainShowInstrument:
         page.agree_with_popup_window_enter_doc()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 5, RegulationFields.REGULATION_TYPE_96_27, False, False, 2, RegulationFields.REGULATION_TYPE_96_31, RegulationFields.REGULATION_TYPE_96_22)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 8, 5, RegulationFields.REGULATION_TYPE_96_27,
+                        False, False, 2, RegulationFields.REGULATION_TYPE_96_31, RegulationFields.REGULATION_TYPE_96_22)
 
     @pytest.mark.dependency(depends=["TestRegulationChainShowInstrument::test_chain_show_index_27"])
     def test_chain_show_index_31(self, driver):
@@ -741,22 +795,26 @@ class TestRegulationChainShowInstrument:
         page.open()
 
         page.click_to_rcsi_next_doc(RegulationFields.REGULATION_TYPE_96_31)
-        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_31, TestRegulationChainShowInstrument.NPA_ID, False, False, True)
+        page.regulation_doc(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_31,
+                            TestRegulationChainShowInstrument.NPA_ID, False, False, True)
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1, 6, RegulationFields.REGULATION_TYPE_96_31, False, True, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 1,
+                        6, RegulationFields.REGULATION_TYPE_96_31, False, True, 2)
 
         page.click_to_create_agree_sheet_button()
         page.click_to_submit_button_create_window()
         page.click_to_send_on_agreement_button()
         page.agree_with_popup_window_agree_sheet()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2, 6, RegulationFields.REGULATION_TYPE_96_31, True, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 2,
+                        6, RegulationFields.REGULATION_TYPE_96_31, True, False, 2)
 
         page.approve_agree_sheet_button()
         page.click_to_agree_button_on_agreement_window()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3, 6, RegulationFields.REGULATION_TYPE_96_31, False, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 3,
+                        6, RegulationFields.REGULATION_TYPE_96_31, False, False, 2)
 
         setup(driver, "a")
         link = MainFunc.create_doc_link(MainFunc.take_DNSID(
@@ -768,7 +826,8 @@ class TestRegulationChainShowInstrument:
         page.agree_with_popup_window_enter_doc()
         TestRegulationChainShowInstrument.doc_id = page.save_document_id()
 
-        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 12, 6, RegulationFields.REGULATION_TYPE_96_31, False, False, 2)
+        page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 12,
+                        6, RegulationFields.REGULATION_TYPE_96_31, False, False, 2)
 
 
 @pytest.mark.regulation
@@ -798,7 +857,8 @@ class TestRegulationChainBreaking:
         enter_page = EnterDocumentsPage(driver, link)
         enter_page.send_medo()
 
-        TestRegulationChainBreaking.NPA_ID = page.create_and_send_answer(page.modify_npa_type(RegulationFields.REGULATION_TYPE_851_1, 1), TestRegulationChainBreaking.NPA_ID, True)
+        TestRegulationChainBreaking.NPA_ID = page.create_and_send_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_851_1, 1), TestRegulationChainBreaking.NPA_ID, True)
 
     @pytest.mark.dependency(depends=["TestRegulationChainBreaking::test_skip_request_1"])
     def test_skip_request_2(self, driver):
@@ -806,7 +866,8 @@ class TestRegulationChainBreaking:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, TestRegulationChainBreaking.NPA_ID, error=RegulationFields.REQUEST_PLACING_ERROR)
+        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7,
+                            TestRegulationChainBreaking.NPA_ID, error=RegulationFields.REQUEST_PLACING_ERROR)
 
     # Создание следующей заявки до регистрации ответа
 
@@ -816,7 +877,8 @@ class TestRegulationChainBreaking:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, TestRegulationChainBreaking.NPA_ID, False, True)
+        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1,
+                            TestRegulationChainBreaking.NPA_ID, False, True)
         page.create_and_send_agree_sheet()
         doc_id = page.save_document_id()
 
@@ -830,7 +892,8 @@ class TestRegulationChainBreaking:
         enter_page = EnterDocumentsPage(driver, link)
         enter_page.send_medo()
 
-        TestRegulationChainBreaking.NPA_ID = page.create_answer(page.have_answer(page.modify_npa_type(RegulationFields.REGULATION_TYPE_851_1, 1)), True, TestRegulationChainBreaking.NPA_ID)
+        TestRegulationChainBreaking.NPA_ID = page.create_answer(page.have_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_851_1, 1)), True, TestRegulationChainBreaking.NPA_ID)
 
     @pytest.mark.dependency(depends=["TestRegulationChainBreaking::test_without_answer_1"])
     def test_without_answer_2(self, driver):
@@ -838,7 +901,8 @@ class TestRegulationChainBreaking:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, TestRegulationChainBreaking.NPA_ID, error=RegulationFields.CHAIN_NOT_FOUND_ERROR)
+        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7,
+                            TestRegulationChainBreaking.NPA_ID, error=RegulationFields.CHAIN_NOT_FOUND_ERROR)
 
     # Создание следующей заявки, когда предыдущая получила отказ
 
@@ -848,7 +912,8 @@ class TestRegulationChainBreaking:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, TestRegulationChainBreaking.NPA_ID, False, True)
+        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1,
+                            TestRegulationChainBreaking.NPA_ID, False, True)
         page.create_and_send_agree_sheet()
         doc_id = page.save_document_id()
 
@@ -860,7 +925,8 @@ class TestRegulationChainBreaking:
         page.register_and_send_enter_regulation_document()
         page.send_medo()
 
-        TestRegulationChainBreaking.NPA_ID = page.create_and_send_answer(page.modify_npa_type(RegulationFields.REGULATION_TYPE_851_1, 1), TestRegulationChainBreaking.NPA_ID, True)
+        TestRegulationChainBreaking.NPA_ID = page.create_and_send_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_851_1, 1), TestRegulationChainBreaking.NPA_ID, True)
 
     @pytest.mark.dependency(depends=["TestRegulationChainBreaking::test_with_refuse_1"])
     def test_with_refuse_2(self, driver):
@@ -868,7 +934,8 @@ class TestRegulationChainBreaking:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationRefuseDocument(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4, TestRegulationChainBreaking.NPA_ID, False, False)
+        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4,
+                            TestRegulationChainBreaking.NPA_ID, False, False)
         page.create_and_send_agree_sheet()
         doc_id = page.save_document_id()
 
@@ -881,7 +948,8 @@ class TestRegulationChainBreaking:
         page.send_medo()
         doc_id = page.save_document_id()
 
-        page.create_refuse_document(RegulationFields.REGULATION_TYPE_851_4, doc_id)
+        page.create_refuse_document(
+            RegulationFields.REGULATION_TYPE_851_4, doc_id)
         page.create_and_send_agree_sheet()
         page.register_and_send_refuse_document(doc_id, True)
 
@@ -891,20 +959,24 @@ class TestRegulationChainBreaking:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, TestRegulationChainBreaking.NPA_ID, error=RegulationFields.REQUEST_PLACING_ERROR)
+        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7,
+                            TestRegulationChainBreaking.NPA_ID, error=RegulationFields.REQUEST_PLACING_ERROR)
 
     # Создание дубля заявки, не допускающей повторы
 
     @pytest.mark.parametrize("npa_number,regulation_type,first", [
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, True, marks=[pytest.mark.dependency(name="chain_break_4-1")]),
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4, False, marks=[pytest.mark.dependency(name="chain_break_4-2", depends=["chain_break_4-1"])]),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, True, marks=[
+                     pytest.mark.dependency(name="chain_break_4-1")]),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4, False, marks=[
+                     pytest.mark.dependency(name="chain_break_4-2", depends=["chain_break_4-1"])]),
     ])
     def test_not_repeat(self, driver, npa_number, regulation_type, first):
         setup(driver)
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(npa_number, regulation_type, TestRegulationChainBreaking.NPA_ID, False, first)
+        page.regulation_doc(npa_number, regulation_type,
+                            TestRegulationChainBreaking.NPA_ID, False, first)
         page.create_and_send_agree_sheet()
         doc_id = page.save_document_id()
 
@@ -916,7 +988,8 @@ class TestRegulationChainBreaking:
         page.register_and_send_enter_regulation_document()
         page.send_medo()
 
-        TestRegulationChainBreaking.NPA_ID = page.create_and_send_answer(page.modify_npa_type(regulation_type, 1), TestRegulationChainBreaking.NPA_ID, first)
+        TestRegulationChainBreaking.NPA_ID = page.create_and_send_answer(
+            page.modify_npa_type(regulation_type, 1), TestRegulationChainBreaking.NPA_ID, first)
 
     @pytest.mark.dependency(depends=["chain_break_4-2"])
     def test_not_repeat_2(self, driver):
@@ -924,4 +997,5 @@ class TestRegulationChainBreaking:
         link = MainFunc.take_DNSID(URLs.REGULATION_LINK, driver.current_url)
         page = RegulationDocumentPage(driver, link)
         page.open()
-        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4, TestRegulationChainBreaking.NPA_ID, False, False, error=RegulationFields.REQUEST_PLACING_ERROR)
+        page.regulation_doc(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_4,
+                            TestRegulationChainBreaking.NPA_ID, False, False, error=RegulationFields.REQUEST_PLACING_ERROR)

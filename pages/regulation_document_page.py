@@ -2,12 +2,9 @@ from .value_for_fields import RegulationFields
 from .all_document_fields_page import AllDocumentFieldPage
 from .enter_documets_page import EnterDocumentsPage
 from .main_page import SoglDocumentsBlock
-from .locators import AllDocumentFieldLocators, RegulationDocumentLocators, RegulationEATypeWindow, ChooseOrganisationFromNewWindow, ChooseUserFromNewWindow, RegulationAnswerPageLocators, ChangeResponsibleInfoLocators
+from .locators import AllDocumentFieldLocators, RegulationDocumentLocators, RegulationEATypeWindow, ChooseOrganisationFromNewWindow, ChooseUserFromNewWindow, RegulationAnswerPageLocators, ChangeResponsibleInfoLocators, OpenDocumentPictagramsLocators
 from datetime import datetime
-from random import randint
-import json
 import re
-import os
 
 
 class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocumentsPage):
@@ -1679,7 +1676,15 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         return text == error_message
 
-    def create_npa_regulation_id(self, index=1):
+    def should_be_correct_saved_file(self):
+        name = self.driver.find_element(*AllDocumentFieldLocators.DOCUMENT_NAME_LOCATOR).text
+        self.click_to(*OpenDocumentPictagramsLocators.PRINT_PICTOGRAM_LOCATOR)
+        self.click_to(*OpenDocumentPictagramsLocators.SAVE_ONLY_DOCUMENT_BUTTON_LOCATOR)
+
+        text = self.pdf_to_html(name)
+        assert "#" not in text, "Некорректно сформирован файл"
+
+    def create_npa_regulation_id(self):
         npa_body = datetime.today().strftime("%Y%m%d%H%M%S")
         return f"autotest-{npa_body}-autotest"
 

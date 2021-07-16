@@ -226,6 +226,9 @@ class AllDocumentFieldLocators:
     # Заголовок страницы
     TITLE_LOCATOR = (By.CSS_SELECTOR, "h1")
 
+    # № документа
+    DOCUMENT_NAME_LOCATOR = (By.XPATH, "//td[@class='b2 highlight']")
+
     # Поле Индекс дела
     INDEX_DELA_LOCATOR = (By.XPATH, "//strong[text()='Индекс дела']")
     INDEX_DELA_FIELD_LOCATOR = (By.CSS_SELECTOR, "#unit_text_0")
@@ -283,6 +286,10 @@ class OpenDocumentPictagramsLocators:
     REFRESH_PICTOGRAM_LOCATOR = (By.XPATH, "//a[@title='Обновить']")
     REGULATION_CHAIN_SHOW_PICTOGRAM_LOCATOR = (
         By.XPATH, "//a[@title='Показать цепочку заявок Regulation']")
+    
+    # Печать
+    PRINT_PICTOGRAM_LOCATOR = (By.XPATH, "//a[@id='card_button_7']/img")
+    SAVE_ONLY_DOCUMENT_BUTTON_LOCATOR = (By.XPATH, "//a[@id='print_only_doc_csdr']")
 
 
 class ChooseUserFromNewWindow:

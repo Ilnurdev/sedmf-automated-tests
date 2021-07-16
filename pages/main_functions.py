@@ -4,9 +4,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 from datetime import timedelta, datetime
-from os import path
-import re
-import json
+from os import path, listdir, remove
+from re import search
+from time import sleep
+from json import load
+from subprocess import call
 
 folder_path = path.join(path.dirname(path.abspath(__file__)), 'files')
 PATH_TO_CONFIG = path.join(folder_path, 'config.json')
@@ -89,6 +91,7 @@ class MainFunc:
         except:
             element_found = True
         driver.implicitly_wait(30)
+        
         return element_found
 
     def url_change(self, url, timeout=60):
@@ -115,6 +118,7 @@ class MainFunc:
         except TimeoutException:
             element_found = False
         driver.implicitly_wait(30)
+
         return element_found
 
     def count_all_elements(self, how, what, timeout=0):
@@ -127,6 +131,7 @@ class MainFunc:
         except:
             elements = []
         driver.implicitly_wait(30)
+
         return len(elements)
 
     def work_with_windows(self, value=0, timeout=10):
@@ -140,7 +145,8 @@ class MainFunc:
 
     def save_document_id(self):
         url_for_take_id = self.driver.current_url
-        document_id = (re.search(r"(\&|\?)id=((\d|\w)+)", url_for_take_id)[2])
+        document_id = (search(r"(\&|\?)id=((\d|\w)+)", url_for_take_id)[2])
+        
         return document_id
 
     def return_text(self, how, what):
@@ -150,8 +156,7 @@ class MainFunc:
         return text
 
     def date_return(self, add_days=0):
-        a = datetime.today()
-        return (a + timedelta(days=add_days)).strftime("%d.%m.%Y")
+        return (datetime.today() + timedelta(days=add_days)).strftime("%d.%m.%Y")
 
     def find_document_in_folder(self):
         document_id = self.save_document_id(False)
@@ -159,9 +164,46 @@ class MainFunc:
             *FindDocumentInFolder.find_doc_in_folder(document_id))
         self.click_to(*FindDocumentInFolder.find_doc_in_folder(document_id))
 
+    def pdf_to_html(self, file_name, path_to_file=folder_path):
+        def find_file(files, file_name):
+            for i in files:
+                if (file_name in i) and ("crd" not in i):
+                    file_name = i[:-4]
+                    break
+            return file_name
+
+        count = 30
+        while count != 0:
+            if count <= 0:
+                assert False, "Файл не загружен"
+
+            files = listdir(path_to_file)
+            name = find_file(files, file_name)
+
+            if file_name != name:
+                file_name = name
+                break
+
+            count -= 1
+            sleep(1)
+
+        path_to_file = path_to_file + "\\" + file_name + ".pdf"
+        call(
+            f'"C:\\Program Files\\LibreOffice\\program\\soffice.bin" --headless --convert-to html:draw_html_Export --outdir "{folder_path}" "{path_to_file}"', shell=True)
+
+        text = None
+        save_file = folder_path + "\\" + file_name + ".html"
+        with open(save_file, mode="r", encoding="UTF-8") as f:
+            text = f.read()
+
+        remove(path_to_file)
+        remove(save_file)
+
+        return text
+
     @staticmethod
     def take_DNSID(url, url_for_take_dnsid):
-        dnsid = (re.search(r"DNSID=(\d|\w)+", url_for_take_dnsid)[0])
+        dnsid = (search(r"DNSID=(\d|\w)+", url_for_take_dnsid)[0])
         return (url + "&" + dnsid)
 
     @staticmethod
@@ -171,7 +213,7 @@ class MainFunc:
     @staticmethod
     def config(value="server"):
         with open(PATH_TO_CONFIG) as f:
-            data = json.load(f)
+            data = load(f)
             try:
                 return data[value]
             except KeyError:
