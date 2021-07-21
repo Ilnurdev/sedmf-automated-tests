@@ -2090,16 +2090,6 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
             *ChangeResponsibleInfoLocators.ERROR_ID_NOT_FOUND)
         assert error_text == text
 
-    # def choose_chain(self):
-    #     chain_index = randint(1, 14)
-    #     chain_open = self.regulation_npa_id(chain_index)
-
-    #     while chain_open == "":
-    #         chain_index = randint(1, 14)
-    #         chain_open = self.regulation_npa_id(chain_index)
-
-    #     return chain_index
-
     def main_regulation_35_fields(self, edit=False):
         if edit == False:
             self.should_be_required_fields(RegulationFields.SOGL_TITLE)
