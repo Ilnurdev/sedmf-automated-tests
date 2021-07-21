@@ -282,17 +282,31 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     """
 
-    def should_be_resp_review_field(self, name):
+    def should_be_resp_review_field(self, edit: bool, name: str) -> list:
+        """Проверяет наличие основного поля и возвращает данные для заполнения/проверки, True = Данные без изменений, False = Данные с изменениями."""
         assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.RESPONSIBLE_REVIEW_NAME_LOCATOR)
 
-    def should_be_resp_review_fields(self, name, phone, email, field_name):
-        self.should_be_resp_review_field(field_name)
+        if edit == False:
+            return [RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL]
+        return [RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT]
+
+    def should_be_resp_review_fields(self, field_name: str, edit: bool):
+        """Проверяет наличие введеного текта в полученном."""
+        values = self.should_be_resp_review_field(edit, field_name)
+
         text = self.return_text(
             *RegulationDocumentLocators.RESPONSIBLE_REVIEW_FIELD_VIEW_LOCATOR)
-        assert name in text
-        assert phone in text
-        assert email in text
+        for i in values:
+            assert i in text
+    
+    def enter_resp_review_field(self, field_name: str, text, edit: bool):
+        """Заполняет поля. text неиспользуемый параметр, сделан для унификации (решения лучше не придумал)"""
+        values = self.should_be_resp_review_field(edit, field_name)
+
+        self.enter_responsible_review_from_new_window(values[0])
+        self.enter_responsible_review_phone_field(values[1])
+        self.enter_responsible_review_email_field(values[2])
 
     def click_to_responsible_review_delete_button(self):
         self.click_to(
@@ -302,17 +316,13 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
                 *RegulationDocumentLocators.RESPONSIBLE_REVIEW_DELETE_BUTTON_LOCATOR)
 
     def enter_responsible_review_from_new_window(self, text, r_type=RegulationFields.RESPONSIBLE_REVIEW_1):
-        assert self.is_element_present(
-            *RegulationDocumentLocators.RESPONSIBLE_REVIEW_FIO_FIELD_LOCATOR), f"Не отображается 'ФИО' '{r_type}'"
-        assert self.is_element_present(
-            *RegulationDocumentLocators.RESPONSIBLE_REVIEW_PHONE_FIELD_LOCATOR), f"Не отображается 'Телефон' '{r_type}'"
-        assert self.is_element_present(
-            *RegulationDocumentLocators.RESPONSIBLE_REVIEW_EMAIL_FIELD_LOCATOR), f"Не отображается 'E-mail' '{r_type}'"
-        assert self.is_element_present(
-            *RegulationDocumentLocators.CHOOSE_RESPONSIBLE_REVIEW_FROM_NEW_WINDOW), f"Не отображается ссылка выбора автора из нового окна '{r_type}'"
+        fields = [RegulationDocumentLocators.RESPONSIBLE_REVIEW_FIO_FIELD_LOCATOR, RegulationDocumentLocators.RESPONSIBLE_REVIEW_PHONE_FIELD_LOCATOR,
+                  RegulationDocumentLocators.RESPONSIBLE_REVIEW_EMAIL_FIELD_LOCATOR, RegulationDocumentLocators.CHOOSE_RESPONSIBLE_REVIEW_FROM_NEW_WINDOW]
 
-        self.click_to(
-            *RegulationDocumentLocators.CHOOSE_RESPONSIBLE_REVIEW_FROM_NEW_WINDOW)
+        for i in fields:
+            assert self.is_element_present(*i)
+
+        self.click_to(*fields[-1])
         self.work_with_windows(1)
         self.fill_field(*ChooseUserFromNewWindow.USER_FIND_LOCATOR, text)
         self.click_to(*AllDocumentFieldLocators.find_text_locator(text))
@@ -330,12 +340,6 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.fill_field(
             *RegulationDocumentLocators.RESPONSIBLE_REVIEW_FIO_FIELD_LOCATOR, text)
         self.choose_user_from_drop_list()
-
-    def enter_resp_review_field(self, name, phone, email, field_name):
-        self.should_be_resp_review_field(field_name)
-        self.enter_responsible_review_from_new_window(name)
-        self.enter_responsible_review_phone_field(phone)
-        self.enter_responsible_review_email_field(email)
 
     """
 
@@ -1640,20 +1644,23 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def save_regulation_rcd(self, edit, index):
+        def if_rcd_not_saved():
+            if self.is_not_element_present(*RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_PHONE_EMAIL_LOCATOR, timeout=5) == False:
+                self.enter_responsible_review_phone_field(
+                    RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE)
+                self.enter_responsible_review_email_field(
+                    RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL)
+
+        url = self.driver.current_url
+
         save_button = AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR
         assert self.is_active(*save_button)
         self.click_to(*save_button)
 
-        url = self.driver.current_url
         count = 0
-
         while self.url_change(url, timeout=20) == False and count < 3:
             if int(index) not in [4, 5, 6, 20, 21, 28, 33, 34]:
-                if self.is_not_element_present(*RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_PHONE_EMAIL_LOCATOR, timeout=5) == False:
-                    self.enter_responsible_review_phone_field(
-                        RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE)
-                    self.enter_responsible_review_email_field(
-                        RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL)
+                if_rcd_not_saved()
                 self.click_to(*save_button)
             count += 1
 
@@ -1677,9 +1684,11 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         return text == error_message
 
     def should_be_correct_saved_file(self):
-        name = self.driver.find_element(*AllDocumentFieldLocators.DOCUMENT_NAME_LOCATOR).text
+        name = self.driver.find_element(
+            *AllDocumentFieldLocators.DOCUMENT_NAME_LOCATOR).text
         self.click_to(*OpenDocumentPictagramsLocators.PRINT_PICTOGRAM_LOCATOR)
-        self.click_to(*OpenDocumentPictagramsLocators.SAVE_ONLY_DOCUMENT_BUTTON_LOCATOR)
+        self.click_to(
+            *OpenDocumentPictagramsLocators.SAVE_ONLY_DOCUMENT_BUTTON_LOCATOR)
 
         text = self.pdf_to_html(name)
         assert "#" not in text, "Некорректно сформирован файл"
@@ -1831,6 +1840,9 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
              RegulationFields.FILL_RR_NPA, RegulationFields.FILL_RR_NPA_EDIT),
             (RegulationFields.OFFERS_EMAIL, self.should_be_offers_email_fields,
              self.enter_offers_email_field, RegulationFields.FILL_EMAIL, RegulationFields.FILL_EMAIL_EDIT),
+            (RegulationFields.RESPONSIBLE_REVIEW_1, self.should_be_resp_review_fields, self.enter_resp_review_field, False, True),
+            (RegulationFields.RESPONSIBLE_REVIEW_2, self.should_be_resp_review_fields, self.enter_resp_review_field, False, True),
+            (RegulationFields.RESPONSIBLE_REVIEW_3, self.should_be_resp_review_fields, self.enter_resp_review_field, False, True),
 
             (RegulationFields.STATE_NUMBER, self.should_be_state_number_fields, self.enter_state_number_field,
              RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_STATE_NUMBER_EDIT),
@@ -1847,42 +1859,20 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             (RegulationFields.REGULATORY_GILLIOTINE, self.should_be_regulatory_gilliotine_fields,
              self.activate_regulatory_gilliotine_checkbox, RegulationFields.NO_FIELD, RegulationFields.FILL_REGULATORY_GILLIOTINE_EDIT),
             (RegulationFields.ISSUE_TYPE, self.should_be_issue_type_fields,
-             self.enter_issue_type_field, "", RegulationFields.FILL_ISSUE_TYPE_EDIT)
+             self.enter_issue_type_field, "", RegulationFields.FILL_ISSUE_TYPE_EDIT)    # Временное решение из-за ошибки. Оформлена в задаче T120524
         ]
 
         for i in range(len(args)):
-            if (RegulationFields.RESPONSIBLE_REVIEW_1 == args[i]) or (RegulationFields.RESPONSIBLE_REVIEW_2 == args[i]) or (RegulationFields.RESPONSIBLE_REVIEW_3 == args[i]):
-                if fill == False and edit == False:
-                    self.should_be_resp_review_fields(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME,
-                                                      RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL, args[i])
-                elif fill == False and edit == True:
-                    self.should_be_resp_review_fields(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME_EDIT,
-                                                      RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT, args[i])
-                elif fill == True and edit == False:
-                    self.enter_resp_review_field(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME,
-                                                 RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL, args[i])
-                elif fill == True and edit == True:
-                    self.enter_resp_review_field(RegulationFields.FILL_RESPONSIBLE_REVIEW_NAME_EDIT,
-                                                 RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT, RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT, args[i])
-                continue
-            else:
-                for q in range(len(arr_fields)):
-                    if args[i] == arr_fields[q][0]:
-                        L = arr_fields[q]
-                        if fill == False:
-                            if edit == False:
-                                L[1](L[0], L[3])
-                                break
-                            else:
-                                L[1](L[0], L[4])
-                                break
-                        else:
-                            if edit == True:
-                                L[2](L[0], L[4], edit)
-                                break
-                            else:
-                                L[2](L[0], L[3], edit)
-                                break
+            for q in range(len(arr_fields)):
+                if args[i] == arr_fields[q][0]:
+                    L = arr_fields[q]
+                    edit_arg = 3 if edit == False else 4
+
+                    if fill == False:
+                        L[1](L[0], L[edit_arg])
+                    else:
+                        L[2](L[0], L[edit_arg], edit)
+                    break
 
     def main_regulation_fields(self, order, request_type, edit=False, from_rcsi=False):
         if edit == False:
@@ -1967,10 +1957,10 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         if edit == True:
             self.click_to_edit_pictogram()
 
-        edit_bool = True if edit == True else False
-        edit_status = (2 if edit == True else 1) if from_rcsi == False else 2
+        # edit_status = (2 if edit == True else 1) if from_rcsi == False else 2
+        edit_status = 1 if edit == False and from_rcsi == False else 2
 
-        self.main_regulation_fields(order, request_type, edit_bool, from_rcsi)
+        self.main_regulation_fields(order, request_type, edit, from_rcsi)
 
         index = self.modify_npa_type(request_type, 1)
         fields = self.regulation_index_fields(index)
@@ -1983,11 +1973,11 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.regulation_correct_notice_npa_not_placed_fields(
             index, first, edit_status)
 
-        self.fields(fields, fill=True, edit=edit_bool)
+        self.fields(fields, fill=True, edit=edit)  # Заполнение полей
 
         if error == False:
-            self.save_regulation_rcd(edit_bool, index)
-            self.check_regulation_doc(index, npa_id, first, edit_bool)
+            self.save_regulation_rcd(edit, index)
+            self.check_regulation_doc(index, npa_id, first, edit)  # Проверка корректности заполнения полей
         else:
             self.click_to(*AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR)
             assert self.should_be_correct_error_message(error)
@@ -2157,7 +2147,8 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
 
 class RegulationRefuseDocument(RegulationDocumentPage):
     def create_refuse_document(self, request_name, doc_link):
-        self.should_not_be_answer_pictogram() if self.have_answer(self.modify_npa_type(request_name, 1)) == 0 else self.should_be_answer_pictogram()
+        self.should_not_be_answer_pictogram() if self.have_answer(self.modify_npa_type(
+            request_name, 1)) == 0 else self.should_be_answer_pictogram()
         self.should_be_refuse_pictogram()
 
         url = self.driver.current_url

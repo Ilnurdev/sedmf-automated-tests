@@ -178,7 +178,7 @@ class WebDriver(Paths):
 
 def pytest_addoption(parser):
     parser.addoption('--browser_name', default="chrome")
-    parser.addoption("--sign_test", default=False)
+    parser.addoption("--sign_test", default="False")
 
 
 @pytest.fixture(scope="function")

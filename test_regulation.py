@@ -225,7 +225,7 @@ class TestRegulation:
                             TestRegulation.NPA_ID, False, first)
         page.regulation_doc(npa_number, regulation_type,
                             TestRegulation.NPA_ID, True, first)
-        page.should_be_correct_saved_file()
+        # page.should_be_correct_saved_file()
         page.create_and_send_agree_sheet()
         doc_id = page.save_document_id()
 
