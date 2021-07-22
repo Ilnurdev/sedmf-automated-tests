@@ -80,7 +80,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.NPA_TYPE_FIELD_VIEW_MODE_LOCATOR)
 
-    def select_npa_type_field(self, name, text, edit):
+    def select_npa_type_field(self, name, text):
         self.should_be_npa_type_field(name)
         assert self.is_element_present(
             *RegulationDocumentLocators.SELECT_NPA_TYPE_FIELD_LOCATOR), f"Не отображается селектор поля '{name}'"
@@ -108,7 +108,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         field = self.should_be_npa_name_field(field_name)
         assert text == self.return_text(*field[1])
 
-    def enter_npa_name_field(self, field_name, text, edit):
+    def enter_npa_name_field(self, field_name, text):
         self.should_be_npa_name_field(field_name)
 
         self.fill_field(
@@ -172,7 +172,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.fill_field(
             *RegulationDocumentLocators.ORG_INFO_EMAIL_FIELD_LOCATOR, text)
 
-    def enter_org_info_field(self, field_name, edit, requered):
+    def enter_org_info_field(self, field_name, edit):
         field = self.should_be_org_info_field(field_name, edit)
         assert self.is_element_present(
             *RegulationDocumentLocators.ORG_INFO_NAME_FIELD_LOCATOR), f"Нет поля 'Наименование' в '{RegulationFields.ORG_INFO}'"
@@ -204,14 +204,14 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text in self.return_text(
             *RegulationDocumentLocators.EA_TYPE_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_text_ea_type(self, name, text, edit, ved=False):
+    def enter_text_ea_type(self, name, text, ved=False):
         self.should_be_ea_type_field(name)
         self.fill_field(
             *RegulationDocumentLocators.ENTER_NEW_ELEMENT_IN_EA_TYPE_LOCATOR, text)
         self.click_to(
             *RegulationDocumentLocators.CHOOSE_EA_TYPE_DROP_LIST, 10 if ved == True else 30)
 
-    def enter_new_window_ea_type(self, name, text, edit, ved=False):
+    def enter_new_window_ea_type(self, name, text, ved=False):
         self.should_be_ea_type_field(name)
 
         assert self.is_element_present(
@@ -247,7 +247,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text in self.return_text(
             *RegulationDocumentLocators.KEYWORD_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_keyword_field(self, field_name, text, edit):
+    def enter_keyword_field(self, field_name, text):
         self.should_be_keyword_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.KEYWORD_INPUT_FILELD_LOCATOR), f"Не отображается поле '{RegulationFields.KEYWORD}'"
@@ -270,7 +270,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text in self.return_text(
             *RegulationDocumentLocators.DISCUSS_PERIOD_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_discuss_period_field(self, field_name, text, edit):
+    def enter_discuss_period_field(self, field_name, text):
         self.should_be_discuss_period_field(field_name)
 
         self.fill_field(
@@ -299,8 +299,8 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             *RegulationDocumentLocators.RESPONSIBLE_REVIEW_FIELD_VIEW_LOCATOR)
         for i in values:
             assert i in text
-    
-    def enter_resp_review_field(self, field_name: str, text, edit: bool):
+
+    def enter_resp_review_field(self, field_name: str, edit: bool):
         """Заполняет поля. text неиспользуемый параметр, сделан для унификации (решения лучше не придумал)"""
         values = self.should_be_resp_review_field(edit, field_name)
 
@@ -358,7 +358,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             *RegulationDocumentLocators.NOTIFY_NPA_FIELD_VIEW_MODE_LOCATOR)
         assert text == field_text
 
-    def enter_notify_npa_field(self, field_name, text, edit):
+    def enter_notify_npa_field(self, field_name, text):
         self.should_be_notify_npa_field(field_name)
 
         assert self.is_element_present(
@@ -387,7 +387,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.NPA_PROJECT_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_npa_project_field(self, field_name, text, edit):
+    def enter_npa_project_field(self, field_name, text):
         self.should_be_npa_project_field(field_name)
 
         assert self.is_element_present(
@@ -415,7 +415,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.EXPLAIN_NOTE_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_explain_note_field(self, field_name, text, edit):
+    def enter_explain_note_field(self, field_name, text):
         self.should_be_explain_note_field(field_name)
 
         assert self.is_element_present(
@@ -548,7 +548,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         for i in self.count_comment_fields(name, False):
             assert str(text) == self.return_text(*i)
 
-    def enter_total_comment_field(self, name, text, edit):
+    def enter_total_comment_field(self, name, text):
         self.should_be_total_comment_field(name)
         for i in self.count_comment_fields(name, True):
             self.fill_field(*i, text)
@@ -568,7 +568,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         for i in self.count_comment_fields(name, False):
             assert str(text) == self.return_text(*i)
 
-    def enter_number_comment_field(self, name, text, edit):
+    def enter_number_comment_field(self, name, text):
         self.should_be_number_comment_field(name)
         for i in self.count_comment_fields(name, True):
             self.fill_field(*i, text)
@@ -588,7 +588,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         for i in self.count_comment_fields(name, False):
             assert str(text) == self.return_text(*i)
 
-    def enter_number_una_comment_field(self, name, text, edit):
+    def enter_number_una_comment_field(self, name, text):
         self.should_be_number_una_comment_field(name)
         for i in self.count_comment_fields(name, True):
             self.fill_field(*i, text)
@@ -608,7 +608,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         for i in self.count_comment_fields(name, False):
             assert str(text) == self.return_text(*i)
 
-    def enter_number_pta_comment_field(self, name, text, edit):
+    def enter_number_pta_comment_field(self, name, text):
         self.should_be_number_pta_comment_field(name)
         for i in self.count_comment_fields(name, True):
             self.fill_field(*i, text)
@@ -643,7 +643,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         field_text = self.return_text(*dec_type[2])
         assert dec_type[-1] == field_text
 
-    def select_decision_info_field(self, field_name, text, edit):
+    def select_decision_info_field(self, field_name, text):
         dec_type = self.should_be_decision_info_field(field_name, text)
         assert self.is_element_present(*dec_type[1])
         self.work_with_selector(*dec_type[1], visible_text=str(dec_type[-1]))
@@ -663,7 +663,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.SUMMARY_INFO_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_summary_info_field(self, field_name, text, edit):
+    def enter_summary_info_field(self, field_name, text):
         self.should_be_summary_info_field(field_name)
 
         assert self.is_element_present(
@@ -691,7 +691,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.MODIFIED_NPA_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_modified_npa_field(self, field_name, text, edit):
+    def enter_modified_npa_field(self, field_name, text):
         self.should_be_modified_npa_field(field_name)
 
         assert self.is_element_present(
@@ -720,7 +720,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.AC_EXPERTISE_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_ac_expertise_field(self, field_name, text, edit):
+    def enter_ac_expertise_field(self, field_name, text):
         self.should_be_ac_expertise_field(field_name)
 
         assert self.is_element_present(
@@ -744,7 +744,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.EMAIL_AC_EXPERTISE_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_email_ac_expertise_field(self, field_name, text, edit):
+    def enter_email_ac_expertise_field(self, field_name, text):
         self.should_be_email_ac_expertise_field(field_name)
 
         assert self.is_element_present(
@@ -768,7 +768,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.MAIL_AC_EXPERTISE_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_mail_ac_expertise_field(self, field_name, text, edit):
+    def enter_mail_ac_expertise_field(self, field_name, text):
         self.should_be_mail_ac_expertise_field(field_name)
 
         assert self.is_element_present(
@@ -783,7 +783,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_corruption_factor_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.CORRUPTION_FACTOR_NAME_LOCATOR)
 
     def should_be_corruption_factor_fields(self, field_name, text):
@@ -791,7 +791,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.CORRUPTION_FACTOR_FIELD_VIEW_MODE_LOCATOR)
 
-    def select_corruption_factor_field(self, field_name, text, edit):
+    def select_corruption_factor_field(self, field_name, text):
         self.should_be_corruption_factor_field(field_name)
 
         assert self.is_element_present(
@@ -806,7 +806,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_number_conclusion_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.NUMBER_CONCLUSION_NAME_LOCATOR)
 
     def should_be_number_conclusion_fields(self, field_name, text):
@@ -815,7 +815,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.NUMBER_CONCLUSION_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_number_conclusion_field(self, field_name, text, edit):
+    def enter_number_conclusion_field(self, field_name, text):
         self.should_be_number_conclusion_field(field_name)
 
         assert self.is_element_present(
@@ -830,7 +830,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_gc_ac_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.GC_AC_NAME_LOCATOR)
 
     def should_be_gc_ac_fields(self, field_name, text):
@@ -839,7 +839,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.GC_AC_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_gc_ac_field(self, field_name, text, edit):
+    def enter_gc_ac_field(self, field_name, text):
         self.should_be_gc_ac_field(field_name)
 
         assert self.is_element_present(
@@ -857,7 +857,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_npa_draft_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.NPA_DRAFT_NAME_LOCATOR)
 
     def should_be_npa_draft_fields(self, field_name, text):
@@ -866,7 +866,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.NPA_DRAFT_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_npa_draft_field(self, field_name, text, edit):
+    def enter_npa_draft_field(self, field_name, text):
         self.should_be_npa_draft_field(field_name)
 
         assert self.is_element_present(
@@ -885,7 +885,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_npa_number_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.NPA_NUMBER_NAME_LOCATOR)
 
     def should_be_npa_number_fields(self, field_name, text):
@@ -894,7 +894,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.NPA_NUMBER_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_npa_number_field(self, field_name, text, edit):
+    def enter_npa_number_field(self, field_name, text):
         self.should_be_npa_number_field(field_name)
 
         assert self.is_element_present(
@@ -909,7 +909,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_approved_npa_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.APPROVED_NPA_NAME_LOCATOR)
 
     def should_be_approved_npa_fields(self, field_name, text):
@@ -918,7 +918,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.APPROVED_NPA_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_approved_npa_field(self, field_name, text, edit):
+    def enter_approved_npa_field(self, field_name, text):
         self.should_be_approved_npa_field(field_name)
 
         assert self.is_element_present(
@@ -937,7 +937,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_npa_adoption_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.NPA_ADOPTION_NAME_LOCATOR)
         if name == RegulationFields.NPA_ADOPTION_DATE_1:
             return [RegulationDocumentLocators.NPA_ADOPTION_FIELD_LOCATOR]
@@ -950,7 +950,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.NPA_ADOPTION_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_npa_adoption_field(self, field_name, text, edit):
+    def enter_npa_adoption_field(self, field_name, text):
         field = self.should_be_npa_adoption_field(field_name)
 
         assert self.is_element_present(*field[0])
@@ -963,7 +963,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_pd_npa_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.PD_NPA_NAME_LOCATOR)
 
     def should_be_pd_npa_fields(self, field_name, text):
@@ -972,7 +972,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.PD_NPA_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_pd_npa_field(self, field_name, text, edit):
+    def enter_pd_npa_field(self, field_name, text):
         self.should_be_pd_npa_field(field_name)
 
         assert self.is_element_present(
@@ -991,7 +991,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_consol_report_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.CONSOL_REPORT_NAME_LOCATOR)
 
     def should_be_consol_report_fields(self, field_name, text):
@@ -1000,7 +1000,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.CONSOL_REPORT_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_consol_report_field(self, field_name, text, edit):
+    def enter_consol_report_field(self, field_name, text):
         self.should_be_consol_report_field(field_name)
 
         assert self.is_element_present(
@@ -1020,7 +1020,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_decision_period_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.DECISION_PERIOD_NAME_LOCATOR)
 
     def should_be_decision_period_fields(self, field_name, text):
@@ -1029,7 +1029,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.DECISION_PERIOD_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_decision_period_field(self, field_name, text, edit):
+    def enter_decision_period_field(self, field_name, text):
         self.should_be_decision_period_field(field_name)
 
         assert self.is_element_present(
@@ -1044,7 +1044,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_degree_exposure_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.DEGREE_EXPOSURE_NAME_LOCATOR)
 
     def should_be_degree_exposure_fields(self, field_name, text):
@@ -1053,7 +1053,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.DEGREE_EXPOSURE_FIELD_VIEW_MODE_LOCATOR)
 
-    def select_degree_exposure_field(self, field_name, text, edit):
+    def select_degree_exposure_field(self, field_name, text):
         self.should_be_degree_exposure_field(field_name)
 
         assert self.is_element_present(
@@ -1090,7 +1090,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_msr_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.MSR_NAME_LOCATOR)
 
     def should_be_msr_fields(self, field_name, text):
@@ -1099,7 +1099,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.MSR_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_msr_field(self, field_name, text, edit):
+    def enter_msr_field(self, field_name, text):
         self.should_be_msr_field(field_name)
 
         assert self.is_element_present(
@@ -1118,7 +1118,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_eec_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.EEC_NAME_LOCATOR)
 
     def should_be_eec_fields(self, field_name, text):
@@ -1127,7 +1127,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.EEC_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_eec_field(self, field_name, text, edit):
+    def enter_eec_field(self, field_name, text):
         self.should_be_eec_field(field_name)
 
         assert self.is_element_present(
@@ -1146,7 +1146,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_mdd_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.MDD_NAME_LOCATOR)
 
     def should_be_mdd_fields(self, field_name, text):
@@ -1155,7 +1155,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.MDD_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_mdd_field(self, field_name, text, edit):
+    def enter_mdd_field(self, field_name, text):
         self.should_be_mdd_field(field_name)
 
         assert self.is_element_present(
@@ -1174,7 +1174,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_assessment_report_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.ASSESSMENT_REPORT_NAME_LOCATOR)
 
     def should_be_assessment_report_fields(self, field_name, text):
@@ -1183,7 +1183,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.ASSESSMENT_REPORT_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_assessment_report_field(self, field_name, text, edit):
+    def enter_assessment_report_field(self, field_name, text):
         self.should_be_assessment_report_field(field_name)
 
         assert self.is_element_present(
@@ -1203,7 +1203,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_rr_npa_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.RR_NPA_NAME_LOCATOR)
 
     def should_be_rr_npa_fields(self, field_name, text):
@@ -1212,7 +1212,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.RR_NPA_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_rr_npa_field(self, field_name, text, edit):
+    def enter_rr_npa_field(self, field_name, text):
         self.should_be_rr_npa_field(field_name)
 
         assert self.is_element_present(
@@ -1231,7 +1231,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_offers_email_field(self, name):
-        self.should_be_correct_field_name(
+        assert self.should_be_correct_field_name(
             name, RegulationDocumentLocators.OFFERS_EMAIL_NAME_LOCATOR)
 
     def should_be_offers_email_fields(self, field_name, text):
@@ -1240,7 +1240,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.OFFERS_EMAIL_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_offers_email_field(self, field_name, text, edit):
+    def enter_offers_email_field(self, field_name, text):
         self.should_be_offers_email_field(field_name)
 
         assert self.is_element_present(
@@ -1252,11 +1252,17 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     Органы гос. власти – соисполнители
 
+
+    TO DO:
+    Избавиться от аргумента edit в функции enter_new_window_co_exector
+
     """
 
     def should_be_co_exector_field(self, name):
-        assert self.is_element_present(
-            *RegulationDocumentLocators.CO_EXECTOR_NAME_LOCATOR),  f"Не отображается или является обязательным поле '{RegulationFields.CO_EXECTOR}'"
+        assert self.should_be_correct_field_name(
+            name, RegulationDocumentLocators.CO_EXECTOR_NAME_LOCATOR)
+        # assert self.is_element_present(
+        #     *RegulationDocumentLocators.CO_EXECTOR_NAME_LOCATOR),  f"Не отображается или является обязательным поле '{RegulationFields.CO_EXECTOR}'"
 
     def should_be_co_exector_fields(self, field_name, text):
         self.should_be_co_exector_field(field_name)
@@ -1273,13 +1279,13 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.choose_user_from_drop_list()
         assert self.count_co_exector_elements() == count_elements+1
 
-    def enter_new_window_co_exector(self, field_name, text, edit):
+    def enter_new_window_co_exector(self, field_name, text):
         self.should_be_co_exector_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.CO_EXECTOR_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.CO_EXECTOR}'"
         assert self.is_element_present(
             *RegulationDocumentLocators.CHOOSE_CO_EXECTOR_FROM_NEW_WINDOW), f"Не отображается кнопка '{RegulationFields.CO_EXECTOR}'"
-        if edit == True:
+        if text != RegulationFields.NON_REQUIRED_FIELD:
             count_elements = self.count_co_exector_elements()
             self.driver.find_element(
                 *RegulationDocumentLocators.CHOOSE_CO_EXECTOR_FROM_NEW_WINDOW).click()
@@ -1301,20 +1307,22 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_add_offer_email_field(self, name):
-        text = self.return_text(
-            *RegulationDocumentLocators.ADD_OFFER_EMAIL_NAME_LOCATOR)
-        assert text == name + ":"
+        assert self.should_be_correct_field_name(
+            name, RegulationDocumentLocators.ADD_OFFER_EMAIL_NAME_LOCATOR)
+        # text = self.return_text(
+        #     *RegulationDocumentLocators.ADD_OFFER_EMAIL_NAME_LOCATOR)
+        # assert text == name + ":"
 
     def should_be_add_offer_email_fields(self, field_name, text):
         self.should_be_add_offer_email_field(field_name)
         assert text == self.return_text(
             *RegulationDocumentLocators.ADD_OFFER_EMAIL_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_add_offer_email_field(self, field_name, text, edit):
+    def enter_add_offer_email_field(self, field_name, text):
         self.should_be_add_offer_email_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.ADD_OFFER_EMAIL_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.ADD_OFFER_EMAIL}'"
-        if edit == True:
+        if text == RegulationFields.NON_REQUIRED_FIELD:
             self.fill_field(
                 *RegulationDocumentLocators.ADD_OFFER_EMAIL_FIELD_LOCATOR, text)
 
@@ -1325,20 +1333,22 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_reason_create_npa_field(self, name):
-        text = self.return_text(
-            *RegulationDocumentLocators.REASON_CREATE_NPA_NAME_LOCATOR)
-        assert text == name + ":"
+        assert self.should_be_correct_field_name(
+            name, RegulationDocumentLocators.ADD_OFFER_EMAIL_NAME_LOCATOR)
+        # text = self.return_text(
+        #     *RegulationDocumentLocators.REASON_CREATE_NPA_NAME_LOCATOR)
+        # assert text == name + ":"
 
     def should_be_reason_create_npa_fields(self, field_name, text):
         self.should_be_reason_create_npa_field(field_name)
         assert text == self.return_text(
             *RegulationDocumentLocators.REASON_CREATE_NPA_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_reason_create_npa_field(self, field_name, text, edit):
+    def enter_reason_create_npa_field(self, field_name, text):
         self.should_be_reason_create_npa_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.REASON_CREATE_NPA_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.REASON_CREATE_NPA}'"
-        if edit == True:
+        if text == RegulationFields.NON_REQUIRED_FIELD:
             self.fill_field(
                 *RegulationDocumentLocators.REASON_CREATE_NPA_FIELD_LOCATOR, text)
 
@@ -1349,20 +1359,22 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_link_id_field(self, name):
-        text = self.return_text(
-            *RegulationDocumentLocators.NPA_LINK_ID_NAME_LOCATOR)
-        assert text == name + ":"
+        assert self.should_be_correct_field_name(
+            name, RegulationDocumentLocators.NPA_LINK_ID_NAME_LOCATOR)
+        # text = self.return_text(
+        #     *RegulationDocumentLocators.NPA_LINK_ID_NAME_LOCATOR)
+        # assert text == name + ":"
 
     def should_be_link_id_fields(self, field_name, text):
         self.should_be_link_id_field(field_name)
         assert text == self.return_text(
             *RegulationDocumentLocators.NPA_LINK_ID_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_link_id_field(self, field_name, text, edit):
+    def enter_link_id_field(self, field_name, text):
         self.should_be_link_id_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.NPA_LINK_ID_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.LINK_ID}'"
-        if edit == True:
+        if text == RegulationFields.NON_REQUIRED_FIELD:
             self.fill_field(
                 *RegulationDocumentLocators.NPA_LINK_ID_FIELD_LOCATOR, text)
 
@@ -1373,9 +1385,11 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
     """
 
     def should_be_additional_materials_field(self, name):
-        text = self.return_text(
-            *RegulationDocumentLocators.ADDITIONAL_MATERIALS_NAME_LOCATOR)
-        assert text == name + ":"
+        assert self.should_be_correct_field_name(
+            name, RegulationDocumentLocators.ADDITIONAL_MATERIALS_NAME_LOCATOR)
+        # text = self.return_text(
+        #     *RegulationDocumentLocators.ADDITIONAL_MATERIALS_NAME_LOCATOR)
+        # assert text == name + ":"
 
     def should_be_additional_materials_fields(self, field_name, text):
         self.should_be_additional_materials_field(field_name)
@@ -1398,11 +1412,11 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             *RegulationDocumentLocators.REMOVE_LAST_ELEMENT_IN_ADDITIONAL_MATERIALS_LOCATOR).click()
         assert self.count_additonal_material_elments() == additional_material_count - 1
 
-    def enter_additional_materials_field(self, field_name, text, edit):
+    def enter_additional_materials_field(self, field_name, text):
         self.should_be_additional_materials_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.ADDITIONAL_MATERIALS_ADD_BUTTON_LOCATOR), f"Не отображается кнопка '{RegulationFields.ADDITIONAL_MATERIAL}'"
-        if edit == True:
+        if text == RegulationFields.NON_REQUIRED_FIELD:
             self.click_to_additonal_material_add_button()
             self.fill_field(
                 *RegulationDocumentLocators.ADD_FILE_LAST_ELEMENT_IN_ADDITIONAL_MATERIALS_LOCATOR)
@@ -1424,13 +1438,12 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.REGULATORY_GILLIOTINE_FIELD_VIEW_MODE_LOCATOR)
 
-    def activate_regulatory_gilliotine_checkbox(self, field_name, text, edit):
+    def activate_regulatory_gilliotine_checkbox(self, field_name, edit):
         self.should_be_regulatory_gilliotine_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.REGULATORY_GILLIOTINE_CHECKBOX_LOCATOR)
-        if edit == True:
-            self.driver.find_element(
-                *RegulationDocumentLocators.REGULATORY_GILLIOTINE_CHECKBOX_LOCATOR).click()
+        if edit != RegulationFields.NO_FIELD:
+            self.click_to(*RegulationDocumentLocators.REGULATORY_GILLIOTINE_CHECKBOX_LOCATOR)
 
     """
 
@@ -1508,11 +1521,11 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         assert text == self.return_text(
             *RegulationDocumentLocators.STATE_NUMBER_FIELD_VIEW_MODE_LOCATOR)
 
-    def enter_state_number_field(self, field_name, text, edit):
+    def enter_state_number_field(self, field_name, text):
         self.should_be_state_number_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.STATE_NUMBER_FIELD_LOCATOR)
-        if edit == True:
+        if text == RegulationFields.NON_REQUIRED_FIELD:
             self.fill_field(
                 *RegulationDocumentLocators.STATE_NUMBER_FIELD_LOCATOR, text)
 
@@ -1539,10 +1552,10 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             field_text == RegulationFields.NON_REQUIRED_FIELD)
         assert field_text
 
-    def enter_issue_type_field(self, field_name, text, edit):
+    def enter_issue_type_field(self, field_name, text):
         field = self.should_be_issue_type_field(field_name)
         assert self.is_element_present(*field)
-        if edit == True:
+        if text == RegulationFields.NON_REQUIRED_FIELD:
             self.work_with_selector(*field, visible_text=text)
 
     """
@@ -1749,11 +1762,10 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_end_date_fields(answer_type)
         self.should_be_add_file_button()
 
-        npa_id = self.create_npa_regulation_id() if create_id == True else npa_id
-        self.enter_npa_id_fields(npa_id, create_id)
-
         self.fill_field(
             *RegulationAnswerPageLocators.ADD_DOCUMENT_LOCATOR, None)
+        npa_id = self.create_npa_regulation_id() if create_id == True else npa_id
+        self.enter_npa_id_fields(npa_id, create_id)
         self.enter_start_date()
         self.enter_end_date()
 
@@ -1840,9 +1852,12 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
              RegulationFields.FILL_RR_NPA, RegulationFields.FILL_RR_NPA_EDIT),
             (RegulationFields.OFFERS_EMAIL, self.should_be_offers_email_fields,
              self.enter_offers_email_field, RegulationFields.FILL_EMAIL, RegulationFields.FILL_EMAIL_EDIT),
-            (RegulationFields.RESPONSIBLE_REVIEW_1, self.should_be_resp_review_fields, self.enter_resp_review_field, False, True),
-            (RegulationFields.RESPONSIBLE_REVIEW_2, self.should_be_resp_review_fields, self.enter_resp_review_field, False, True),
-            (RegulationFields.RESPONSIBLE_REVIEW_3, self.should_be_resp_review_fields, self.enter_resp_review_field, False, True),
+            (RegulationFields.RESPONSIBLE_REVIEW_1, self.should_be_resp_review_fields,
+             self.enter_resp_review_field, False, True),
+            (RegulationFields.RESPONSIBLE_REVIEW_2, self.should_be_resp_review_fields,
+             self.enter_resp_review_field, False, True),
+            (RegulationFields.RESPONSIBLE_REVIEW_3, self.should_be_resp_review_fields,
+             self.enter_resp_review_field, False, True),
 
             (RegulationFields.STATE_NUMBER, self.should_be_state_number_fields, self.enter_state_number_field,
              RegulationFields.NON_REQUIRED_FIELD, RegulationFields.FILL_STATE_NUMBER_EDIT),
@@ -1864,34 +1879,38 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         for i in range(len(args)):
             for q in range(len(arr_fields)):
-                if args[i] == arr_fields[q][0]:
-                    L = arr_fields[q]
+                L = arr_fields[q]
+
+                if args[i] == L[0]:
+                    fill_arg = 1 if fill == False else 2
                     edit_arg = 3 if edit == False else 4
 
-                    if fill == False:
-                        L[1](L[0], L[edit_arg])
-                    else:
-                        L[2](L[0], L[edit_arg], edit)
+                    L[fill_arg](L[0], L[edit_arg])
+                    # if fill == False:
+                        # L[1](L[0], L[edit_arg])
+                    # else:
+                    #     L[2](L[0], L[edit_arg], edit)
                     break
 
     def main_regulation_fields(self, order, request_type, edit=False, from_rcsi=False):
+        def not_be():
+            self.should_not_be_order_enter_fields(order)
+            self.should_not_be_request_type_enter_fields(
+                self.modify_npa_type(request_type))
+
         if edit == False:
             self.should_be_required_fields(RegulationFields.SOGL_TITLE)
             self.fill_in_all_document_required_fields(
                 "суперадмин", "администратор")
             if from_rcsi == True:
-                self.should_not_be_order_enter_fields(order)
-                self.should_not_be_request_type_enter_fields(
-                    self.modify_npa_type(request_type))
+                not_be()
             else:
                 self.should_be_order_fields()
                 self.should_be_request_type_fields()
                 self.select_order_cm(order)
                 self.select_type_request_cm(request_type)
         elif edit == True:
-            self.should_not_be_order_enter_fields(order)
-            self.should_not_be_request_type_enter_fields(
-                self.modify_npa_type(request_type))
+            not_be()
 
     def regulation_delete_all_added_files(self, fields):
         self.delete_all_added_files()
@@ -1903,7 +1922,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
                 self.click_to_responsible_review_delete_button()
                 break
 
-    def regulation_index_fields(self, index):
+    def regulation_index_fields(self, index: int) -> list[str]:
         fields = {
             1: [RegulationFields.NOTIFY_NPA, RegulationFields.ADDITIONAL_MATERIAL, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.RESPONSIBLE_REVIEW_1, RegulationFields.DISCUSS_PERIOD, RegulationFields.EA_TYPE, RegulationFields.KEYWORD, RegulationFields.ORG_INFO, RegulationFields.REASON_CREATE_NPA, RegulationFields.ADD_OFFER_EMAIL, RegulationFields.LINK_ID, RegulationFields.CO_EXECTOR],
             4: [RegulationFields.SUMMARY_INFO, RegulationFields.NPA_TYPE, RegulationFields.NPA_NAME_1, RegulationFields.TOTAL_COMMENT, RegulationFields.NUMBER_UNA_COMMENT, RegulationFields.NUMBER_COMMENT, RegulationFields.NUMBER_PTA_COMMENT, RegulationFields.DECISION_INFO],
@@ -1954,30 +1973,29 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.fields(fields, edit=edit)
 
     def regulation_doc(self, order, request_type, npa_id, edit=False, first=False, from_rcsi=False, error=False):
-        if edit == True:
-            self.click_to_edit_pictogram()
+        def if_edit(fields=None):
+            if edit == True:
+                self.click_to_edit_pictogram(
+                ) if fields == None else self.regulation_delete_all_added_files(fields)
 
-        # edit_status = (2 if edit == True else 1) if from_rcsi == False else 2
+        if_edit()
         edit_status = 1 if edit == False and from_rcsi == False else 2
-
-        self.main_regulation_fields(order, request_type, edit, from_rcsi)
-
         index = self.modify_npa_type(request_type, 1)
         fields = self.regulation_index_fields(index)
 
-        if edit == True:
-            self.regulation_delete_all_added_files(fields)
+        self.main_regulation_fields(order, request_type, edit, from_rcsi)
 
+        if_edit(fields)
         self.regulation_correct_npa_id_fields(
             index, npa_id, first, edit_status)
         self.regulation_correct_notice_npa_not_placed_fields(
             index, first, edit_status)
 
-        self.fields(fields, fill=True, edit=edit)  # Заполнение полей
+        self.fields(fields, fill=True, edit=edit)   # Заполнение полей
 
         if error == False:
             self.save_regulation_rcd(edit, index)
-            self.check_regulation_doc(index, npa_id, first, edit)  # Проверка корректности заполнения полей
+            self.check_regulation_doc(index, npa_id, first, edit)   # Проверка корректности заполнения полей
         else:
             self.click_to(*AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR)
             assert self.should_be_correct_error_message(error)

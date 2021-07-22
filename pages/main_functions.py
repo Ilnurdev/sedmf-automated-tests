@@ -17,6 +17,8 @@ PATH_TO_ID_DOC = path.join(folder_path, 'saved-id.txt')
 
 
 class MainFunc:
+    url: str
+    timeout: int
     def __init__(self, driver, url="", timeout=10):
         self.driver = driver
         self.url = url
@@ -46,9 +48,11 @@ class MainFunc:
                     EC.element_to_be_clickable((how, what)))
 
     def click_to(self, how, what, timeout=30):
-        assert self.is_active(how, what, timeout)
-        locator = self.driver.find_element(how, what)
-        self.driver.execute_script("arguments[0].click();", locator)
+        try:
+            locator = self.driver.find_element(how, what)
+            self.driver.execute_script("arguments[0].click();", locator)
+        except (NoSuchElementException):
+            return False
 
     def choose_user_from_drop_list(self, text=None):
         self.is_element_present(

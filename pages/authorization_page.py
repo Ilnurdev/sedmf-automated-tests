@@ -29,21 +29,19 @@ class AuthPage(MainFunc):
             self.enter_password()
             url = self.driver.current_url
             self.click_to_enter_button()
+
             return url
 
-        if root == "a":
-            value = MainFunc.config("admin")
-        elif root == "awn":
-            value = MainFunc.config("a_without_nomenclature")
-        elif root == "u":
-            value = MainFunc.config("user")
-        elif root == "mou":
-            value = MainFunc.config("mo_u")
-        else:
-            value = MainFunc.config("superadmin")
+        value = {
+            "a": "admin",
+            "awn": "admin_without_nomenclature",
+            "u": "user",
+            "mou": "mo_user",
+            None: "superadmin"
+        }
 
         self.choose_org()
-        self.choose_user(value)
+        self.choose_user(MainFunc.config(value[root]))
         url = if_passwerd_not_entred()
 
         count = 3

@@ -98,6 +98,11 @@ class AgreeSheetPage(SaveDocumentBlock):
     def click_to_send_on_agreement_button(self):
         self.click_to(*AgreeSheetLocators.SEND_TO_AGREEMENT_BUTTON_LOCATOR)
 
+        count = 0
+        while self.is_element_present(*PopupWindowLocators.OK_ENG_BUTTON_LOCATOR) == False and count <= 3:
+            self.click_to(*AgreeSheetLocators.SEND_TO_AGREEMENT_BUTTON_LOCATOR)
+            count += 1
+
     def dismiss_with_popup_window(self):
         self.click_to(*PopupWindowLocators.DISMISS_BUTTON_LOCATOR)
 
@@ -108,7 +113,7 @@ class AgreeSheetPage(SaveDocumentBlock):
         self.is_element_present(*AgreeSheetLocators.ON_AGREE_TEXT_LOCATOR)
 
     def approve_agree_sheet_button(self):
-        assert self.is_appeared(*AgreeSheetLocators.APPROVE_BUTTON_LOCATOR)
+        # assert self.is_appeared(*AgreeSheetLocators.APPROVE_BUTTON_LOCATOR, timeout=30)
         self.click_to(*AgreeSheetLocators.APPROVE_BUTTON_LOCATOR)
 
     def click_to_agree_button_on_agreement_window(self):

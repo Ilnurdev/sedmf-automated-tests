@@ -25,6 +25,8 @@ class MainPageLocators:
 
     """
 
+    link_name: str
+    block_num: int
     def __init__(self, link_name, block_num=1):
         self.top_panel = self.TopPanelBlock(link_name)
         self.closed_block = self.ClosedDocumentBlock(str(block_num))
