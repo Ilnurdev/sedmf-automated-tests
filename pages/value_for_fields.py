@@ -102,7 +102,8 @@ class RegulationFields:
     NUMBER_CONCLUSION = "* Кол-во заключений"
     GC_AC = "* Общее заключение по итогам антикоррупционной экспертизы"
     NPA_DRAFT = "* Нормативный правовой акт (проект)"
-    NPA_NUMBER = "* Номер принятого НПА"
+    NPA_NUMBER = "* Номер НПА"
+    ACCEPTED_NPA_NUMBER = "* Номер принятого НПА"
     APPROVED_NPA = "* Утвержденный НПА"
     NPA_ADOPTION_DATE_1 = "* Дата принятия НПА"
     NPA_ADOPTION_DATE_2 = "* Дата НПА"
@@ -161,6 +162,7 @@ class RegulationFields:
     FILL_GC_AC = FILL_FIELD + GC_AC
     FILL_NPA_DRAFT = FILL_FIELD + NPA_DRAFT
     FILL_NPA_NUMBER = FILL_FIELD + NPA_NUMBER
+    FILL_ACCEPTED_NPA_NUMBER = FILL_FIELD + ACCEPTED_NPA_NUMBER
     FILL_APPROVED_NPA = FILL_FIELD + APPROVED_NPA
     FILL_NOTICE_NPA_NAME = "администратор"
     FILL_PD_NPA = FILL_FIELD + PD_NPA
@@ -216,6 +218,7 @@ class RegulationFields:
     FILL_GC_AC_EDIT = EDIT_FIELD + GC_AC
     FILL_NPA_DRAFT_EDIT = EDIT_FIELD + NPA_DRAFT
     FILL_NPA_NUMBER_EDIT = EDIT_FIELD + NPA_NUMBER
+    FILL_ACCEPTED_NPA_NUMBER_EDIT = EDIT_FIELD + ACCEPTED_NPA_NUMBER
     FILL_STATE_NUMBER_EDIT = EDIT_FIELD + STATE_NUMBER
     FILL_APPROVED_NPA_EDIT = EDIT_FIELD + APPROVED_NPA
     FILL_NOTICE_NPA_NAME_EDIT = "суперадмин"

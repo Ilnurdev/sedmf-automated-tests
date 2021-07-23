@@ -19,6 +19,7 @@ PATH_TO_ID_DOC = path.join(folder_path, 'saved-id.txt')
 class MainFunc:
     url: str
     timeout: int
+
     def __init__(self, driver, url="", timeout=10):
         self.driver = driver
         self.url = url
@@ -95,7 +96,7 @@ class MainFunc:
         except:
             element_found = True
         driver.implicitly_wait(30)
-        
+
         return element_found
 
     def url_change(self, url, timeout=60):
@@ -150,7 +151,7 @@ class MainFunc:
     def save_document_id(self):
         url_for_take_id = self.driver.current_url
         document_id = (search(r"(\&|\?)id=((\d|\w)+)", url_for_take_id)[2])
-        
+
         return document_id
 
     def return_text(self, how, what):
@@ -168,40 +169,50 @@ class MainFunc:
             *FindDocumentInFolder.find_doc_in_folder(document_id))
         self.click_to(*FindDocumentInFolder.find_doc_in_folder(document_id))
 
-    def pdf_to_html(self, file_name, path_to_file=folder_path):
+    def pdf_to_html(self, file_name, file_in_folder=folder_path) -> str:
+        """Конвертирует pdf в html при помощи LibreOffice, удаляет скачанный и конверитированный файлы, возваращает текст"""
+
         def find_file(files, file_name):
+            """Ищет файл в папке, возвращает название"""
             for i in files:
                 if (file_name in i) and ("crd" not in i):
-                    file_name = i[:-4]
-                    break
+                    for num in range(len(i))[::-1]:
+                        if i[num] == ".":
+                            return i[:num]
             return file_name
 
-        count = 30
-        while count != 0:
-            if count <= 0:
-                assert False, "Файл не загружен"
+        def found_file_in_folder(file_name, timeout=60):
+            """Обновляет файлы в папке, возвращает название файла"""
+            count = timeout
+            while count != 0:
+                if count <= 0:
+                    assert False, "Файл не загружен"
 
-            files = listdir(path_to_file)
-            name = find_file(files, file_name)
+                files = listdir(file_in_folder)
+                name = find_file(files, file_name)
 
-            if file_name != name:
-                file_name = name
-                break
+                if file_name != name:
+                    return name
 
-            count -= 1
-            sleep(1)
+                count -= 1
+                sleep(1)
 
-        path_to_file = path_to_file + "\\" + file_name + ".pdf"
-        call(
-            f'"C:\\Program Files\\LibreOffice\\program\\soffice.bin" --headless --convert-to html:draw_html_Export --outdir "{folder_path}" "{path_to_file}"', shell=True)
-
+        name = found_file_in_folder(file_name + ".pdf")
+        path_to_soffice = self.config("path_to_soffice")
+        path_to_file = file_in_folder + "\\" + name + ".pdf"
         text = None
-        save_file = folder_path + "\\" + file_name + ".html"
-        with open(save_file, mode="r", encoding="UTF-8") as f:
-            text = f.read()
 
+        if path_to_soffice != "":
+            call(
+                f'"{path_to_soffice}" --headless --convert-to html:draw_html_Export --outdir "{folder_path}" "{path_to_file}"', shell=True)
+
+            name = found_file_in_folder(file_name + ".html")
+            html_file = folder_path + "\\" + name + ".html"
+            with open(html_file, mode="r", encoding="UTF-8") as f:
+                text = f.read()
+
+            remove(html_file)
         remove(path_to_file)
-        remove(save_file)
 
         return text
 

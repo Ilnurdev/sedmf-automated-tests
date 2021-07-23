@@ -11,6 +11,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def should_be_correct_field_name(self, correct_name, *locator):
         text = self.return_text(*locator[0])
+
         return text == correct_name + ":"
 
     """
@@ -301,7 +302,6 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             assert i in text
 
     def enter_resp_review_field(self, field_name: str, edit: bool):
-        """Заполняет поля. text неиспользуемый параметр, сделан для унификации (решения лучше не придумал)"""
         values = self.should_be_resp_review_field(edit, field_name)
 
         self.enter_responsible_review_from_new_window(values[0])
@@ -1374,7 +1374,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_link_id_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.NPA_LINK_ID_FIELD_LOCATOR), f"Не отображается поле '{RegulationFields.LINK_ID}'"
-        if text == RegulationFields.NON_REQUIRED_FIELD:
+        if text != RegulationFields.NON_REQUIRED_FIELD:
             self.fill_field(
                 *RegulationDocumentLocators.NPA_LINK_ID_FIELD_LOCATOR, text)
 
@@ -1416,7 +1416,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.should_be_additional_materials_field(field_name)
         assert self.is_element_present(
             *RegulationDocumentLocators.ADDITIONAL_MATERIALS_ADD_BUTTON_LOCATOR), f"Не отображается кнопка '{RegulationFields.ADDITIONAL_MATERIAL}'"
-        if text == RegulationFields.NON_REQUIRED_FIELD:
+        if text != RegulationFields.NON_REQUIRED_FIELD:
             self.click_to_additonal_material_add_button()
             self.fill_field(
                 *RegulationDocumentLocators.ADD_FILE_LAST_ELEMENT_IN_ADDITIONAL_MATERIALS_LOCATOR)
@@ -1658,11 +1658,13 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
     def save_regulation_rcd(self, edit, index):
         def if_rcd_not_saved():
-            if self.is_not_element_present(*RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_PHONE_EMAIL_LOCATOR, timeout=5) == False:
-                self.enter_responsible_review_phone_field(
-                    RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE)
-                self.enter_responsible_review_email_field(
-                    RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL)
+            if int(index) not in [4, 5, 6, 20, 21, 28, 33, 34]:
+                if self.is_not_element_present(*RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_PHONE_EMAIL_LOCATOR, timeout=5) == False:
+                    self.enter_responsible_review_phone_field(
+                        RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_PHONE)
+                    self.enter_responsible_review_email_field(
+                        RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL_EDIT if edit == True else RegulationFields.FILL_RESPONSIBLE_REVIEW_EMAIL)
+            self.click_to(*save_button)
 
         url = self.driver.current_url
 
@@ -1671,14 +1673,12 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.click_to(*save_button)
 
         count = 0
-        while self.url_change(url, timeout=20) == False and count < 3:
-            if int(index) not in [4, 5, 6, 20, 21, 28, 33, 34]:
-                if_rcd_not_saved()
-                self.click_to(*save_button)
+        while self.url_change(url, timeout=20) == False:
+            if_rcd_not_saved()
             count += 1
 
-        if count >= 3:
-            assert False, "Не удалось сохранить документ"
+            if count >= 3:
+                assert False, "Не удалось сохранить документ"
 
     def should_be_correct_error_message(self, error_message):
         locator = RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_ID_LOCATOR if error_message == RegulationFields.CHAIN_NOT_FOUND_ERROR else RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_LOCATOR
@@ -1691,14 +1691,15 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
             self.click_to(*AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR)
             text = self.return_text(*locator)
             count += 1
+
             if count >= 10:
                 assert False
 
         return text == error_message
 
     def should_be_correct_saved_file(self):
-        name = self.driver.find_element(
-            *AllDocumentFieldLocators.DOCUMENT_NAME_LOCATOR).text
+        name = self.return_text(
+            *AllDocumentFieldLocators.DOCUMENT_NAME_LOCATOR)
         self.click_to(*OpenDocumentPictagramsLocators.PRINT_PICTOGRAM_LOCATOR)
         self.click_to(
             *OpenDocumentPictagramsLocators.SAVE_ONLY_DOCUMENT_BUTTON_LOCATOR)
@@ -1828,6 +1829,8 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
              RegulationFields.FILL_APPROVED_NPA, RegulationFields.FILL_APPROVED_NPA_EDIT),
             (RegulationFields.NPA_NUMBER, self.should_be_npa_number_fields, self.enter_npa_number_field,
              RegulationFields.FILL_NPA_NUMBER, RegulationFields.FILL_NPA_NUMBER_EDIT),
+            (RegulationFields.ACCEPTED_NPA_NUMBER, self.should_be_npa_number_fields, self.enter_npa_number_field,
+            RegulationFields.FILL_ACCEPTED_NPA_NUMBER, RegulationFields.FILL_ACCEPTED_NPA_NUMBER_EDIT),
             (RegulationFields.NPA_ADOPTION_DATE_1, self.should_be_npa_adoption_fields,
              self.enter_npa_adoption_field, RegulationFields.DATE, RegulationFields.DATE_EDIT),
             (RegulationFields.NPA_ADOPTION_DATE_2, self.should_be_npa_adoption_fields,
