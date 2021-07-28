@@ -10,15 +10,12 @@ from time import sleep
 from json import load
 from subprocess import call
 
-folder_path = path.join(path.dirname(path.abspath(__file__)), 'files')
-PATH_TO_CONFIG = path.join(folder_path, 'config.json')
-PATH_TO_FILE = path.join(folder_path, 'Test5.docx')
-PATH_TO_ID_DOC = path.join(folder_path, 'saved-id.txt')
-
 
 class MainFunc:
-    url: str
-    timeout: int
+    folder_path = path.join(path.dirname(path.abspath(__file__)), 'files')
+    PATH_TO_CONFIG = path.join(folder_path, 'config.json')
+    PATH_TO_FILE = path.join(folder_path, 'Test5.docx')
+    PATH_TO_ID_DOC = path.join(folder_path, 'saved-id.txt')
 
     def __init__(self, driver, url="", timeout=10):
         self.driver = driver
@@ -35,20 +32,22 @@ class MainFunc:
         elif visible_text != None:
             select.select_by_visible_text(visible_text)
 
-    def fill_field(self, how, what, text=None, f_type=0):
+    def fill_field(self, how, what, text=None, f_type=0, save_wait=False):
         locator = self.driver.find_element(how, what)
         if text != None:
-            self.driver.execute_script("arguments[0].click();", locator)
             locator.clear()
-            self.driver.execute_script("arguments[0].click();", locator)
             locator.send_keys(text)
         else:
-            locator.send_keys(PATH_TO_FILE)
+            locator.send_keys(self.PATH_TO_FILE)
             if f_type == 0:
                 WebDriverWait(self.driver, 0).until_not(
                     EC.element_to_be_clickable((how, what)))
+            if save_wait == True:
+                def wait(how, what): return WebDriverWait(self.driver, 30).until(
+                    EC.invisibility_of_element((how, what)))
+                wait(*AllDocumentFieldLocators.WAIT_FILE_DOWNLOAD_LOCATOR)
 
-    def click_to(self, how, what, timeout=30):
+    def click_to(self, how, what):
         try:
             locator = self.driver.find_element(how, what)
             self.driver.execute_script("arguments[0].click();", locator)
@@ -56,10 +55,12 @@ class MainFunc:
             return False
 
     def choose_user_from_drop_list(self, text=None):
-        self.is_element_present(
-            *AllDocumentFieldLocators.choose_user_from_drop_list_locator(text))
-        self.click_to(
-            *AllDocumentFieldLocators.choose_user_from_drop_list_locator(text))
+        """Если не указан текст, выбирается первое элемент в дроп листе, иначе, ищется и выбирается указанный элемент"""
+        user_locator = AllDocumentFieldLocators.choose_user_from_drop_list_locator(
+            text)
+
+        self.is_element_present(*user_locator)
+        self.click_to(*user_locator)
 
     def is_element_present(self, how, what):
         try:
@@ -90,13 +91,14 @@ class MainFunc:
         driver = self.driver
         element_found = False
         driver.implicitly_wait(0)
+
         try:
             WebDriverWait(driver, timeout).until(
                 EC.presence_of_element_located((how, what)))
         except:
             element_found = True
+            
         driver.implicitly_wait(30)
-
         return element_found
 
     def url_change(self, url, timeout=60):
@@ -117,6 +119,7 @@ class MainFunc:
         driver = self.driver
         element_found = True
         driver.implicitly_wait(0)
+
         try:
             WebDriverWait(self.driver, timeout).until(
                 EC.element_to_be_clickable((how, what)))
@@ -156,7 +159,14 @@ class MainFunc:
 
     def return_text(self, how, what):
         self.is_appeared(how, what)
-        text = self.driver.find_element(how, what).text
+        r_text = lambda: self.driver.find_element(how, what).text
+        text = r_text()
+
+        count = 0
+        while text == "" and count < 10:
+            text = r_text()
+            count += 1
+            sleep(0.2)
 
         return text
 
@@ -170,7 +180,7 @@ class MainFunc:
         self.click_to(*FindDocumentInFolder.find_doc_in_folder(document_id))
 
     def pdf_to_html(self, file_name, file_in_folder=folder_path) -> str:
-        """Конвертирует pdf в html при помощи LibreOffice, удаляет скачанный и конверитированный файлы, возваращает текст"""
+        """Конвертирует pdf в html при помощи LibreOffice, удаляет скачанный и конверитированный файлы, возвращает текст"""
 
         def find_file(files, file_name):
             """Ищет файл в папке, возвращает название"""
@@ -181,7 +191,7 @@ class MainFunc:
                             return i[:num]
             return file_name
 
-        def found_file_in_folder(file_name, timeout=60):
+        def found_file_in_folder(file_name, timeout=30):
             """Обновляет файлы в папке, возвращает название файла"""
             count = timeout
             while count != 0:
@@ -204,10 +214,11 @@ class MainFunc:
 
         if path_to_soffice != "":
             call(
-                f'"{path_to_soffice}" --headless --convert-to html:draw_html_Export --outdir "{folder_path}" "{path_to_file}"', shell=True)
+                f'"{path_to_soffice}" --headless --convert-to html:draw_html_Export --outdir "{self.folder_path}" "{path_to_file}"', shell=True)
 
             name = found_file_in_folder(file_name + ".html")
-            html_file = folder_path + "\\" + name + ".html"
+            html_file = self.folder_path + "\\" + name + ".html"
+
             with open(html_file, mode="r", encoding="UTF-8") as f:
                 text = f.read()
 
@@ -227,7 +238,7 @@ class MainFunc:
 
     @staticmethod
     def config(value="server"):
-        with open(PATH_TO_CONFIG) as f:
+        with open(MainFunc.PATH_TO_CONFIG) as f:
             data = load(f)
             try:
                 return data[value]

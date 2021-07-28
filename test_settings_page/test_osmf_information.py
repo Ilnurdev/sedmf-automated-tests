@@ -70,6 +70,7 @@ class TestOSMFInformation:
         page = OSMFInformationSettings(driver)
         page.edit_information_type(
             OSMFInformationValues.INFORMATION_TYPE, OSMFInformationValues.INFORMATION_TYPE_EDIT)
+        
         delete_osmf_info(driver, URLs.OSMF_INFORMATION_LINK,
                          OSMFInformationValues.INFORMATION_TYPE_EDIT)
 
@@ -80,6 +81,7 @@ class TestOSMFInformation:
         page = OSMFInformationSettings(driver)
         page.edit_information_type(
             OSMFInformationValues.INFORMATION_TYPE, OSMFInformationValues.INFORMATION_TYPE_EDIT)
+        
         delete_osmf_info(driver, URLs.OSMF_INFORMATION_PLACE_LINK,
                          OSMFInformationValues.INFORMATION_TYPE_EDIT)
 

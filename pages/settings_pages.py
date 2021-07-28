@@ -1,10 +1,10 @@
+from typing import Union
 from .main_functions import MainFunc
 from .urls import URLs
 from .all_document_fields_page import AllDocumentFieldPage
 from .regulation_document_page import RegulationDocumentPage
 from .locators import DirectoryVEDLocators, SystemNotificationLocators, RegulationControlLocators, SettingsPageLocators, OSMFInformationSettingsLocators, AllDocumentFieldLocators
-from .value_for_fields import DateValues, DirectoryVEDValues, RegulationFields, OSMFInformationValues
-import os
+from .value_for_fields import DateValues, DirectoryVEDValues, RegulationFields, OSMFInformationValues, SettingsValues
 
 
 EMAIL = MainFunc.config("email")
@@ -104,11 +104,13 @@ class AdministrationRegulationPage:
 # Администрирование заявок regulation / Справочник видов экономической деятельности
 class DirectoryVEDPage(RegulationDocumentPage, AdministrationRegulationPage):
     def should_be_all_correct_fields(self):
-        self.should_be_administration_regulation_fields()
         table_head = "№ Код Наименование Период действия Инструменты\nс по"
+
+        self.should_be_administration_regulation_fields()
         self.should_be_correct_title(
             "Справочник видов экономической деятельности")
         table_text = self.return_text(*DirectoryVEDLocators.TABLE_HEAD_LOCATOR)
+        
         assert table_head == table_text
         assert self.is_element_present(
             *DirectoryVEDLocators.ADD_REF_EA_TYPE_LINK_LOCATOR)
@@ -166,9 +168,8 @@ class DirectoryVEDPage(RegulationDocumentPage, AdministrationRegulationPage):
         self.select_order_cm(RegulationFields.NPA_851)
         self.select_type_request_cm(RegulationFields.REGULATION_TYPE_851_1)
 
-        funk = self.enter_text_ea_type if from_new_window == False else self.enter_new_window_ea_type
-        funk("* Виды экономической деятельности",
-             self.create_ea_fields(field_type)[1], False, True)
+        func = self.enter_text_ea_type if from_new_window == False else self.enter_new_window_ea_type
+        func("* Виды экономической деятельности", self.create_ea_fields(field_type)[1])
 
     def delete_created_ea_type(self):
         field = None
@@ -210,11 +211,12 @@ class RegulationControlPage(RegulationDocumentPage, AdministrationRegulationPage
         if count == 5:
             assert False
 
-    def send_message_key_date(self, date, field_type):
+    def send_message_key_date(self, date: str, field_name: str):
+        """Изменяет дату, отправляет сообщения"""
         elements = [[RegulationControlLocators.KEY_DATE_1_LOCATOR, RegulationControlLocators.SAVE_CHANGES_1_LOCATOR, RegulationControlLocators.SEND_NOTIFICATION_1_LOCATOR], [
             RegulationControlLocators.KEY_DATE_2_LOCATOR, RegulationControlLocators.SAVE_CHANGES_2_LOCATOR, RegulationControlLocators.SEND_NOTIFICATION_2_LOCATOR]]
 
-        field_type = 0 if field_type <= 6 else 1
+        field_type = 0 if field_name == SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA else 1
         self.fill_field(*elements[field_type][0], date)
         self.alert_accept(elements[field_type][1])
         self.alert_accept(elements[field_type][2])
@@ -247,41 +249,45 @@ class SystemNotificationPage(MainFunc):
 
         return locator
 
-    def enter_email_notification(self, notification_type):
+    def enter_email_notification(self, notification_type: str):
         locator = self.should_be_notification_field(notification_type)
 
         self.fill_field(*locator.notification_input_email_locator(), EMAIL)
         self.click_to(*locator.notification_add_button_locator())
+        
         assert self.is_element_present(
             *locator.notification_email_locator(EMAIL))
 
-    def write_in_doc(self, npa_id, field_name, message_type, date):
+    def write_in_doc(self, npa_id: Union[int, str], field_name: str, regulation_type: str, date: str):
+        """"Создает и/или записывает отправленные уведомления в файл"""
         locator = self.should_be_notification_field(field_name)
         emails = [i.text for i in self.driver.find_elements(
             *locator.notification_all_emails_locator())]
 
-        message_text = {
-            1: f"Тема сообщения: «Закончился срок обсуждения уведомления о подготовке проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения уведомления о подготовке проекта НПА.\nID проекта на сайте regulation.gov.ru: {npa_id}",
-            2: f"Тема сообщения: «Закончился срок общественного обсуждения проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения проекта НПА.\nID проекта на сайте regulation.gov.ru: {npa_id}",
-            3: f"Тема сообщения: «Закончился срок публичного обсуждения проекта НПА и сводного отчета».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта НПА и сводного отчета.\nID проекта правового акта: {npa_id}",
-            4: f"Тема сообщения: «Закончился срок публичного обсуждения проекта решения ЕЭК».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта решения ЕЭК.\nID проекта на сайте regulation.gov.ru: {npa_id}",
-            5: f"Тема сообщения: «Закончился срок проведения антикоррупционной экспертизы по проекту НПА».\nТекст сообщения: {date} закончился срок проведения антикоррупционной экспертизы по проекту НПА.\nID проекта на сайте regulation.gov.ru:  {npa_id}",
-            6: f"Тема сообщения: «Закончился срок обсуждения НПА и отчета ОФВ».\nТекст сообщения: {date} закончился срок обсуждения НПА и отчета ОФВ.\nID проекта на сайте regulation.gov.ru: {npa_id}",
-            
-            7: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
-            8: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
-            9: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
-            10: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА и сводному отчета. Необходимо направить письмо для разработчика проекта. ID проекта правового акта: {npa_id}",
-            11: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту решения ЕЭК. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
-            12: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по отчету ОФВ. Необходимо направить письмо для разработчика отчета. ID проекта на сайте regulation.gov.ru: {npa_id}",
-        }
+        if field_name == SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA:
+            message_text = {
+                RegulationFields.REGULATION_TYPE_851_1: f"Тема сообщения: «Закончился срок обсуждения уведомления о подготовке проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения уведомления о подготовке проекта НПА.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+                RegulationFields.REGULATION_TYPE_851_7: f"Тема сообщения: «Закончился срок общественного обсуждения проекта НПА».\nТекст сообщения: {date} закончился срок общественного обсуждения проекта НПА.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+                RegulationFields.REGULATION_TYPE_1318_10: f"Тема сообщения: «Закончился срок публичного обсуждения проекта НПА и сводного отчета».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта НПА и сводного отчета.\nID проекта правового акта: {npa_id}",
+                RegulationFields.REGULATION_TYPE_1318_11: f"Тема сообщения: «Закончился срок публичного обсуждения проекта решения ЕЭК».\nТекст сообщения: {date} закончился срок публичного обсуждения проекта решения ЕЭК.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+                RegulationFields.REGULATION_TYPE_96_22: f"Тема сообщения: «Закончился срок проведения антикоррупционной экспертизы по проекту НПА».\nТекст сообщения: {date} закончился срок проведения антикоррупционной экспертизы по проекту НПА.\nID проекта на сайте regulation.gov.ru:  {npa_id}",
+                RegulationFields.REGULATION_TYPE_83_32: f"Тема сообщения: «Закончился срок обсуждения НПА и отчета ОФВ».\nТекст сообщения: {date} закончился срок обсуждения НПА и отчета ОФВ.\nID проекта на сайте regulation.gov.ru: {npa_id}",
+            }
+        else:
+            message_text = {
+                RegulationFields.REGULATION_TYPE_851_1: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+                RegulationFields.REGULATION_TYPE_1318_2: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по уведомлению о подготовке проекта НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+                RegulationFields.REGULATION_TYPE_851_7: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+                RegulationFields.REGULATION_TYPE_1318_10: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту НПА и сводному отчета. Необходимо направить письмо для разработчика проекта. ID проекта правового акта: {npa_id}",
+                RegulationFields.REGULATION_TYPE_1318_11: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по проекту решения ЕЭК. Необходимо направить письмо для разработчика проекта. ID проекта на сайте regulation.gov.ru: {npa_id}",
+                RegulationFields.REGULATION_TYPE_83_32: f"Тема сообщения: «Не поступила заявка на размещение сводки предложений».\nТекст сообщения: В 21 департамент не поступила заявка на размещение сводки предложений по отчету ОФВ. Необходимо направить письмо для разработчика отчета. ID проекта на сайте regulation.gov.ru: {npa_id}",
+            }
 
-        text = f"Письмо отправлено на почту: {(', '.join(emails))}\n{message_text[message_type]}\n\n"
+        text = f"Письмо отправлено на почту: {(', '.join(emails))}\n{message_text[regulation_type]}\n\n"
         file_name = f"{DateValues.DATE_TODAY}-Notification.doc"
+        document_path = self.folder_path + "//" + file_name
 
-        PATH = os.path.join(os.path.dirname(os.path.abspath(
-            __file__)), "files", file_name)
-        with open(PATH, "a", encoding='utf8') as f:
+        with open(document_path, "a", encoding='UTF-8') as f:
             f.write(text)
 
 
@@ -289,11 +295,13 @@ class SystemNotificationPage(MainFunc):
 class OSMFInformationSettings(MainFunc):
     def should_be_osmf_information_correct_fields(self, osmf_type):
         AllDocumentFieldPage(self.driver).should_be_correct_title(osmf_type)
+        
         assert self.is_element_present(
             *OSMFInformationSettingsLocators.ADD_BUTTON_LOCATOR)
         assert self.is_element_present(
             *OSMFInformationSettingsLocators.BACK_BUTTON_LOCATOR)
         self.create_information_type(OSMFInformationValues.INFORMATION_TYPE)
+        
         assert self.is_element_present(
             *OSMFInformationSettingsLocators(OSMFInformationValues.INFORMATION_TYPE).delete_osmf())
         assert self.is_element_present(
@@ -302,11 +310,13 @@ class OSMFInformationSettings(MainFunc):
 
     def create_information_type(self, text):
         self.click_to(*OSMFInformationSettingsLocators.ADD_BUTTON_LOCATOR)
+        
         assert self.is_element_present(
             *OSMFInformationSettingsLocators.ENTER_NEW_OSMF_LOCATOR)
         self.fill_field(
             *OSMFInformationSettingsLocators.ENTER_NEW_OSMF_LOCATOR, text)
         self.click_to(*OSMFInformationSettingsLocators.SAVE_BUTTON_LOCATOR)
+        
         assert self.is_element_present(
             *OSMFInformationSettingsLocators(text).osmf_type())
 
@@ -317,17 +327,28 @@ class OSMFInformationSettings(MainFunc):
         self.fill_field(
             *OSMFInformationSettingsLocators(text).input_edit_osmf(), new_text)
         self.click_to(*OSMFInformationSettingsLocators.SAVE_BUTTON_LOCATOR)
+        
         assert self.is_element_present(
             *OSMFInformationSettingsLocators(new_text).osmf_type())
 
-    def delete_information_type(self, text):
-        assert self.is_element_present(
-            *OSMFInformationSettingsLocators(text).osmf_type())
+    def delete_information_type(self, text: str):
+        element_deleted = False
+        osmf_locator = OSMFInformationSettingsLocators(text).osmf_type()
+        
+        assert self.is_element_present(*osmf_locator)
         self.click_to(*OSMFInformationSettingsLocators(text).delete_osmf())
-        self.driver.refresh()
-        self.is_not_element_present(
-            *OSMFInformationSettingsLocators(text).osmf_type())
+        
+        count = 0
+        while element_deleted == False:
+            if count == 10:
+                assert False
+
+            self.driver.refresh()
+            element_deleted = self.is_not_element_present(*osmf_locator)
+            count += 1
+        assert element_deleted
 
     def back_osmf_information_button(self):
         self.click_to(*OSMFInformationSettingsLocators.BACK_BUTTON_LOCATOR)
+        
         assert URLs.SETTINGS_LINK in self.driver.current_url

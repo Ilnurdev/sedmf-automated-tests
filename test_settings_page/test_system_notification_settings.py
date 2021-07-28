@@ -32,22 +32,22 @@ class TestRegulationNotification:
         page.open()
         page.enter_in_account(root)
 
-    @pytest.mark.parametrize("npa_number,regulation_type,field_name,date,message_type", [
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 1),
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 2),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 3),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 4),
-        pytest.param(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 5),
-        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY, 6),
+    @pytest.mark.parametrize("npa_number,regulation_type,field_name,date", [
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY),
+        pytest.param(RegulationFields.NPA_96, RegulationFields.REGULATION_TYPE_96_22, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY),
+        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, SettingsValues.SystemNotification.REGULATION_DISCUSS_NPA, DateValues.DATE_YESTERDAY),
 
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 7),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_2, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 8),
-        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 9),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 10),
-        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 11),
-        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY, 12),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_1, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_2, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY),
+        pytest.param(RegulationFields.NPA_851, RegulationFields.REGULATION_TYPE_851_7, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_10, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY),
+        pytest.param(RegulationFields.NPA_1318, RegulationFields.REGULATION_TYPE_1318_11, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY),
+        pytest.param(RegulationFields.NPA_83, RegulationFields.REGULATION_TYPE_83_32, SettingsValues.SystemNotification.REGULATION_DEADLINE, DateValues.DATE_TODAY),
     ])
-    def test_regulation_notification_document(self, driver, npa_number, regulation_type, field_name, date, message_type):
+    def test_regulation_notification_document(self, driver, npa_number, regulation_type, field_name, date):
         link = MainFunc.take_DNSID(URLs.SYSTEM_NOTIFY_LINK, driver.current_url)
         page = SystemNotificationPage(driver, link)
         page.open()
@@ -77,9 +77,9 @@ class TestRegulationNotification:
         page = RegulationControlPage(driver, link)
         page.open()
         page.enter_npa_identificator_field(TestRegulationNotification.NPA_ID)
-        page.send_message_key_date(date, message_type)
+        page.send_message_key_date(date, field_name)
 
         link = MainFunc.take_DNSID(URLs.SYSTEM_NOTIFY_LINK, driver.current_url)
         page = SystemNotificationPage(driver, link)
         page.open()
-        page.write_in_doc(TestRegulationNotification.NPA_ID, field_name, message_type, date)
+        page.write_in_doc(TestRegulationNotification.NPA_ID, field_name, regulation_type, date)

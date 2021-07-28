@@ -480,8 +480,8 @@ class TestRegulationChainShowInstrument:
         page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 4,
                         1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
-        npa_id = page.create_answer(page.modify_npa_type(
-            RegulationFields.REGULATION_TYPE_96_22, 1), True, TestRegulationChainShowInstrument.NPA_ID)
+        npa_id = page.create_answer(page.have_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_96_22, 1)), True, TestRegulationChainShowInstrument.NPA_ID)
 
         page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 5,
                         1, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
@@ -600,8 +600,8 @@ class TestRegulationChainShowInstrument:
         page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 4,
                         3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)
 
-        page.create_answer(page.modify_npa_type(
-            RegulationFields.REGULATION_TYPE_96_22, 1), False, TestRegulationChainShowInstrument.NPA_ID)
+        page.create_answer(page.have_answer(page.modify_npa_type(
+            RegulationFields.REGULATION_TYPE_96_22, 1)), False, TestRegulationChainShowInstrument.NPA_ID)
 
         page.check_rcsi(TestRegulationChainShowInstrument.NPA_ID, 5,
                         3, RegulationFields.REGULATION_TYPE_96_22, False, False, 1)

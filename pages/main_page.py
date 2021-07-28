@@ -310,7 +310,7 @@ class MainPage(MainFunc):
         ]
 
         for i in window_links:
-            self.is_element_present(*i[0])
+            assert self.is_element_present(*i[0])
             self.click_to(*i[0])
 
             if len(i) == 2:
@@ -334,13 +334,11 @@ class MainPage(MainFunc):
 class EnterDocumentsBlock(MainFunc):
     def open_enter_document_block(self):
         if self.is_active(*MainPageLocators.ENTER_BLOCK_SLIDE_DOWN_BUTTON) == True:
-            self.driver.find_element(
-                *MainPageLocators.ENTER_BLOCK_SLIDE_DOWN_BUTTON).click()
+            self.click_to(*MainPageLocators.ENTER_BLOCK_SLIDE_DOWN_BUTTON)
 
     def go_to_enter_document_on_register(self):
         self.open_enter_document_block()
-        self.driver.find_element(
-            *MainPageLocators.ENTER_BLOCK_ON_REGISTRATION_LINK).click()
+        self.click_to(*MainPageLocators.ENTER_BLOCK_ON_REGISTRATION_LINK)
 
 
 class SoglDocumentsBlock(MainFunc):

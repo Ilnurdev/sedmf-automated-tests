@@ -87,7 +87,7 @@ class MainPageLocators:
             self.name = text[int(block_num)]
 
         def locator(self):
-            return (By.XPATH, f"//div[@id='menu_top_{self.block}']//a[text()='{self.name}' and contains(@href,'/document.php?all=1')]")
+            return (By.XPATH, f"//div[@id='menu_top_{self.block}']//a[text()='{self.name}' and contains(@href,'/document.php?') and contains(@href,'all=1')]")
 
         def open_block(self):
             return (By.XPATH, f"//div[@id='menu_top_{self.block}']//a[@class='slide down']")
@@ -254,6 +254,7 @@ class AllDocumentFieldLocators:
     # Добавить файлы
     ADD_FILE_BUTTON_LOCATOR = (
         By.XPATH, "//div[@id='uploadifive-file_upload']/input[not(contains(@style,'none'))]")
+    WAIT_FILE_DOWNLOAD_LOCATOR = (By.XPATH, "//div[@class='uploadifive-queue-item complete' and @style='display: none;']")
 
     # Сохранить + просмотр
     SAVE_RCD_BUTTON_LOCATOR = (By.XPATH, "//input[@id='save_view']")
@@ -262,7 +263,9 @@ class AllDocumentFieldLocators:
     DELETE_FILE_LOCATOR = (By.XPATH, "//tr[@class='file']//a[@class='delete']")
 
     def choose_user_from_drop_list_locator(self, text=None):
-        return (By.XPATH, "//div[@class='sg-div']/div[@id='fio_0']" if text == None else f"//div[@class='sg-div']//strong[text()[contains(.,'{text}')]]")
+        if text == None:
+            return (By.XPATH, "//div[@class='sg-div']/div[@id='fio_0']")
+        return (By.XPATH, f"//div[@class='sg-div']//strong[text()[contains(.,'{text}')]]")
 
     # Связка
     @staticmethod
