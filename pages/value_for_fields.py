@@ -1,5 +1,23 @@
 from datetime import timedelta, datetime
 
+
+class DocumentTitles:
+    INCOMING_DOC = "Входящий документ"
+    OUTGOING_DOC = "Исходящий документ"
+    INCOMING_CITIZEN_APPEAL = "Входящее обращение гражданина"
+    OUTGOING_CITIZEN_APPEAL = "Исходящее обращение гражданина"
+    ENTER_DOC = "Внутренний документ"
+    ORD_DOC = "Организационно-распорядительный документ"
+    REGULATION_DOC = "Внутренний документ-заявка Regulation"
+    ENTER_REQUEST_DOC = "Внутренний документ-заявка"
+    OUTGOING_SOGL = "Согласование исходящего документа"
+    OUTGOING_ANSWER_SOGL = "Согласование исходящего обращения гражданина"
+    ENTER_SOGL = "Согласование внутреннего документа"
+    ORD_SOGL = "Согласование организационно-распорядительного документа"
+    ENTER_REQUEST_SOGL = "Согласование внутреннего документа-заявки"
+    REGULATION_SOGL = "Согласование внутреннего документа-заявки Regulation"
+
+
 class RegulationFields:
     # Номера постанолений
     NPA_851 = "851"

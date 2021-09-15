@@ -1455,7 +1455,6 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         for i in (RegulationDocumentLocators.ISSUE_TYPE_FIELD_LOCATOR, RegulationDocumentLocators.ISSUE_TYPE_FIELD_2_LOCATOR):
             if self.count_all_elements(*i) != 0:
-                print(i)
                 return i
 
     def should_be_issue_type_fields(self, field_name, text):
@@ -1680,7 +1679,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         self.should_be_required_fields(RegulationFields.SOGL_ANSWER_TITLE)
         self.fill_in_all_document_required_fields(
-            "администратор", "суперадмин")
+            "администратор", "суперадмин", 1)
 
         self.should_be_npa_id_fields(answer_type)
         self.should_be_start_date_fields(answer_type)
@@ -1825,7 +1824,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         if edit == False:
             self.should_be_required_fields(RegulationFields.SOGL_TITLE)
             self.fill_in_all_document_required_fields(
-                "суперадмин", "администратор")
+                "суперадмин", "администратор", 1)
             if from_rcsi == True:
                 elements_dont_show()
             else:
@@ -2034,7 +2033,7 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
         if edit == False:
             self.should_be_required_fields(sogl_title_value)
             self.fill_in_all_document_required_fields(
-                "суперадмин", "администратор")
+                "суперадмин", "администратор", 1)
         else:
             self.should_be_correct_title(sogl_title_value)
 
@@ -2105,7 +2104,7 @@ class RegulationRefuseDocument(RegulationDocumentPage):
 
         self.should_be_required_fields(RegulationFields.SOGL_REFUSE_TITLE)
         self.fill_in_all_document_required_fields(
-            "администратор", "суперадмин")
+            "администратор", "суперадмин", 1)
 
         self.fill_field(*AllDocumentFieldLocators.ADD_FILE_BUTTON_LOCATOR)
         self.should_be_closed_short_content_fields(3)

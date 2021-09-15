@@ -16,6 +16,10 @@ class URLs:
     # Внутренние заявки
     ENTER_REQUEST_LINK = OPENED_DOCUMENT_LINK + "category=6&r_category=4&card_type=1"
 
+    # СОГЛы
+    OUT_SOGL_LINK = OPENED_DOCUMENT_LINK + "category=6&r_category=1"
+    ENTER_SOGL_LINK = OPENED_DOCUMENT_LINK + "category=6&r_category=4"
+
     # Настройки
     SETTINGS_LINK = SERVER + "/settings.php?"
 

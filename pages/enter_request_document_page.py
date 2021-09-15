@@ -29,7 +29,7 @@ class Fields(MainFunc):
 
     """
 
-    def should_be_request_type_field(self, num, parent):
+    def should_be_request_type_field(self, num=0, parent=0):
         assert self.is_element_present(
             *EnterRequestDocumentPageLocators.REQUEST_TYPE_NAME_LOCATOR)
 
@@ -852,7 +852,7 @@ class EnterRequestDocumentPage(Fields, AllDocumentFieldPage):
 
         if fill == True and edit == False:
             self.fill_in_all_document_required_fields(
-                "суперадмин", "администратор")
+                "суперадмин", "администратор", 1)
         elif fill == True and edit == True:
             self.click_to_edit_pictogram()
             self.delete_all_added_files()

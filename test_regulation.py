@@ -23,9 +23,9 @@ class TestUIDocumentOpenLink:
         page = SoglDocumentsBlock(driver)
         page.go_to_sogl_block_new_document()
         page.should_be_correct_elements_sogl_new_window()
-        page.choose_request_document()
+        page.choose_request_block_documents(1)
         page.should_be_correct_elements_sogl_request_new_window()
-        page.choose_request_regulation_document()
+        page.choose_request_block_documents(2)
 
         page = AllDocumentFieldPage(driver)
         page.should_be_required_fields(RegulationFields.SOGL_TITLE)
@@ -38,9 +38,9 @@ class TestUIDocumentOpenLink:
         page = SoglDocumentsBlock(driver)
         page.go_to_sogl_block_new_document()
         page.should_be_correct_elements_sogl_new_window()
-        page.choose_request_document()
+        page.choose_request_block_documents(1)
         page.should_be_correct_elements_sogl_request_new_window()
-        page.choose_request_change_responsible_info_document()
+        page.choose_request_block_documents(4)
 
         page = AllDocumentFieldPage(driver)
         page.should_be_required_fields(RegulationFields.SOGL_TITLE)

@@ -22,9 +22,9 @@ class TestUIEnterOpenLink:
         page = SoglDocumentsBlock(driver)
         page.go_to_sogl_block_new_document()
         page.should_be_correct_elements_sogl_new_window()
-        page.choose_request_document()
+        page.choose_request_block_documents(1)
         page.should_be_correct_elements_sogl_request_new_window()
-        page.choose_request_request_document()
+        page.choose_request_block_documents(3)
 
         page = AllDocumentFieldPage(driver)
         page.should_be_required_fields(
@@ -197,7 +197,7 @@ class TestEnterRequests:
         pytest.param(10, False), pytest.param(11, False), pytest.param(12, False),
         pytest.param(13, False), pytest.param(14, False), pytest.param(15, False),
         pytest.param(16, False), pytest.param(17, False), pytest.param(18, False),
-        pytest.param(19, False), pytest.param(20, True), pytest.param(21, False),
+        pytest.param(19, False), pytest.param(20, False), pytest.param(21, False),
         pytest.param(22, False)
     ])
     def test_enter_requests(self, driver, num, with_del):

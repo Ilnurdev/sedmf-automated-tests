@@ -244,8 +244,9 @@ class AllDocumentFieldLocators:
 
     # Поле Кому
     RECIPIENT_DELETE_BUTTON_LOCATOR = (By.XPATH, "//a[@id='remover_g_su_r_0']")
-    RECIPIENT_NEW_WINDOW_LOCATOR = (
-        By.XPATH, "//span[@id='sp2_g_su_r_0']/a[text()='Организация для автотестирования']")
+    
+    def recipient_new_window_locator(text):
+        return (By.XPATH, f"//span[@id='sp2_g_su_r_0']/a[text()='{text}']")
 
     # Выбор пользователя из выпадающего окна
     CHOOSE_USER_FROM_DROP_LIST = (
@@ -304,6 +305,7 @@ class ChooseUserFromNewWindow:
 
 class ChooseOrganisationFromNewWindow:
     ORG_FIND_LOCATOR = (By.XPATH, "//input[@id='org_name']")
+    USER_FIND_LOCATOR = (By.XPATH, "//input[@id='fio']")
     FIND_BUTTON_LOCATOR = (By.XPATH, "//input[@id='find']")
 
 
@@ -1567,3 +1569,13 @@ class OSMFInformationSettingsLocators:
 
     def input_edit_osmf(self):
         return (By.XPATH, f"//input[@value='{self.name}']")
+
+
+class ElSignExtentionsLocators:
+    ENTER_URL_INPUT_LOCATOR = (By.XPATH, "//input[@id='new_node_name']")
+    ADD_BUTTON_LOCATOR = (By.XPATH, "//button[@id='add_button']")
+    SAVE_BUTTON_LOCATOR = (By.XPATH, "//button[@id='btn_save']")
+
+    def delete_url_button(url):
+        return (By.XPATH, f"//li[text()='{url}']/button")
+    

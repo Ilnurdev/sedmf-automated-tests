@@ -150,6 +150,8 @@ class MainFunc:
             self.driver.switch_to.window(windows[value])
         except:
             raise ValueError("Отсутствует выбранное окно")
+            
+        return windows
 
     def save_document_id(self):
         url_for_take_id = self.driver.current_url

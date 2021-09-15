@@ -1,5 +1,7 @@
+from time import sleep
 from .main_functions import MainFunc
-from .locators import AllDocumentFieldLocators, NomenclatureUnitWindowLocators, ChooseUserFromNewWindow, OpenDocumentPictagramsLocators, AgreeSheetLocators, PopupWindowLocators
+from .locators import AllDocumentFieldLocators, NomenclatureUnitWindowLocators, ChooseUserFromNewWindow, ChooseOrganisationFromNewWindow, OpenDocumentPictagramsLocators, AgreeSheetLocators, PopupWindowLocators
+from .value_for_fields import DocumentTitles
 
 
 class PictogramsShow(MainFunc):
@@ -123,21 +125,23 @@ class AgreeSheetPage(SaveDocumentBlock):
         self.driver.switch_to.alert.accept()
         self.work_with_windows()
 
-    def delete_users_from_agree_sheet(self, delete):
-        if delete == True:
-            for i in self.driver.find_elements_by_xpath("//a[text()='удалить']"):
-                self.driver.execute_script("arguments[0].click();", i)
-                self.work_with_windows(1)
-                self.driver.execute_script(
-                    "arguments[0].click();", self.driver.find_element_by_xpath("//input[@type='submit']"))
-                self.work_with_windows(0)
+    def delete_users_from_agree_sheet(self):
+        delete_buttons = self.driver.find_elements_by_xpath("//a[text()='удалить']")
+
+        for i in delete_buttons:
+            self.driver.execute_script("arguments[0].click();", i)
+            self.work_with_windows(1)
+            self.driver.execute_script(
+                "arguments[0].click();", self.driver.find_element_by_xpath("//input[@type='submit']"))
+            self.work_with_windows(0)
 
     def create_and_send_agree_sheet(self, delete=False):
         self.click_to_create_agree_sheet_button()
         self.click_to_submit_button_create_window()
         self.click_to_send_on_agreement_button()
         self.agree_with_popup_window_agree_sheet()
-        self.delete_users_from_agree_sheet(delete)
+        if delete == False:
+            self.delete_users_from_agree_sheet()
         self.approve_agree_sheet_button()
         self.click_to_agree_button_on_agreement_window()
 
@@ -193,30 +197,69 @@ class AllDocumentFieldPage(AgreeSheetPage):
         self.click_to(
             *AllDocumentFieldLocators.RECIPIENT_DELETE_BUTTON_LOCATOR)
 
-    def enter_recipient(self, user):
-        self.click_to(*AllDocumentFieldLocators.RECIPIENT_NEW_WINDOW_LOCATOR)
-        self.work_with_windows(1)
-        self.fill_field(
-            *ChooseUserFromNewWindow.USER_FIND_LOCATOR, user)
-        self.click_to(
-            *ChooseUserFromNewWindow.FIRST_USER_LINK_LOCATOR)
-        self.work_with_windows()
+    def enter_recipient(self, user: str, recipient_type: str):
+        """Переменная recipient_type может получать значения: Организация для автотестирования, Департамент, Прочие"""
+        def work_with_frame(windows):
+            frame_elements = self.driver.find_elements_by_xpath("//frame")
+            self.driver.switch_to.frame(frame_elements[0])
+            
+            self.fill_field(
+                *ChooseOrganisationFromNewWindow.USER_FIND_LOCATOR, user)
+            self.click_to(*ChooseOrganisationFromNewWindow.FIND_BUTTON_LOCATOR)
+            organization = AllDocumentFieldLocators.find_text_locator('Организация для автотестирования')
+            self.is_active(*organization)
+            self.click_to(*organization)
+
+            self.driver.switch_to.window(windows[1])
+
+            self.driver.switch_to.frame(frame_elements[1])
+            self.click_to(*AllDocumentFieldLocators.find_text_locator(user))
+            
+            # self.driver.switch_to.window(windows[0])
+
+            # try: self.driver.switch_to.default_content()
+            # except: pass
+        
+        
+        self.click_to(*AllDocumentFieldLocators.recipient_new_window_locator(recipient_type))
+        windows = self.work_with_windows(1)
+
+        if recipient_type == "Прочие":
+            work_with_frame(windows)
+        else:
+            self.fill_field(
+                *ChooseUserFromNewWindow.USER_FIND_LOCATOR, user)
+            self.click_to(
+                *ChooseUserFromNewWindow.FIRST_USER_LINK_LOCATOR)
+        self.driver.switch_to.window(windows[0])
 
     def delete_all_added_files(self):
-        count = self.count_all_elements(
-            *AllDocumentFieldLocators.DELETE_FILE_LOCATOR)
-        for i in range(count):
-            delete_button = (AllDocumentFieldLocators.DELETE_FILE_LOCATOR)
-            self.click_to(*delete_button)
+        delete_button_locator = AllDocumentFieldLocators.DELETE_FILE_LOCATOR
+        count_delete_buttons = self.count_all_elements(*delete_button_locator)
+
+        for i in range(count_delete_buttons):
+            self.click_to(*delete_button_locator)
+
             while self.alert_open() == False:
-                self.click_to(*delete_button)
+                self.click_to(*delete_button_locator)
+
             self.driver.switch_to.alert.accept()
 
-    def fill_in_all_document_required_fields(self, podpish, recipient):
+    def fill_in_all_document_required_fields(self, podpish, recipient, recipient_type):
+        recipients_dict = {
+            1: "Организация для автотестирования",
+            2: "Департамент",
+            3: "Прочие"
+        }
+
         self.enter_index_del()
         self.enter_podpish(podpish)
-        self.delete_recipient()
-        self.enter_recipient(recipient)
+
+        title = self.return_text(*AllDocumentFieldLocators.TITLE_LOCATOR)
+
+        if title in [DocumentTitles.OUTGOING_CITIZEN_APPEAL, DocumentTitles.OUTGOING_ANSWER_SOGL, DocumentTitles.ENTER_REQUEST_SOGL, DocumentTitles.REGULATION_SOGL]:
+            self.delete_recipient()
+        self.enter_recipient(recipient, recipients_dict[recipient_type])
 
     def should_be_required_fields(self, correct_title):
         self.should_be_correct_title(correct_title)

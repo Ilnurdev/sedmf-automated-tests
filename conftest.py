@@ -1,8 +1,6 @@
 import pytest
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as ff_options
-from selenium.webdriver.opera.options import Options as opera_options
-from selenium.webdriver.chrome.options import Options as chrome_options
 from msedge.selenium_tools import Edge, EdgeOptions
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
@@ -162,18 +160,22 @@ class WebDriver(Paths):
         options.binary_location = opera_exe
         options.add_extension(extension=extensions)
         options.add_experimental_option(
-            "prefs", {"download.default_directory": self.save_folder()})
+            "prefs", {"download.default_directory": save_folder()})
 
         return webdriver.Chrome(executable_path=opera_webdriver, options=options)
 
-    def ie(browser_name):
+    def ie(self, sign_test: bool):
+        ie_webdriver = self.ie_path()
         options = webdriver.IeOptions()
+
+        if sign_test == False:
+            options.headless = True
         # options.require_window_focus = True
         options.native_events = False
         # options.ignore_protected_mode_settings = True
         # options.ignore_zoom_level = True
 
-        return webdriver.Ie(executable_path=WBIE_PATH, options=options)
+        return webdriver.Ie(executable_path=ie_webdriver, options=options)
 
 
 def pytest_addoption(parser):
@@ -196,7 +198,7 @@ def driver(request):
     # elif browser_name == "yandex":
     #     driver = wb.yandex(sign_test)
     # elif browser_name == "ie":
-    #     driver = ie(sign_test)
+    #     driver = wb.ie(sign_test)
     # elif browser_name == "opera":
     #     driver = wb.opera(sign_test)
     else:
