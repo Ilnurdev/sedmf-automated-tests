@@ -1595,26 +1595,24 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         count = 0
         while self.url_change(url, timeout=20) == False:
+            if count > 3:
+                assert False, "Не удалось сохранить документ"
             if_rcd_not_saved()
             count += 1
-
-            if count >= 3:
-                assert False, "Не удалось сохранить документ"
 
     def should_be_correct_error_message(self, error_message):
         locator = RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_ID_LOCATOR if error_message == RegulationFields.CHAIN_NOT_FOUND_ERROR else RegulationDocumentLocators.REGULATION_ERROR_MESSAGE_LOCATOR
 
         self.is_appeared(*locator)
         text = self.return_text(*locator)
+        
         count = 0
-
         while text == "":
+            if count > 10:
+                assert False
             self.click_to(*AllDocumentFieldLocators.SAVE_RCD_BUTTON_LOCATOR)
             text = self.return_text(*locator)
             count += 1
-
-            if count >= 10:
-                assert False
 
         return text == error_message
 
@@ -1678,8 +1676,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
         self.click_to_answer_pictogram()
 
         self.should_be_required_fields(RegulationFields.SOGL_ANSWER_TITLE)
-        self.fill_in_all_document_required_fields(
-            "администратор", "суперадмин", 1)
+        self.fill_in_all_document_required_fields(2, 1, 1)
 
         self.should_be_npa_id_fields(answer_type)
         self.should_be_start_date_fields(answer_type)
@@ -1823,8 +1820,7 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         if edit == False:
             self.should_be_required_fields(RegulationFields.SOGL_TITLE)
-            self.fill_in_all_document_required_fields(
-                "суперадмин", "администратор", 1)
+            self.fill_in_all_document_required_fields(1, 2, 1)
             if from_rcsi == True:
                 elements_dont_show()
             else:
@@ -2032,8 +2028,7 @@ class ChangeResponsibleInfo(RegulationDocumentPage):
 
         if edit == False:
             self.should_be_required_fields(sogl_title_value)
-            self.fill_in_all_document_required_fields(
-                "суперадмин", "администратор", 1)
+            self.fill_in_all_document_required_fields(1, 2, 1)
         else:
             self.should_be_correct_title(sogl_title_value)
 
@@ -2103,8 +2098,7 @@ class RegulationRefuseDocument(RegulationDocumentPage):
         self.url_change(url)
 
         self.should_be_required_fields(RegulationFields.SOGL_REFUSE_TITLE)
-        self.fill_in_all_document_required_fields(
-            "администратор", "суперадмин", 1)
+        self.fill_in_all_document_required_fields(2, 1, 1)
 
         self.fill_field(*AllDocumentFieldLocators.ADD_FILE_BUTTON_LOCATOR)
         self.should_be_closed_short_content_fields(3)

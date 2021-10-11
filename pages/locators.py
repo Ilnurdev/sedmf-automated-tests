@@ -207,6 +207,12 @@ class AgreeSheetLocators:
     SUBMIT_AGREE_BUTTON_LOCATOR = (By.XPATH, "//input[@name='submit_agree']")
     SUBMIT_SUGN_BUTTON_LOCATOR = (By.XPATH, "//input[@name='submit_sign']")
     SUBMIT_DISAGREE_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Отмена']")
+    NEW_USER_INPUT_LOCATOR = (By.XPATH, "//span[@class='rtxt' and not(contains(@style,'none'))]//input")
+    ADD_USER_BUTTON_LOCATOR = (By.XPATH, "//input[@type='button' and @value='Добавить согласующего']")
+
+    # Попап окно отсутвия ЭП
+    POPUP_WINDOW_ERROR = (By.XPATH, "//div[contains(@class, 'ui-dialog ui-widget')]")
+    POPUP_WINDOW_ERROR_CANCEL_BUTTON = (By.XPATH, POPUP_WINDOW_ERROR[1] + "//span[text()='Отмена']/parent::button")
 
     ON_AGREE_TEXT_LOCATOR = (
         By.XPATH, "//td[contains(text(),'На подписании')]")
@@ -222,8 +228,8 @@ class PopupWindowLocators:
 class AllDocumentFieldLocators:
     # Универсальный селектор поиска по тексту
     @staticmethod
-    def find_text_locator(element):
-        return (By.XPATH, f"//*[text()[contains(.,'{element}')]]")
+    def find_text_locator(element, attr="*"):
+        return (By.XPATH, f"//{attr}[text()[contains(.,'{element}')]]")
 
     # Заголовок страницы
     TITLE_LOCATOR = (By.CSS_SELECTOR, "h1")
@@ -263,10 +269,24 @@ class AllDocumentFieldLocators:
     # Удалить документ
     DELETE_FILE_LOCATOR = (By.XPATH, "//tr[@class='file']//a[@class='delete']")
 
+    # Автор обращения
+    APPEAL_AUTHOR_NAME_LOCATOR = (By.XPATH, "//span[@class='required']/parent::td[contains(text(),'Автор обращения:')]")
+    APPEAL_AUTHOR_FIELD_LOCATOR = (By.XPATH, f"{APPEAL_AUTHOR_NAME_LOCATOR[1]}/following-sibling::td//input[@type='text']")
+
+    # Результат рассмотрения
+    REVIEW_RESULT_NAME_LOCATOR = (By.XPATH, "//span[@class='required']/parent::td[contains(text(),'Результат рассмотрения')]")
+    REVIEW_RESULT_FIELD_LOCATOR = (By.XPATH, f"{REVIEW_RESULT_NAME_LOCATOR[1]}/following-sibling::td/select")
+    
+    # Краткое содержание
+    SHORT_CONTENT_FIELD_LOCATOR = (By.XPATH, "//tr[@class='shortContent']//textarea[@id='short_content']")
+    SHORT_CONTENT_NAME_LOCATOR = (
+        By.XPATH, "//span/following-sibling::acronym[contains(text(),'Краткое содержание:')]/parent::td")
+
     def choose_user_from_drop_list_locator(self, text=None):
+        loc = "//div[@class='sg-div']"
         if text == None:
-            return (By.XPATH, "//div[@class='sg-div']/div[@id='fio_0']")
-        return (By.XPATH, f"//div[@class='sg-div']//strong[text()[contains(.,'{text}')]]")
+            return (By.XPATH, f"{loc}/div[@id='fio_0']")
+        return (By.XPATH, f"{loc}//strong[text()[contains(.,'{text}')]]")
 
     # Связка
     @staticmethod
@@ -301,6 +321,10 @@ class OpenDocumentPictagramsLocators:
 class ChooseUserFromNewWindow:
     FIRST_USER_LINK_LOCATOR = (By.XPATH, "//li//a")
     USER_FIND_LOCATOR = (By.XPATH, "//input[@id='filter_name']")
+
+    @staticmethod
+    def find_user_by_id(id):
+        return (By.XPATH, f"//input[@value='{id}']/parent::li/a")
 
 
 class ChooseOrganisationFromNewWindow:
@@ -1571,11 +1595,38 @@ class OSMFInformationSettingsLocators:
         return (By.XPATH, f"//input[@value='{self.name}']")
 
 
-class ElSignExtentionsLocators:
-    ENTER_URL_INPUT_LOCATOR = (By.XPATH, "//input[@id='new_node_name']")
-    ADD_BUTTON_LOCATOR = (By.XPATH, "//button[@id='add_button']")
-    SAVE_BUTTON_LOCATOR = (By.XPATH, "//button[@id='btn_save']")
+class ElSignatureLocators:
+    def __init__(self):
+        self.extention = self.Extention()
+        self.setting = self.Setting()
+        self.verification = self.Verification()
 
-    def delete_url_button(url):
-        return (By.XPATH, f"//li[text()='{url}']/button")
+    class Extention:
+        ENTER_URL_INPUT_LOCATOR = (By.XPATH, "//input[@id='new_node_name']")
+        ADD_BUTTON_LOCATOR = (By.XPATH, "//button[@id='add_button']")
+        SAVE_BUTTON_LOCATOR = (By.XPATH, "//button[@id='btn_save']")
+
+        def delete_url_button(self, url):
+            return (By.XPATH, f"//li[text()='{url}']/button")
     
+    class Setting:
+        SIGN_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Подписать ЭП']")
+        SIGN_INFO_TEXTAREA_LOCATOR = (By.XPATH, "//textarea")
+        SEND_SIGN_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Отправить']")
+        SIGN_CORRECT_MESSAGE = (By.XPATH, "//div[text()[contains(.,'Подробности: ДЕЙСТВИТЕЛЕН, сертификат выдан аккредитованным удостоверяющим центром')]]")
+    
+    class Verification:
+        def __init__(self):
+            self.agree_sheet = self.AgreeSheet()
+            self.etalon = self.Etalon()
+            self.window = self.ChekWindow()
+
+        class AgreeSheet:
+            EP_IS_OK_LOCATOR = (By.XPATH, "//div[@class='agreesheet']//img[contains(@src,'encrypted_ok.gif')]")
+        
+        class Etalon:
+            EP_IS_OK_LOCATOR = (By.XPATH, "//div[@class='author-signatures']//img[contains(@src,'encrypted_ok.gif')]")
+
+        class ChekWindow:
+            EP_IS_OK_LOCATOR = (By.XPATH, "//div[@class='green' and contains(.,'Подпись верна')]")
+            LINKS_LOCATOR = (By.XPATH, "//div[@class='bg']//a")

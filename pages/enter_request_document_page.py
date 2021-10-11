@@ -288,7 +288,7 @@ class Fields(MainFunc):
                                                               parent).offical_and_enter_mf.COMMENT_FIELD_LOCATOR, text)
         else:
             taken_text = self.return_text(*EnterRequestDocumentPageLocators(
-                num, parent).offical_and_enter_mf.COMMENT_VIEW_MODE_LOCATOR)
+                num, parent).offical_and_enter_mf.COMMENT_VIEW_MODE_LOCATOR, can_be_empty=True)
             assert taken_text == text
 
     """
@@ -368,7 +368,7 @@ class Fields(MainFunc):
                     *EnterRequestDocumentPageLocators(num, parent).offical_and_enter_mf.application_button())
         else:
             taken_text = self.return_text(
-                *EnterRequestDocumentPageLocators(num, parent).offical_and_enter_mf.application_view_mode())
+                *EnterRequestDocumentPageLocators(num, parent).offical_and_enter_mf.application_view_mode(), can_be_empty=True)
             assert text == taken_text
 
     """
@@ -399,7 +399,7 @@ class Fields(MainFunc):
                     *EnterRequestDocumentPageLocators(num, parent).offical_and_enter_mf.application_button())
         else:
             taken_text = self.return_text(*EnterRequestDocumentPageLocators(
-                num, parent).offical_and_enter_mf.application_2_view_mode())
+                num, parent).offical_and_enter_mf.application_2_view_mode(), can_be_empty=True)
             assert taken_text == text
 
     """
@@ -699,7 +699,7 @@ class Fields(MainFunc):
                     *EnterRequestDocumentPageLocators(num, parent).provision_sh.transfer_to_department_field())
         else:
             taken_text = self.return_text(*EnterRequestDocumentPageLocators(
-                num, parent).provision_sh.transfer_to_department_view_mode())
+                num, parent).provision_sh.transfer_to_department_view_mode(), can_be_empty=True)
             assert taken_text == text[3:] if text != "" else taken_text == text
 
     """
@@ -758,7 +758,7 @@ class Fields(MainFunc):
                     *EnterRequestDocumentPageLocators(num, parent).provision_sh.justification_field())
         else:
             taken_text = self.return_text(
-                *EnterRequestDocumentPageLocators(num, parent).provision_sh.justification_view_mode())
+                *EnterRequestDocumentPageLocators(num, parent).provision_sh.justification_view_mode(), can_be_empty=True)
             assert text == taken_text
 
     def fields(self, r_type, edit):
@@ -851,8 +851,7 @@ class EnterRequestDocumentPage(Fields, AllDocumentFieldPage):
         field = self.fields(num, edit)
 
         if fill == True and edit == False:
-            self.fill_in_all_document_required_fields(
-                "суперадмин", "администратор", 1)
+            self.fill_in_all_document_required_fields(1, 2, 1)
         elif fill == True and edit == True:
             self.click_to_edit_pictogram()
             self.delete_all_added_files()

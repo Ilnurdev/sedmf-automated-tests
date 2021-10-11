@@ -1,6 +1,7 @@
 from .main_functions import MainFunc
 from .all_document_fields_page import AllDocumentFieldPage
 from .locators import MainPageLocators, SoglNewDocumentWindow
+from .value_for_fields import DocumentTitles
 
 
 class MainPage(MainFunc):
@@ -333,13 +334,13 @@ class MainPage(MainFunc):
 
 class EnterDocumentsBlock(MainFunc):
     def open_enter_document_block(self):
-        button = MainPageLocators.ENTER_BLOCK_SLIDE_DOWN_BUTTON
+        button = MainPageLocators("", 4).closed_block.open_block()
         if self.is_active(*button) == True:
             self.click_to(*button)
 
     def go_to_enter_document_on_register(self):
         self.open_enter_document_block()
-        self.click_to(*MainPageLocators.ENTER_BLOCK_ON_REGISTRATION_LINK)
+        self.click_to( *MainPageLocators("На регистрации", 4).open_block.locator() )
 
 
 class SoglDocumentsBlock(MainFunc):
@@ -365,54 +366,53 @@ class SoglDocumentsBlock(MainFunc):
         self.work_with_windows(1)
         window_elements = [
             SoglNewDocumentWindow.OUTGOING_DOCUMENT_RADIO_BUTTON_LOCATOR,
-            SoglNewDocumentWindow.OUTGOING_DOCUMENT_NAME_LOCATOR,
+            [SoglNewDocumentWindow.OUTGOING_DOCUMENT_NAME_LOCATOR, DocumentTitles.OUTGOING_DOC],
             SoglNewDocumentWindow.OUTGOING_OG_DOCUMENT_RADIO_BUTTON_LOCATOR,
-            SoglNewDocumentWindow.OUTGOING_OG_DOCUMENT_NAME_LOCATOR,
+            [SoglNewDocumentWindow.OUTGOING_OG_DOCUMENT_NAME_LOCATOR, DocumentTitles.OUTGOING_CITIZEN_APPEAL_2],
             SoglNewDocumentWindow.ENTER_DOCUMENT_RADIO_BUTTON_LOCATOR,
-            SoglNewDocumentWindow.ENTER_DOCUMENT_NAME_LOCATOR,
+            [SoglNewDocumentWindow.ENTER_DOCUMENT_NAME_LOCATOR, DocumentTitles.ENTER_DOC],
             SoglNewDocumentWindow.ORD_DOCUMENT_RADIO_BUTTON_LOCATOR,
-            SoglNewDocumentWindow.ORD_DOCUMENT_NAME_LOCATOR,
+            [SoglNewDocumentWindow.ORD_DOCUMENT_NAME_LOCATOR, DocumentTitles.ORD_DOC],
             SoglNewDocumentWindow.REQUEST_DOCUMENT_RADIO_BUTTON_LOCATOR,
-            SoglNewDocumentWindow.REQUEST_DOCUMENT_NAME_LOCATOR,
+            [SoglNewDocumentWindow.REQUEST_DOCUMENT_NAME_LOCATOR, DocumentTitles.REQUEST],
             SoglNewDocumentWindow.CLOSE_BUTTON_LOCATOR,
             SoglNewDocumentWindow.CONTINUE_BUTTON_LOCATOR,
         ]
 
         for i in window_elements:
-            self.is_element_present(*i)
+            if type(i) == list:
+                el = i[0]
+                self.is_element_present(*el)
+                assert self.return_text(*el) == i[1]
+            else:
+                assert self.is_element_present(*i)
 
     def choose_request_block_documents(self, block_name):
         block_fileds = {
-            1: SoglNewDocumentWindow.REQUEST_DOCUMENT_NAME_LOCATOR,
-            2: SoglNewDocumentWindow.REQUEST_REGULATION_NAME_LOCATOR,
-            3: SoglNewDocumentWindow.REQUEST_REQUEST_NAME_LOCATOR,
-            4: SoglNewDocumentWindow.REQUEST_CHANGE_INFO_NAME_LOCATOR,
+            1: SoglNewDocumentWindow.REQUEST_REGULATION_NAME_LOCATOR,
+            2: SoglNewDocumentWindow.REQUEST_REQUEST_NAME_LOCATOR,
+            3: SoglNewDocumentWindow.REQUEST_CHANGE_INFO_NAME_LOCATOR,
         }
+        
         self.click_to(*block_fileds[block_name])
         
         self.click_to(*SoglNewDocumentWindow.CONTINUE_BUTTON_LOCATOR)
-        if block_name != 1:
+        self.work_with_windows(0)
+    
+    def choose_sogl_new_window(self, block_name):
+        block_fileds = {
+            1: SoglNewDocumentWindow.OUTGOING_DOCUMENT_RADIO_BUTTON_LOCATOR,
+            2: SoglNewDocumentWindow.OUTGOING_OG_DOCUMENT_RADIO_BUTTON_LOCATOR,
+            3: SoglNewDocumentWindow.ENTER_DOCUMENT_RADIO_BUTTON_LOCATOR,
+            4: SoglNewDocumentWindow.ORD_DOCUMENT_RADIO_BUTTON_LOCATOR,
+            5: SoglNewDocumentWindow.REQUEST_DOCUMENT_RADIO_BUTTON_LOCATOR,
+        }
+
+        self.click_to(*block_fileds[block_name])
+        
+        self.click_to(*SoglNewDocumentWindow.CONTINUE_BUTTON_LOCATOR)
+        if block_name != 5:
             self.work_with_windows(0)
-
-
-    # def choose_request_document(self):
-    #     self.click_to(*SoglNewDocumentWindow.REQUEST_DOCUMENT_NAME_LOCATOR)
-    #     self.click_to(*SoglNewDocumentWindow.CONTINUE_BUTTON_LOCATOR)
-
-    # def choose_request_regulation_document(self):
-    #     self.click_to(*SoglNewDocumentWindow.REQUEST_REGULATION_NAME_LOCATOR)
-    #     self.click_to(*SoglNewDocumentWindow.CONTINUE_BUTTON_LOCATOR)
-    #     self.work_with_windows(0)
-
-    # def choose_request_request_document(self):
-    #     self.click_to(*SoglNewDocumentWindow.REQUEST_REQUEST_NAME_LOCATOR)
-    #     self.click_to(*SoglNewDocumentWindow.CONTINUE_BUTTON_LOCATOR)
-    #     self.work_with_windows(0)
-
-    # def choose_request_change_responsible_info_document(self):
-    #     self.click_to(*SoglNewDocumentWindow.REQUEST_CHANGE_INFO_NAME_LOCATOR)
-    #     self.click_to(*SoglNewDocumentWindow.CONTINUE_BUTTON_LOCATOR)
-    #     self.work_with_windows(0)
 
     def open_sogl_document_block(self):
         locator = MainPageLocators("", 6).closed_block.open_block()

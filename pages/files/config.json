@@ -1,12 +1,38 @@
 {
-    "server": "https://dev93.minfin.sed",
+    "server": "https://master.minfin.sed",
+
     "organisation": "1073114",
+    "organisation_ep": "948014",
     "password": "Qwerty123",
-    "superadmin": "877523",
-    "admin": "877527",
-    "admin_without_nomenclature": "906934",
-    "user": "877525",
-    "mo_user": "907067",
+    
+    "enter_org": "Организация для автотестирования",
+
+    "superadmin_id": "877523",
+    "superadmin_name": "суперадмин",
+
+    "admin_id": "877527",
+    "admin_name": "администратор",
+
+    "admin_without_nomenclature_id": "906934",
+    "admin_without_nomenclature_name": "админ без номенклатуры",
+    
+    "user_id": "877525",
+    "user_name": "пользователь",
+
+    "mo_user_id": "907067",
+
+    "out_org": "Министерство финансов Российской Федерации",
+    "user_ep_id": "877038",
+    "user_ep_name": "Фамилия И.О.",
+
+    "user_enter_for_ep_id": "908645",
+    "user_enter_for_ep_name": "Иванов И.И.",
+
+    "find_org": "Группа администрирования систем",
+    "find_user_id": "123123",
+    "find_user_name": "Нуриев И.",
+
     "email": "in9334459@gmail.com",
-    "path_to_soffice": "C:\\Program Files\\LibreOffice\\program\\soffice.bin"
+    "path_to_soffice": "C:\\Program Files\\LibreOffice\\program\\soffice.bin",
+    "path_to_crypto_pro_config": "C:\\Program Files (x86)\\Crypto Pro\\CAdES Browser Plug-in\\config.html"
 }

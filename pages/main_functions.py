@@ -28,7 +28,7 @@ class MainFunc:
     def work_with_selector(self, how, what, value=None, visible_text=None):
         select = Select(self.driver.find_element(how, what))
         if value != None:
-            select.select_by_value(value)
+            select.select_by_value(str(value))
         elif visible_text != None:
             select.select_by_visible_text(visible_text)
 
@@ -64,10 +64,10 @@ class MainFunc:
 
     def is_element_present(self, how, what):
         try:
-            self.driver.find_element(how, what)
+            element = self.driver.find_element(how, what)
         except (NoSuchElementException):
             return False
-        return True
+        return element
 
     def is_appeared(self, how, what, timeout=10):
         try:
@@ -159,13 +159,18 @@ class MainFunc:
 
         return document_id
 
-    def return_text(self, how, what):
+    def return_text(self, how, what, can_be_empty=False):
         self.is_appeared(how, what)
         r_text = lambda: self.driver.find_element(how, what).text
         text = r_text()
 
+        if can_be_empty:
+            return r_text()
+            
         count = 0
-        while text == "" and count < 10:
+        while text == "":
+            if count > 10:
+                assert False
             text = r_text()
             count += 1
             sleep(0.2)
@@ -240,7 +245,7 @@ class MainFunc:
 
     @staticmethod
     def config(value="server"):
-        with open(MainFunc.PATH_TO_CONFIG) as f:
+        with open(MainFunc.PATH_TO_CONFIG, encoding='utf8') as f:
             data = load(f)
             try:
                 return data[value]

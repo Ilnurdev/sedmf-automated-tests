@@ -18,7 +18,9 @@ class URLs:
 
     # СОГЛы
     OUT_SOGL_LINK = OPENED_DOCUMENT_LINK + "category=6&r_category=1"
+    OUT_OG_SOGL_LINK = OPENED_DOCUMENT_LINK + "category=6&r_category=3"
     ENTER_SOGL_LINK = OPENED_DOCUMENT_LINK + "category=6&r_category=4"
+    ORD_SOGL_LINK = OPENED_DOCUMENT_LINK + "category=6&r_category=5"
 
     # Настройки
     SETTINGS_LINK = SERVER + "/settings.php?"

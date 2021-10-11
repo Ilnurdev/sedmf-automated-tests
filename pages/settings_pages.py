@@ -3,11 +3,8 @@ from .main_functions import MainFunc
 from .urls import URLs
 from .all_document_fields_page import AllDocumentFieldPage
 from .regulation_document_page import RegulationDocumentPage
-from .locators import DirectoryVEDLocators, SystemNotificationLocators, RegulationControlLocators, SettingsPageLocators, OSMFInformationSettingsLocators, AllDocumentFieldLocators
+from .locators import DirectoryVEDLocators, SystemNotificationLocators, RegulationControlLocators, SettingsPageLocators, OSMFInformationSettingsLocators, AllDocumentFieldLocators, ElSignatureLocators
 from .value_for_fields import DateValues, DirectoryVEDValues, RegulationFields, OSMFInformationValues, SettingsValues
-
-
-EMAIL = MainFunc.config("email")
 
 
 # Настройки системы
@@ -89,7 +86,13 @@ class SettingsPage(MainFunc):
             *AllDocumentFieldLocators.find_text_locator("Состав информации, размещаемой на ОСМФ"))
         AllDocumentFieldPage(self.driver).should_be_correct_title(
             'Справочник "Состав информации, размещаемой на ОСМФ"')
-
+    
+    def go_to_el_sign_settings(self):
+        js_code = "let element = document.querySelector('li a[href^=\"/check_eds.php\"]'); element.removeAttribute('target');"
+        self.driver.execute_script(js_code)
+        self.click_to(
+            *AllDocumentFieldLocators.find_text_locator("Проверить ЭП"))
+        
 
 # Администрирование заявок regulation
 class AdministrationRegulationPage:
@@ -203,13 +206,14 @@ class RegulationControlPage(RegulationDocumentPage, AdministrationRegulationPage
         self.click_to(*RegulationControlLocators.FIND_BUTTON_LOCATOR)
 
     def alert_accept(self, element):
-        count = 0
-        while self.alert_open() == False and count <= 5:
+        trys = 0
+        while self.alert_open() == False:
+            if trys > 10:
+                assert False
             self.click_to(*element)
+            trys += 1
+        
         self.driver.switch_to.alert.accept()
-
-        if count == 5:
-            assert False
 
     def send_message_key_date(self, date: str, field_name: str):
         """Изменяет дату, отправляет сообщения"""
@@ -224,11 +228,13 @@ class RegulationControlPage(RegulationDocumentPage, AdministrationRegulationPage
 
 # Настройка системных уведомлений
 class SystemNotificationPage(MainFunc):
+    EMAIL = MainFunc.config("email")
+
     def click_to_save_button(self):
         self.click_to(*SystemNotificationLocators.SAVE_BUTTON_LOCATOR)
 
     def delete_notification_email(self):
-        locator = SystemNotificationLocators.notification_email_locator(EMAIL)
+        locator = SystemNotificationLocators.notification_email_locator(self.EMAIL)
 
         self.is_element_present(*locator)
         elements_need_to_delete = self.driver.find_elements(*locator)
@@ -252,11 +258,11 @@ class SystemNotificationPage(MainFunc):
     def enter_email_notification(self, notification_type: str):
         locator = self.should_be_notification_field(notification_type)
 
-        self.fill_field(*locator.notification_input_email_locator(), EMAIL)
+        self.fill_field(*locator.notification_input_email_locator(), self.EMAIL)
         self.click_to(*locator.notification_add_button_locator())
         
         assert self.is_element_present(
-            *locator.notification_email_locator(EMAIL))
+            *locator.notification_email_locator(self.EMAIL))
 
     def write_in_doc(self, npa_id: Union[int, str], field_name: str, regulation_type: str, date: str):
         """"Создает и/или записывает отправленные уведомления в файл"""
@@ -300,21 +306,21 @@ class OSMFInformationSettings(MainFunc):
             *OSMFInformationSettingsLocators.ADD_BUTTON_LOCATOR)
         assert self.is_element_present(
             *OSMFInformationSettingsLocators.BACK_BUTTON_LOCATOR)
-        self.create_information_type(OSMFInformationValues.INFORMATION_TYPE)
-        
-        assert self.is_element_present(
-            *OSMFInformationSettingsLocators(OSMFInformationValues.INFORMATION_TYPE).delete_osmf())
-        assert self.is_element_present(
-            *OSMFInformationSettingsLocators(OSMFInformationValues.INFORMATION_TYPE).edit_osmf())
-        self.delete_information_type(OSMFInformationValues.INFORMATION_TYPE)
+
+        info_type = OSMFInformationValues.INFORMATION_TYPE
+        osmf_setting = OSMFInformationSettingsLocators(info_type)
+
+        self.create_information_type(info_type)
+        assert self.is_element_present(*osmf_setting.delete_osmf())
+        assert self.is_element_present(*osmf_setting.edit_osmf())
+        self.delete_information_type(info_type)
 
     def create_information_type(self, text):
         self.click_to(*OSMFInformationSettingsLocators.ADD_BUTTON_LOCATOR)
         
-        assert self.is_element_present(
-            *OSMFInformationSettingsLocators.ENTER_NEW_OSMF_LOCATOR)
-        self.fill_field(
-            *OSMFInformationSettingsLocators.ENTER_NEW_OSMF_LOCATOR, text)
+        new_osmf = OSMFInformationSettingsLocators.ENTER_NEW_OSMF_LOCATOR
+        assert self.is_element_present(*new_osmf)
+        self.fill_field(*new_osmf, text)
         self.click_to(*OSMFInformationSettingsLocators.SAVE_BUTTON_LOCATOR)
         
         assert self.is_element_present(
@@ -333,22 +339,77 @@ class OSMFInformationSettings(MainFunc):
 
     def delete_information_type(self, text: str):
         element_deleted = False
-        osmf_locator = OSMFInformationSettingsLocators(text).osmf_type()
+        osmf_setting = OSMFInformationSettingsLocators(text)
         
-        assert self.is_element_present(*osmf_locator)
-        self.click_to(*OSMFInformationSettingsLocators(text).delete_osmf())
+        assert self.is_element_present(*osmf_setting.osmf_type())
+        self.click_to(*osmf_setting.delete_osmf())
         
-        count = 0
+        trys = 0
         while element_deleted == False:
-            if count == 10:
+            if trys > 10:
                 assert False
-
             self.driver.refresh()
-            element_deleted = self.is_not_element_present(*osmf_locator)
-            count += 1
+            element_deleted = self.is_not_element_present(*osmf_setting.osmf_type())
+            trys += 1
+        
         assert element_deleted
 
     def back_osmf_information_button(self):
         self.click_to(*OSMFInformationSettingsLocators.BACK_BUTTON_LOCATOR)
         
         assert URLs.SETTINGS_LINK in self.driver.current_url
+
+
+class ElSignPage(MainFunc):
+    def __init__(self, driver, link=""):
+        super().__init__(driver, link)
+        self.el_sign = ElSignatureLocators().setting
+
+    def should_be_sign_button(self):
+        button = self.el_sign.SIGN_BUTTON_LOCATOR
+        
+        assert self.is_element_present(*button)
+        return button
+    
+    def should_be_textarea_field(self):
+        textarea = self.el_sign.SIGN_INFO_TEXTAREA_LOCATOR
+
+        assert self.is_element_present(*textarea)
+        return textarea
+    
+    def should_be_send_sign_button(self):
+        button = self.el_sign.SEND_SIGN_BUTTON_LOCATOR
+
+        assert self.is_element_present(*button)
+        return button
+    
+    def should_be_sign_correct_message(self):
+        message = self.el_sign.SIGN_CORRECT_MESSAGE
+
+        assert self.is_element_present(*message)
+    
+    def should_be_correct_fields(self):
+        fields = [self.should_be_sign_button, self.should_be_textarea_field, self.should_be_send_sign_button]
+
+        for i in fields: i()
+    
+    def click_to_sign_ep(self):
+        button = self.should_be_sign_button()
+        assert self.is_active(*button)
+
+        text, trys = "", 0
+        while text == "":
+            if trys > 50:
+                assert False
+            self.click_to(*button)
+            el_locator = self.is_element_present(*self.should_be_textarea_field())
+            text = self.driver.execute_script('return arguments[0].value', el_locator)
+            trys += 1
+
+    def click_to_send_sign(self):
+        button = self.should_be_send_sign_button()
+
+        assert self.is_active(*button)
+        self.click_to(*button)
+
+    

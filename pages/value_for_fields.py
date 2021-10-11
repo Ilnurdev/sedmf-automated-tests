@@ -6,8 +6,10 @@ class DocumentTitles:
     OUTGOING_DOC = "Исходящий документ"
     INCOMING_CITIZEN_APPEAL = "Входящее обращение гражданина"
     OUTGOING_CITIZEN_APPEAL = "Исходящее обращение гражданина"
+    OUTGOING_CITIZEN_APPEAL_2 = "Исходящий документ в ответ на обращение граждан"
     ENTER_DOC = "Внутренний документ"
     ORD_DOC = "Организационно-распорядительный документ"
+    REQUEST = "Заявка"
     REGULATION_DOC = "Внутренний документ-заявка Regulation"
     ENTER_REQUEST_DOC = "Внутренний документ-заявка"
     OUTGOING_SOGL = "Согласование исходящего документа"
@@ -396,7 +398,7 @@ class EnterRequestValues:
     DEVICE_NAME_CATEGORY_EDIT = "Компьютерное оборудование"
 
     # Наименование устройства - Устройство
-    DEVICE_NAME = "Принтер с функцией цветной печати А4"
+    DEVICE_NAME = "Принтер с функцией цветной печати а4"
     DEVICE_NAME_EDIT = "Рабочая станция на основе системного блока"
 
     # Перевод в департамент

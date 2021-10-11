@@ -22,9 +22,9 @@ class TestUIEnterOpenLink:
         page = SoglDocumentsBlock(driver)
         page.go_to_sogl_block_new_document()
         page.should_be_correct_elements_sogl_new_window()
-        page.choose_request_block_documents(1)
+        page.choose_sogl_new_window(5)
         page.should_be_correct_elements_sogl_request_new_window()
-        page.choose_request_block_documents(3)
+        page.choose_request_block_documents(2)
 
         page = AllDocumentFieldPage(driver)
         page.should_be_required_fields(
