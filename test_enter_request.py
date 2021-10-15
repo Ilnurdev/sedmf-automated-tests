@@ -209,7 +209,7 @@ class TestEnterRequests:
         page.enter_reqests_fields(num, False, False)
         page.enter_reqests_fields(num, True, True)
         page.enter_reqests_fields(num, False, True)
-        page.create_and_send_agree_sheet(with_del)
+        page.create_and_send_agree_sheet(delete=with_del)
         doc_id = page.save_document_id()
 
         setup(driver, "a")
