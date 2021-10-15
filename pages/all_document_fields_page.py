@@ -1,6 +1,8 @@
 from .main_functions import MainFunc
 from .locators import AllDocumentFieldLocators, NomenclatureUnitWindowLocators, ChooseUserFromNewWindow, ChooseOrganisationFromNewWindow, OpenDocumentPictagramsLocators, AgreeSheetLocators, PopupWindowLocators, ElSignatureLocators
 from .value_for_fields import DocumentTitles
+from selenium.common.exceptions import NoSuchWindowException
+from time import sleep
 
 class User:
     def __init__(self, user_type, dict_type=1):
@@ -9,7 +11,9 @@ class User:
             2: ["admin_name", "admin_id", "enter_org"],
             3: ["user_ep_name", "user_ep_id", "out_org"],
             4: ["find_user_name", "find_user_id", "find_org"],
-            5: ["user_enter_for_ep_name", "user_enter_for_ep_id", "out_org"]
+            5: ["user_enter_for_ep_name", "user_enter_for_ep_id", "out_org"],
+            6: ["attesting_user_name", "attesting_user_id", "out_org"],
+            7: ["ap_user_name", "ap_user_id", "ap_user_org"]
         }
 
         self.user = user_types[user_type]
@@ -102,10 +106,18 @@ class SaveDocumentBlock(PictogramsShow):
         assert self.is_active(*save_button)
         self.click_to(*save_button)
 
-    def save_rcd(self):
+    def save_rcd(self, medo_window=False):
         url = self.driver.current_url
 
         self.click_to_save_button()
+        if medo_window != False:
+            if medo_window == 1:
+                locator = AllDocumentFieldLocators.MEDO_WINDOW_EP_LOCATOR
+            elif medo_window == 2:
+                locator = AllDocumentFieldLocators.MEDO_WINDOW_SP_LOCATOR
+            self.is_element_present(*locator)
+            self.click_to(*locator)
+            self.click_to_save_button()
 
         trys = 0
         while self.url_change(url, timeout=30) == False:
@@ -118,7 +130,9 @@ class AgreeSheetPage(SaveDocumentBlock):
     def click_to_create_agree_sheet_button(self):
         locator = AgreeSheetLocators.CREATE_AGREE_SHEET_BUTTON_LOCATOR
         self.is_element_present(*locator)
-        self.click_to(*locator)
+        windows = len(self.driver.window_handles) + 1
+        while len(self.driver.window_handles) != windows:
+            self.click_to(*locator)
 
     def click_to_submit_button_create_window(self, add_user=False):
         self.work_with_windows(1)
@@ -152,12 +166,18 @@ class AgreeSheetPage(SaveDocumentBlock):
     def should_be_status_on_agree(self):
         self.is_element_present(*AgreeSheetLocators.ON_AGREE_TEXT_LOCATOR)
 
-    def approve_agree_sheet_button(self):
-        locator = AgreeSheetLocators.APPROVE_BUTTON_LOCATOR
+    def approve_agree_sheet_button(self, solution=1):
+        solution_type = {
+            1: AgreeSheetLocators.APPROVE_BUTTON_LOCATOR,       # Согласовать
+            2: AgreeSheetLocators.REFUSE_BUTTON_LOCATOR,        # Замечание
+            3: AgreeSheetLocators.AGREE_WITH_OWN_HAND_LOCATOR,  # подписан собственноручно
+            4: AgreeSheetLocators.RESOLUTINS_BUTTON_LOCATOR     # Резолюция
+        }
+        locator = solution_type[solution]
         self.is_element_present(*locator)
         self.click_to(*locator)
 
-    def click_to_agree_button_on_agreement_window(self, approve_with_ep):
+    def click_to_agree_button_on_agreement_window(self, approve_with_ep, remark):
         self.work_with_windows(1)
 
         if approve_with_ep == True:
@@ -165,18 +185,69 @@ class AgreeSheetPage(SaveDocumentBlock):
         else:
             locator = AgreeSheetLocators.SUBMIT_AGREE_BUTTON_LOCATOR
 
-        self.is_element_present(*locator)
-        self.click_to(*locator)
+        remark_textarea_locator = AgreeSheetLocators.REMARK_TEXTAREA_LOCATOR
+        self.is_element_present(*remark_textarea_locator)
+        if remark != False:
+            self.fill_field(*remark_textarea_locator, remark)
 
+        self.is_element_present(*locator)
         if approve_with_ep == True:
             try:
-                while self.is_active(*AgreeSheetLocators.POPUP_WINDOW_ERROR, 3):
-                    self.click_to(*AgreeSheetLocators.POPUP_WINDOW_ERROR_CANCEL_BUTTON)
+                trys = 0
+                while self.is_element_present(*locator):
+                    if trys > 30:
+                        assert False
+                    if self.is_active(*AgreeSheetLocators.POPUP_WINDOW_ERROR, 3):
+                        self.click_to(*AgreeSheetLocators.POPUP_WINDOW_ERROR_CANCEL_BUTTON)
                     self.click_to(*locator)
-            except:
-                pass
+                    trys += 1
+                    sleep(3)
+            except NoSuchWindowException:
+                assert len(self.driver.window_handles) == 1
         else:
-            self.alert_open()
+            self.click_to(*locator)
+            assert self.alert_open()
+            self.driver.switch_to.alert.accept()
+
+        self.work_with_windows()
+
+    def click_to_refuse_button_on_agreement_window(self, with_ep, remark):
+        self.work_with_windows(1)
+
+        if with_ep == True:
+            locator = AgreeSheetLocators.SAVE_WITH_EP_BUTTON_LOCATOR
+        else:
+            locator = AgreeSheetLocators.SAVE_BUTTON_LOCATOR
+        
+        remark_textarea_locator = AgreeSheetLocators.REMARK_TEXTAREA_LOCATOR
+        add_file_button = AgreeSheetLocators.ADD_FILE_LINK_LOCATOR
+        self.is_element_present(*remark_textarea_locator)
+        self.is_element_present(*add_file_button)
+
+        if remark == None:
+            self.click_to(*add_file_button)
+
+            add_file_input = AgreeSheetLocators.ADD_FILE_INPUT_LOCATOR
+            self.is_element_present(*add_file_input)
+            self.fill_field(*add_file_input, f_type=1)
+        elif remark not in [False, None]:
+            self.fill_field(*remark_textarea_locator, remark)
+
+        self.is_element_present(*locator)
+        if with_ep == True:
+            try:
+                trys = 0
+                while self.is_element_present(*locator):
+                    if trys > 30:
+                        assert False
+                    self.click_to(*locator)
+                    trys += 1
+                    sleep(3)
+            except NoSuchWindowException:
+                assert len(self.driver.window_handles) == 1
+        else:
+            self.click_to(*locator)
+            assert self.alert_open()
             self.driver.switch_to.alert.accept()
 
         self.work_with_windows()
@@ -192,15 +263,21 @@ class AgreeSheetPage(SaveDocumentBlock):
                 "arguments[0].click();", self.driver.find_element_by_xpath("//input[@type='submit']"))
             self.work_with_windows(0)
 
-    def create_and_send_agree_sheet(self, delete=False, approve_with_ep=False, add_user=False):
+    def create_and_send_agree_sheet(self, solution=1, delete=False, with_ep=False, add_user=False, remark=False):
+        window_type = {
+            1: self.click_to_agree_button_on_agreement_window,
+            2: self.click_to_refuse_button_on_agreement_window,
+            3: "Подписан собственноручно"
+        }
         self.click_to_create_agree_sheet_button()
         self.click_to_submit_button_create_window(add_user)
         self.click_to_send_on_agreement_button()
         self.agree_with_popup_window_agree_sheet()
         if delete:
             self.delete_users_from_agree_sheet()
-        self.approve_agree_sheet_button()
-        self.click_to_agree_button_on_agreement_window(approve_with_ep)
+        self.approve_agree_sheet_button(solution)
+        if solution != 3:
+            window_type[solution](with_ep, remark)
 
     def should_be_correct_el_sign_img(self):
         assert self.is_appeared(*ElSignatureLocators.Verification.AgreeSheet.EP_IS_OK_LOCATOR, 30)
@@ -226,6 +303,7 @@ class AgreeSheetPage(SaveDocumentBlock):
         self.click_to(*ChooseUserFromNewWindow.FIRST_USER_LINK_LOCATOR)
 
         self.work_with_windows(1)
+
 
 class AllDocumentFieldPage(AgreeSheetPage):
     def should_be_correct_title(self, correct_title):
@@ -359,6 +437,9 @@ class AllDocumentFieldPage(AgreeSheetPage):
         2 - Админ, 
         3 - Пользователь с ЭП, 
         4 - Пользователь из другой организации
+        5 - Пользователь из организации пользователя с ЭП
+        6 - Пользователь доступный для заверения
+        7 - Пользователь из АП
 
         """
 
@@ -433,3 +514,11 @@ class AllDocumentFieldPage(AgreeSheetPage):
         locator = AllDocumentFieldLocators.REVIEW_RESULT_FIELD_LOCATOR
         self.click_to(*locator)
         self.work_with_selector(*locator, value=text)
+
+    def save_and_check_ep(self, solution):
+        self.should_be_correct_el_sign_img()
+        if solution == 1:
+            self.should_be_etalon_el_sign_img()
+            self.click_to_register_pictogram()
+            self.save_rcd()
+            self.should_be_etalon_el_sign_img()

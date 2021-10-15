@@ -2,7 +2,6 @@
     "server": "https://master.minfin.sed",
 
     "organisation": "1073114",
-    "organisation_ep": "948014",
     "password": "Qwerty123",
     
     "enter_org": "Организация для автотестирования",
@@ -22,15 +21,24 @@
     "mo_user_id": "907067",
 
     "out_org": "Министерство финансов Российской Федерации",
+    "organisation_ep": "948014",
+
     "user_ep_id": "877038",
     "user_ep_name": "Фамилия И.О.",
 
     "user_enter_for_ep_id": "908645",
     "user_enter_for_ep_name": "Иванов И.И.",
 
+    "attesting_user_id": "863997",
+    "attesting_user_name": "Силуанов А.Г.",
+
     "find_org": "Группа администрирования систем",
     "find_user_id": "123123",
     "find_user_name": "Нуриев И.",
+
+    "ap_user_org": "Аппарат Правительства Российской Федерации",
+    "ap_user_id": "582887",
+    "ap_user_name": "Бочаров О.",
 
     "email": "in9334459@gmail.com",
     "path_to_soffice": "C:\\Program Files\\LibreOffice\\program\\soffice.bin",
