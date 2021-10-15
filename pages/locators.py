@@ -185,9 +185,7 @@ class SoglNewDocumentWindow:
 
 
 class EnterDocumentsLocators:
-    EP_NOT_FOUND_POPAP_LOCATOR = (By.XPATH, "//div[contains(@class,'ui-dialog ui-widget') and not(contains(@style,'display: none'))]//button[@title='Close']")
     SEND_MEDO_BUTTON_LOCATOR = (By.XPATH, "//input[@id='send-medo-button']")
-    ATTESTING_BUTTON_LOCATOR = (By.XPATH, "//input[@id='medo-attesting-button']")
 
 
 class AgreeSheetLocators:
@@ -198,9 +196,8 @@ class AgreeSheetLocators:
 
     # Селекторы на подписании
     APPROVE_BUTTON_LOCATOR = (By.XPATH, "//a[text()='согласовать']")
-    REFUSE_BUTTON_LOCATOR = (By.XPATH, "//a[text()='замечания']")
+    COMMENT_BUTTON_LOCATOR = (By.XPATH, "//a[text()='замечания']")
     RESOLUTINS_BUTTON_LOCATOR = (By.XPATH, "//a[text()='резолюция']")
-    AGREE_WITH_OWN_HAND_LOCATOR = (By.XPATH, "//a[text()='подписан собственноручно']")
 
     # Селекторы в окне создания ЛС
     SUBMIT_BUTTON_LOCATOR = (By.XPATH, "//input[@name='submit_button']")
@@ -212,15 +209,6 @@ class AgreeSheetLocators:
     SUBMIT_DISAGREE_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Отмена']")
     NEW_USER_INPUT_LOCATOR = (By.XPATH, "//span[@class='rtxt' and not(contains(@style,'none'))]//input")
     ADD_USER_BUTTON_LOCATOR = (By.XPATH, "//input[@type='button' and @value='Добавить согласующего']")
-
-    # Селекторы в окне Замечания ЛС
-    SAVE_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Сохранить']")
-    SAVE_WITH_EP_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Сохранить и подписать']")
-    CLOSE_BUTTON_LOCATOR = (By.XPATH, "//input[@value='Закрыть']")
-    ADD_FILE_LINK_LOCATOR = (By.XPATH, "//td[contains(text(),'+')]/a")
-    ADD_FILE_INPUT_LOCATOR = (By.XPATH, "//input[@id='f[0]']")
-
-    REMARK_TEXTAREA_LOCATOR = (By.XPATH, "//textarea")
 
     # Попап окно отсутвия ЭП
     POPUP_WINDOW_ERROR = (By.XPATH, "//div[contains(@class, 'ui-dialog ui-widget')]")
@@ -278,9 +266,6 @@ class AllDocumentFieldLocators:
     # Сохранить + просмотр
     SAVE_RCD_BUTTON_LOCATOR = (By.XPATH, "//input[@id='save_view']")
 
-    MEDO_WINDOW_EP_LOCATOR = (By.XPATH, "//input[@value='Электронная подпись']")
-    MEDO_WINDOW_SP_LOCATOR = (By.XPATH, "//input[@value='Собственноручная подпись']")
-
     # Удалить документ
     DELETE_FILE_LOCATOR = (By.XPATH, "//tr[@class='file']//a[@class='delete']")
 
@@ -308,14 +293,6 @@ class AllDocumentFieldLocators:
     def link_document(id):
         return (By.XPATH, f"//a[@target='_blank' and contains(@href,'{id}')]")
 
-
-class SoglLocators:
-    def __init__(self):
-        self.out_sogl = self.OutSogl()
-
-    class OutSogl:
-        DOCUMENT_KIND_LOCATOR = (By.XPATH, "//select[@id='document_kind']")
-        
 
 class FindDocumentInFolder:
     @staticmethod

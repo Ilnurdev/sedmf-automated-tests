@@ -270,14 +270,12 @@ class RegulationFields:
     REQUEST_PLACING_ERROR = "Нарушение последовательности размещения заявок"
     CHAIN_NOT_FOUND_ERROR = "Не найдена связанная цепочка заявок"
 
-
 class DateValues:
     DATE_TODAY = datetime.today().strftime("%d.%m.%Y")
     DATE_YESTERDAY = (datetime.today() - timedelta(days=1)).strftime("%d.%m.%Y")
     DATE_TOMORROW = (datetime.today() + timedelta(days=1)).strftime("%d.%m.%Y")
     DATE_YESTERDAY_2 = (datetime.today() - timedelta(days=2)).strftime("%d.%m.%Y")
     DATE_TOMORROW_2 = (datetime.today() + timedelta(days=2)).strftime("%d.%m.%Y")
-
 
 class EnterRequestValues:
     NON_REQUIRED_FIELD = ""
@@ -427,13 +425,3 @@ class DirectoryVEDValues:
 class OSMFInformationValues:
     INFORMATION_TYPE = "Тестовый вид информации"
     INFORMATION_TYPE_EDIT = "Редактирование тестового вида информации"
-
-
-class AgreeSheetValues:
-    SIGN = "Автотест подписание ЭП"
-    SIGN_COMMENT = "Автотест подписание ЭП с замечанием"
-    REFUSE = "Автотест отказ ЭП"
-    REFUSE_COMMENT = "Автотест отказ ЭП с комментарием"
-    REFUSE_DOCUMENT = "Автотест отказ ЭП с документом"
-
-    REMARK = "Автотест замечание"

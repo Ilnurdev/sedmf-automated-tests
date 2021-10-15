@@ -842,20 +842,11 @@ class Fields(MainFunc):
             22: [self.should_be_request_type_fields, self.should_be_work_type_fields, self.should_be_remove_from_fields, self.should_be_remove_from_address_fields, self.should_be_remove_from_room_number_fields, self.should_be_install_to_fields, self.should_be_install_to_address_fields, self.should_be_install_to_room_number_fields, self.should_be_svt_card_fields, self.should_be_justification_fields],
         }
 
-        if edit == False:
-            fields = field[r_type][0]
-        else:
-            fields = field[r_type][1]
-
-        if r_type in [1, 2, 3]:
-            function = func[1]
-        else:
-            function = func[r_type]
-
-        return [fields, function]
+        return [field[r_type][0] if edit == False else field[r_type][1], func[1 if r_type in [1, 2, 3] else r_type]]
 
 
 class EnterRequestDocumentPage(Fields, AllDocumentFieldPage):
+
     def enter_reqests_fields(self, num, fill, edit):
         field = self.fields(num, edit)
 
