@@ -50,7 +50,7 @@ class Paths:
 
     # MSEdge Path
     def msedge_path(self):
-        webdriver_edge_path = EdgeChromiumDriverManager().install()
+        webdriver_edge_path = EdgeChromiumDriverManager(log_level=1).install()
 
         return webdriver_edge_path
 
@@ -64,7 +64,7 @@ class Paths:
 
     # IE Path
     def ie_path(self):
-        webdriver_ie_path = IEDriverManager().install()
+        webdriver_ie_path = IEDriverManager(log_level=1).install()
 
         return webdriver_ie_path
 

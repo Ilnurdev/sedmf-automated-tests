@@ -1625,7 +1625,8 @@ class RegulationDocumentPage(AllDocumentFieldPage, SoglDocumentsBlock, EnterDocu
 
         text = self.pdf_to_html(name)
         
-        assert "#" not in text, "Некорректно сформирован файл"
+        if text != None:
+            assert "#" not in text, "Некорректно сформирован файл"
 
     def create_npa_regulation_id(self):
         npa_body = datetime.today().strftime("%Y%m%d%H%M%S")

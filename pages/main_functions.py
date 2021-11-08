@@ -202,9 +202,6 @@ class MainFunc:
             """Обновляет файлы в папке, возвращает название файла"""
             count = timeout
             while count != 0:
-                if count <= 0:
-                    assert False, "Файл не загружен"
-
                 files = listdir(file_in_folder)
                 name = find_file(files, file_name)
 
@@ -212,7 +209,10 @@ class MainFunc:
                     return name
 
                 count -= 1
-                sleep(1)
+                sleep(0.5)
+            else:
+                remove(path_to_file)
+                assert False, "Файл не загружен"
 
         name = found_file_in_folder(file_name + ".pdf")
         path_to_soffice = self.config("path_to_soffice")
@@ -220,6 +220,10 @@ class MainFunc:
         text = None
 
         if path_to_soffice != "":
+            if not(path.isfile(path_to_soffice)):
+                remove(path_to_file)
+                assert False, "Некорректно указан путь к soffice.bin"
+
             call(
                 f'"{path_to_soffice}" --headless --convert-to html:draw_html_Export --outdir "{self.folder_path}" "{path_to_file}"', shell=True)
 
